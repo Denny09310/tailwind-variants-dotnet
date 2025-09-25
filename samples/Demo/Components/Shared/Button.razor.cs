@@ -21,13 +21,13 @@ public partial class Button : ISlottableComponent<Button.Slots>
             [Sizes.Medium] = "text-base px-4 py-2",
             [Sizes.Large] = "text-lg px-5 py-3",
         })
-        .Variant(b => b.Radius, new Dictionary<Radiuses, string>
+        .Variant(b => b.Radius, new Dictionary<Radii, string>
         {
-            [Radiuses.None] = "rounded-none",
-            [Radiuses.Small] = "rounded-sm",
-            [Radiuses.Medium] = "rounded-md",
-            [Radiuses.Large] = "rounded-lg",
-            [Radiuses.Full] = "rounded-full",
+            [Radii.None] = "rounded-none",
+            [Radii.Small] = "rounded-sm",
+            [Radii.Medium] = "rounded-md",
+            [Radii.Large] = "rounded-lg",
+            [Radii.Full] = "rounded-full",
         })
         .Variant(b => b.Disabled, new Dictionary<bool, string>
         {
@@ -56,7 +56,7 @@ public partial class Button : ISlottableComponent<Button.Slots>
         .Compound(b => b.IconOnly && b.Size == Sizes.Large, "w-12 h-12")
         .Build();
 
-    public enum Radiuses
+    public enum Radii
     { None, Small, Medium, Large, Full }
 
     public enum Sizes
