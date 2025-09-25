@@ -52,7 +52,7 @@ In the component:
 ### Card (with slots)
 
 ```csharp
-private static readonly VariantConfig<Card, Card.Slots> _cardVariants = new VariantBuilder<Card, Card.Slots>()
+private static readonly VariantConfig<Card, Card.Slots> _variants = new VariantBuilder<Card, Card.Slots>()
   .Base("md:flex bg-slate-100 rounded-xl p-8")
   .Slot(s => s.Avatar, "w-24 h-24 rounded-full")
   .Slot(s => s.Description, "text-md font-medium")
@@ -62,8 +62,8 @@ private static readonly VariantConfig<Card, Card.Slots> _cardVariants = new Vari
 In the component:
 
 ```razor
-<img class="@_cardVariants.GetSlot(this, Tw, s => s.Avatar)" src="avatar.png" />
-<p class="@_cardVariants.GetSlot(this, Tw, s => s.Description)">...</p>
+<img class="@_variants.GetSlot(this, Tw, s => s.Avatar)" src="avatar.png" />
+<p class="@_variants.GetSlot(this, Tw, s => s.Description)">...</p>
 ```
 
 ## Requirements
