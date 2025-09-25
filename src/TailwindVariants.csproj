@@ -8,19 +8,16 @@
 		<IsPackable>true</IsPackable>
 
 		<!-- NuGet Package Metadata -->
-		<PackageId>TailwindVariants.Blazor</PackageId>
+		<PackageId>tailwind-variants-dotnet</PackageId>
 		<Version>1.0.0</Version>
-		<Authors>Dennis</Authors>
-		<Company>YourCompany</Company>
-		<Product>Tailwind Variants for Blazor</Product>
+		<Authors>Denny09310</Authors>
 		<Description>A Blazor library to manage TailwindCSS variants and slot-based styling with strongly typed APIs.</Description>
-		<PackageTags>Blazor;Tailwind;TailwindCSS;CSS;Component;UI;DesignSystem</PackageTags>
-		<RepositoryUrl>https://github.com/yourusername/TailwindVariants.Blazor</RepositoryUrl>
+		<PackageTags>blazor;tailwind;css;ui;csharp</PackageTags>
+		<RepositoryUrl>https://github.com/Denny09310/tailwind-variants-dotnet</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageProjectUrl>https://github.com/yourusername/TailwindVariants.Blazor</PackageProjectUrl>
-		<PackageIcon>../isotipo.png</PackageIcon>
-		<!-- optional icon file in project root -->
-		<PackageReleaseNotes>Initial release with slot-aware variant support.</PackageReleaseNotes>
+		<PackageProjectUrl>https://github.com/Denny09310/tailwind-variants-dotnet</PackageProjectUrl>
+		<PackageIcon>isotipo.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -34,6 +31,17 @@
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
 		<PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.8" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\isotipo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 </Project>
