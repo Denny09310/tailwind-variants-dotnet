@@ -1,0 +1,46 @@
+﻿@inherits TailwindComponentBase
+
+<button class="@GetClasses()" disabled="@Disabled" @attributes="AdditionalAttributes" type="@Type">
+    @if (IconContent is not null)
+    {
+        <span class="@GetSlot(b => b.Icon)" aria-hidden="true">@IconContent</span>
+    }
+    @if (ChildContent is not null)
+    {
+        <span>@ChildContent</span>
+    }
+</button>
+
+
+@code 
+{
+    [Parameter] 
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter] 
+    public RenderFragment? IconContent { get; set; }
+
+    [Parameter] 
+    public Slots? Classes { get; set; }
+
+    [Parameter]
+    public Variants Variant { get; set; } = Variants.Default;
+
+    [Parameter]
+    public Sizes Size { get; set; } = Sizes.Medium;
+
+    [Parameter]
+    public Radiuses Radius { get; set; } = Radiuses.Medium;
+
+    [Parameter]
+    public string Type { get; set; } = "button";
+
+    [Parameter]
+    public bool IconOnly { get; set; }
+
+    [Parameter] 
+    public bool Disabled { get; set; }
+
+    [Parameter] 
+    public bool FullWidth { get; set; }
+}

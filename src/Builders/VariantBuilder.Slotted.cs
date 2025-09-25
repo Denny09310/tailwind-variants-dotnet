@@ -42,11 +42,23 @@ public sealed class VariantBuilder<T, TSlots>
     }
 
     /// <summary>
-    /// Add a compound slot rule that assigns classes to one or more slot names when predicate matches.
+    /// Add a compound rule that assigns classes to multiple slots.
     /// </summary>
     public VariantBuilder<T, TSlots> Compound(Func<T, bool> predicate, Dictionary<string, string> slotClasses)
     {
-        _compoundSlots.Add(new CompoundVariantSlots<T>(predicate, slotClasses));
+        _compoundSlots.Add(new CompoundVariantSlots<T>(predicate, new Dictionary<string, string>(slotClasses)));
+        return this;
+    }
+
+    /// <summary>
+    /// Add a compound rule that can set both root and multiple slot classes in a single call.
+    /// </summary>
+    public VariantBuilder<T, TSlots> Compound(Func<T, bool> predicate, string? root, Dictionary<string, string>? slots)
+    {
+        if (!string.IsNullOrWhiteSpace(root))
+            _compound.Add(new CompoundVariant<T>(predicate, root));
+        if (slots is not null && slots.Count > 0)
+            _compoundSlots.Add(new CompoundVariantSlots<T>(predicate, new Dictionary<string, string>(slots)));
         return this;
     }
 
@@ -62,12 +74,13 @@ public sealed class VariantBuilder<T, TSlots>
     }
 
     /// <summary>
-    /// Add a slot-aware variant definition mapping a variant value to per-slot classes.
+    /// Add a slot-aware variant definition where each value can include root classes and slot mappings.
     /// </summary>
-    public VariantBuilder<T, TSlots> Variant<TValue>(Expression<Func<T, TValue>> accessor, IDictionary<TValue, Dictionary<string, string>> slotMap)
+    public VariantBuilder<T, TSlots> Variant<TValue>(Expression<Func<T, TValue>> accessor, IDictionary<TValue, VariantTargets> map)
         where TValue : notnull
     {
-        var def = new VariantDefinitionSlots<T, TValue>(accessor, slotMap);
+        var cloned = map.ToDictionary(kvp => kvp.Key, kvp => kvp.Value is null ? null : new VariantTargets(kvp.Value.Root, kvp.Value.Slots is null ? null : new Dictionary<string, string>(kvp.Value.Slots)));
+        var def = new VariantDefinitionSlots<T, TValue>(accessor, cloned);
         _variantDefs.Add(def);
         return this;
     }

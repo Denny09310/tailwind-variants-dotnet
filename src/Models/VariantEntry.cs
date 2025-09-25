@@ -25,6 +25,12 @@ public sealed class VariantEntry<T, TValue, TSlots>
     public VariantBuilder<T, TSlots> Compound(Func<T, bool> predicate, string classes) => _parent.Compound(predicate, classes);
 
     /// <summary>
+    /// Add a global compound.
+    /// </summary>
+    public VariantBuilder<T, TSlots> Compound(Func<T, bool> predicate, string? root, Dictionary<string, string>? slots)
+        => _parent.Compound(predicate, root, slots);
+
+    /// <summary>
     /// Register a typed slot.
     /// </summary>
     public VariantBuilder<T, TSlots> Slot(Expression<Func<TSlots, string?>> accessor, string @default = "") => _parent.Slot(accessor, @default);
@@ -34,4 +40,10 @@ public sealed class VariantEntry<T, TValue, TSlots>
     /// </summary>
     public VariantEntry<T, TNext, TSlots> Variant<TNext>(Expression<Func<T, TNext>> accessor, IDictionary<TNext, string> map)
         where TNext : notnull => _parent.Variant(accessor, map);
+
+    /// <summary>
+    /// Add another global variant mapping for chaining.
+    /// </summary>
+    public VariantBuilder<T, TSlots> Variant(Expression<Func<T, TValue>> accessor, IDictionary<TValue, VariantTargets> map)
+        => _parent.Variant(accessor, map);
 }
