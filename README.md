@@ -69,16 +69,13 @@ In the component:
 ## Requirements
 
 * .NET 8 or .NET 9
-* Blazor (Server or WASM)
-* TailwindCSS project setup (for styles)
-* `TailwindMerge.NET` (used internally for merging)
+* TailwindCSS [standalone cli](https://tailwindcss.com/blog/standalone-cli) (for styles)
 
 ## Thank you / Credits
 
 This project draws inspiration from several excellent projects:
 
-* **tailwind-variants** — for the overall idea of variants & compound variants (React ecosystem).
-  *(This package is not affiliated with that project.)*
+* **tailwind-variants** — for the overall idea of variants & compound variants.
 
 Special thanks to the maintainers/authors of these projects which are used or inspired this work:
 
@@ -93,5 +90,4 @@ MIT — see the `LICENSE` file in the repository.
 
 ## Repository & Issues
 
-Repository: `https://github.com/yourusername/tailwind-variants-dotnet` (replace with your repo)
 If you find issues or have feature requests, please open them on the GitHub repository.
