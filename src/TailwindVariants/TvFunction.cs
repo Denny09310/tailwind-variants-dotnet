@@ -9,7 +9,7 @@ namespace TailwindVariants;
 
 public delegate string? SlotAccessor<TSlots>(TSlots slots) where TSlots : ISlots;
 
-public delegate string? TvReturnType<TOwner, TSlots>(TOwner owner, Tw merge, VariantCollection<TOwner, TSlots>? overrides = null)
+public delegate SlotMap<TSlots> TvReturnType<TOwner, TSlots>(TOwner owner, Tw merge, VariantCollection<TOwner, TSlots>? overrides = null)
     where TSlots : ISlots;
 
 public delegate object? VariantAccessor<TOwner>(TOwner owner);
@@ -21,7 +21,7 @@ public interface ISlots
 
 public interface IVariant<TSlots> where TSlots : ISlots
 {
-    bool TryGetSlots<TKey>(TKey key, [MaybeNullWhen(false)] out SlotsCollection<TSlots> slots);
+    bool TryGetSlots<TKey>(TKey key, [MaybeNullWhen(false)] out SlotCollection<TSlots> slots);
 }
 
 public class ClassValue() : IEnumerable<string>
@@ -62,27 +62,27 @@ public class ClassValue() : IEnumerable<string>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-public class CompoundVariant<TOwner, TSlots>(Predicate<TOwner> predicate) : IEnumerable<KeyValuePair<Expression<VariantAccessor<TSlots>>, SlotsCollection<TSlots>>>
+public class CompoundVariant<TOwner, TSlots>(Predicate<TOwner> predicate) : IEnumerable<KeyValuePair<Expression<VariantAccessor<TSlots>>, SlotCollection<TSlots>>>
     where TSlots : ISlots
 {
-    private Dictionary<Expression<VariantAccessor<TSlots>>, SlotsCollection<TSlots>>? _values;
+    private Dictionary<Expression<VariantAccessor<TSlots>>, SlotCollection<TSlots>>? _values;
 
     public string? Class { get; set; }
     internal Predicate<TOwner> Predicate { get; } = predicate;
 
-    public SlotsCollection<TSlots> this[Expression<VariantAccessor<TSlots>> key]
+    public SlotCollection<TSlots> this[Expression<VariantAccessor<TSlots>> key]
     {
         get => _values?[key] ?? throw new InvalidOperationException();
         set => _values?[key] = value;
     }
 
-    public void Add(Expression<VariantAccessor<TSlots>> key, SlotsCollection<TSlots> value)
+    public void Add(Expression<VariantAccessor<TSlots>> key, SlotCollection<TSlots> value)
     {
         _values ??= [];
         _values.Add(key, value);
     }
 
-    public IEnumerator<KeyValuePair<Expression<VariantAccessor<TSlots>>, SlotsCollection<TSlots>>> GetEnumerator()
+    public IEnumerator<KeyValuePair<Expression<VariantAccessor<TSlots>>, SlotCollection<TSlots>>> GetEnumerator()
         => _values?.GetEnumerator() ?? throw new InvalidOperationException();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -100,12 +100,12 @@ public class CompoundVariantCollection<TOwner, TSlots> : IEnumerable<CompoundVar
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-public class SlotsCollection<TSlots>() : IEnumerable<KeyValuePair<Expression<SlotAccessor<TSlots>>, ClassValue>>
+public class SlotCollection<TSlots>() : IEnumerable<KeyValuePair<Expression<SlotAccessor<TSlots>>, ClassValue>>
     where TSlots : ISlots
 {
     private readonly Dictionary<Expression<SlotAccessor<TSlots>>, ClassValue> _slots = [];
 
-    internal SlotsCollection(string classes) : this() => _slots[b => b.Base] = classes;
+    internal SlotCollection(string classes) : this() => _slots[b => b.Base] = classes;
 
     public ClassValue this[Expression<SlotAccessor<TSlots>> key]
     {
@@ -113,7 +113,7 @@ public class SlotsCollection<TSlots>() : IEnumerable<KeyValuePair<Expression<Slo
         set => _slots[key] = value;
     }
 
-    public static implicit operator SlotsCollection<TSlots>(string classes) => new(classes);
+    public static implicit operator SlotCollection<TSlots>(string classes) => new(classes);
 
     public void Add(Expression<SlotAccessor<TSlots>> key, ClassValue value) => _slots.Add(key, value);
 
@@ -122,35 +122,65 @@ public class SlotsCollection<TSlots>() : IEnumerable<KeyValuePair<Expression<Slo
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+public class SlotMap<TSlots> where TSlots : ISlots
+{
+    private readonly Dictionary<string, string?> _map = [];
+
+    public string? this[Expression<SlotAccessor<TSlots>> key]
+    {
+        get => _map.TryGetValue(GetSlot(key), out var value) ? value : null;
+        set => _map[GetSlot(key)] = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public static implicit operator SlotMap<TSlots>(Dictionary<string, string?> map)
+    {
+        var slots = new SlotMap<TSlots>();
+        foreach (var kv in map)
+        {
+            slots.Add(kv.Key, kv.Value);
+        }
+        return slots;
+    }
+
+    public void Add(string key, string? value) => _map.Add(key, value);
+
+    private static string GetSlot(Expression<SlotAccessor<TSlots>> accessor)
+    {
+        if (accessor.Body is MemberExpression memberExpr)
+        {
+            return memberExpr.Member.Name;
+        }
+        throw new ArgumentException("Invalid slot accessor expression", nameof(accessor));
+    }
+}
+
 public class TvOptions<TOwner, TSlots>
     where TSlots : ISlots
 {
     public ClassValue? Base { get; set; }
     public CompoundVariantCollection<TOwner, TSlots>? CompoundVariants { get; set; }
-    public SlotsCollection<TSlots>? Slots { get; set; }
+    public SlotCollection<TSlots>? Slots { get; set; }
     public VariantCollection<TOwner, TSlots>? Variants { get; set; }
 }
 
 public class Variant<TVariant, TSlots> : IVariant<TSlots>,
-    IEnumerable<KeyValuePair<TVariant, SlotsCollection<TSlots>>>
+    IEnumerable<KeyValuePair<TVariant, SlotCollection<TSlots>>>
     where TVariant : notnull
     where TSlots : ISlots
 {
-    private readonly Dictionary<TVariant, SlotsCollection<TSlots>> _variants = [];
+    private readonly Dictionary<TVariant, SlotCollection<TSlots>> _variants = [];
 
-    public SlotsCollection<TSlots> this[TVariant key]
+    public SlotCollection<TSlots> this[TVariant key]
     {
         get => _variants[key];
         set => _variants[key] = value;
     }
 
-    public void Add(TVariant key, SlotsCollection<TSlots> value) => _variants.Add(key, value);
+    public void Add(TVariant key, SlotCollection<TSlots> value) => _variants.Add(key, value);
 
-    public IEnumerator<KeyValuePair<TVariant, SlotsCollection<TSlots>>> GetEnumerator() => _variants.GetEnumerator();
+    public IEnumerator<KeyValuePair<TVariant, SlotCollection<TSlots>>> GetEnumerator() => _variants.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public bool TryGetSlots<TKey>(TKey key, [MaybeNullWhen(false)] out SlotsCollection<TSlots> slots)
+    public bool TryGetSlots<TKey>(TKey key, [MaybeNullWhen(false)] out SlotCollection<TSlots> slots)
     {
         if (key is TVariant v && _variants.TryGetValue(v, out slots))
         {
@@ -160,6 +190,8 @@ public class Variant<TVariant, TSlots> : IVariant<TSlots>,
         slots = null;
         return false;
     }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
 public class VariantCollection<TOwner, TSlots> : IEnumerable<KeyValuePair<Expression<VariantAccessor<TOwner>>, IVariant<TSlots>>>
@@ -186,7 +218,7 @@ public static class TvFunction
         where TSlots : ISlots
     {
         // 1) base classes (from options)
-        var builder = PrecomputeBaseAndTopLevelSlots(options);
+        var builders = PrecomputeBaseAndTopLevelSlots(options);
 
         // 2) Precompute variants definitions
         var variants = PrecomputeVariantDefinitions(options);
@@ -197,17 +229,37 @@ public static class TvFunction
             variants = MergeVariantDefinitions(variants, overrides);
 
             // 4) for each active variant, evaluate the accessor and add corresponding slot classes
-            builder = ApplyVariants(owner, builder, variants);
+            builders = ApplyVariants(owner, builders, variants);
 
             // 5) compound variants from options
-            builder = ApplyCompoundVariants(options, owner, builder);
+            builders = ApplyCompoundVariants(options, owner, builders);
 
             // Final string (Tailwind merge not applied here; plug merge.Merge(...) if desired)
-            return merge.Merge(builder.Build());
+            return builders.ToDictionary(
+                kv => kv.Key,
+                kv => merge.Merge(kv.Value.Build()));
         };
     }
 
-    private static CssBuilder ApplyCompoundVariants<TOwner, TSlots>(TvOptions<TOwner, TSlots> options, TOwner owner, CssBuilder builder) where TSlots : ISlots
+    private static void AddClassForSlot<TSlots>(
+        Dictionary<string, CssBuilder> builders,
+        Expression<SlotAccessor<TSlots>> accessor,
+        string classes) where TSlots : ISlots
+    {
+        var name = GetSlot(accessor);
+        if (!builders.TryGetValue(name, out var builder))
+        {
+            builder = new CssBuilder();
+            builders[name] = builder;
+        }
+        builders[name] = builder.AddClass(classes);
+    }
+
+    private static Dictionary<string, CssBuilder> ApplyCompoundVariants<TOwner, TSlots>(
+        TvOptions<TOwner, TSlots> options,
+        TOwner owner,
+        Dictionary<string, CssBuilder> builders)
+        where TSlots : ISlots
     {
         if (options?.CompoundVariants is not null)
         {
@@ -219,7 +271,7 @@ public static class TvFunction
                     {
                         if (!string.IsNullOrEmpty(cv.Class))
                         {
-                            builder.AddClass(cv.Class);
+                            AddClassForSlot<TSlots>(builders, s => s.Base, cv.Class);
                         }
                     }
                 }
@@ -230,10 +282,14 @@ public static class TvFunction
             }
         }
 
-        return builder;
+        return builders;
     }
 
-    private static CssBuilder ApplyVariants<TOwner, TSlots>(TOwner owner, CssBuilder builder, Dictionary<string, CompiledVariant<TOwner, TSlots>> variants) where TSlots : ISlots
+    private static Dictionary<string, CssBuilder> ApplyVariants<TOwner, TSlots>(
+        TOwner owner,
+        Dictionary<string, CssBuilder> builders,
+        Dictionary<string, CompiledVariant<TOwner, TSlots>> variants)
+        where TSlots : ISlots
     {
         foreach (var pair in variants.Values)
         {
@@ -252,7 +308,7 @@ public static class TvFunction
                 {
                     foreach (var kv2 in slots)
                     {
-                        builder.AddClass((string)kv2.Value);
+                        AddClassForSlot(builders, kv2.Key, (string)kv2.Value);
                     }
                 }
             }
@@ -263,7 +319,16 @@ public static class TvFunction
             }
         }
 
-        return builder;
+        return builders;
+    }
+
+    private static string GetSlot<TSlots>(Expression<SlotAccessor<TSlots>> accessor) where TSlots : ISlots
+    {
+        if (accessor.Body is MemberExpression memberExpr)
+        {
+            return memberExpr.Member.Name;
+        }
+        throw new ArgumentException("Invalid slot accessor expression", nameof(accessor));
     }
 
     private static Dictionary<string, CompiledVariant<TOwner, TSlots>> MergeVariantDefinitions<TOwner, TSlots>(
@@ -283,14 +348,14 @@ public static class TvFunction
         return variants;
     }
 
-    private static CssBuilder PrecomputeBaseAndTopLevelSlots<TOwner, TSlots>(TvOptions<TOwner, TSlots> options)
-                    where TSlots : ISlots
+    private static Dictionary<string, CssBuilder> PrecomputeBaseAndTopLevelSlots<TOwner, TSlots>(TvOptions<TOwner, TSlots> options)
+        where TSlots : ISlots
     {
-        var builder = new CssBuilder();
+        var builders = new Dictionary<string, CssBuilder>();
 
         if (options?.Base is not null)
         {
-            builder.AddClass((string)options.Base);
+            AddClassForSlot<TSlots>(builders, s => s.Base, (string)options.Base);
         }
 
         if (options?.Slots is not null)
@@ -300,12 +365,12 @@ public static class TvFunction
                 var cv = kv.Value;
                 if (cv is not null)
                 {
-                    builder.AddClass((string)cv);
+                    AddClassForSlot(builders, kv.Key, (string)cv);
                 }
             }
         }
 
-        return builder;
+        return builders;
     }
 
     private static Dictionary<string, CompiledVariant<TOwner, TSlots>> PrecomputeVariantDefinitions<TOwner, TSlots>(TvOptions<TOwner, TSlots> options) where TSlots : ISlots

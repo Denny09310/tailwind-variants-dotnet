@@ -31,16 +31,23 @@ public partial class Button
         ]
     });
 
+    private SlotMap<Slots> _slots = new();
+
     public enum Colors
     { Default, Primary, Secondary, Ghost }
 
     public enum Sizes
     { Small, Medium, Large }
 
+    protected override void OnParametersSet()
+    {
+        _slots = _button(this, Tw);
+    }
+
+    private string? GetClasses() => _slots[b => b.Base];
+
     public sealed class Slots : ISlots
     {
         public string? Base { get; set; }
     }
-
-    private string? GetClasses() => _button(this, Tw);
 }
