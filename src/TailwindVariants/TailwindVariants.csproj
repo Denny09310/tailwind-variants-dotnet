@@ -34,11 +34,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\isotipo.png">
+		<None Include="..\..\isotipo.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Include="..\README.md">
+		<None Include="..\..\README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>

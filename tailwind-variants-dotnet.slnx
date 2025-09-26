@@ -3,6 +3,6 @@
     <Project Path="samples/Demo/Demo.csproj" Id="a873cf34-f4d8-445b-be18-834faa38d4f6" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/TailwindVariants.csproj" />
+    <Project Path="src/TailwindVariants/TailwindVariants.csproj" />
   </Folder>
 </Solution>

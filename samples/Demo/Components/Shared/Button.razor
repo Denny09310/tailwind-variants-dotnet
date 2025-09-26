@@ -1,14 +1,15 @@
 ﻿@inherits TailwindComponentBase
 
 <button class="@GetClasses()" disabled="@Disabled" @attributes="AdditionalAttributes" type="@Type">
-    @if (IconContent is not null)
+    @* @if (IconContent is not null)
     {
         <span class="@GetSlot(b => b.Icon)" aria-hidden="true">@IconContent</span>
     }
     @if (ChildContent is not null)
     {
         <span>@ChildContent</span>
-    }
+    } *@
+    @ChildContent
 </button>
 
 
