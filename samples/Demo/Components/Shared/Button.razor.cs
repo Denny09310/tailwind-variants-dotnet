@@ -5,7 +5,7 @@ namespace Demo.Components.Shared;
 
 public partial class Button
 {
-    private static readonly TvReturnType<Button, Slots> _variants = Tv<Button, Slots>(new()
+    private static readonly TvReturnType<Button, Slots> _button = Tv<Button, Slots>(new()
     {
         Base = "font-medium rounded-full active:opacity-80",
         Variants = new()
@@ -42,5 +42,5 @@ public partial class Button
         public string? Base { get; set; }
     }
 
-    private string? GetClasses() => _variants(this, Tw);
+    private string? GetClasses() => _button(this, Tw);
 }
