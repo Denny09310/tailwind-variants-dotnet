@@ -1,6 +1,6 @@
 ﻿@inherits TailwindComponentBase
 
-<button disabled="@Disabled" @attributes="AdditionalAttributes" type="@Type">
+<button type="@Type" class="@GetClasses()" disabled="@Disabled" @attributes="AdditionalAttributes">
     @ChildContent
 </button>
 
@@ -14,13 +14,10 @@
     public RenderFragment? IconContent { get; set; }
 
     [Parameter]
-    public Variants Variant { get; set; } = Variants.Default;
+    public Colors Color { get; set; } = Colors.Default;
 
     [Parameter]
     public Sizes Size { get; set; } = Sizes.Medium;
-
-    [Parameter]
-    public Radii Radius { get; set; } = Radii.Medium;
 
     [Parameter]
     public string Type { get; set; } = "button";
