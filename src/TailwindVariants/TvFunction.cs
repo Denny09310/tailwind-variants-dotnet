@@ -135,9 +135,9 @@ public class SlotMap<TSlots> where TSlots : ISlots
     public static implicit operator SlotMap<TSlots>(Dictionary<string, string?> map)
     {
         var slots = new SlotMap<TSlots>();
-        foreach (var kv in map)
+        foreach (var (key, value) in map)
         {
-            slots.Add(kv.Key, kv.Value);
+            slots.Add(key, value);
         }
         return slots;
     }
@@ -337,11 +337,11 @@ public static class TvFunction
     {
         if (overrides is not null)
         {
-            foreach (var kv in overrides)
+            foreach (var (key, value) in overrides)
             {
-                var keyStr = kv.Key.ToString() ?? Guid.NewGuid().ToString();
-                var accessor = kv.Key.Compile();
-                variants[keyStr] = new(kv.Key, kv.Value, accessor);
+                var id = key.ToString() ?? Guid.NewGuid().ToString();
+                var accessor = key.Compile();
+                variants[id] = new(key, value, accessor);
             }
         }
 
@@ -360,12 +360,11 @@ public static class TvFunction
 
         if (options?.Slots is not null)
         {
-            foreach (var kv in options.Slots)
+            foreach (var (key, value) in options.Slots)
             {
-                var cv = kv.Value;
-                if (cv is not null)
+                if (value is not null)
                 {
-                    AddClassForSlot(builders, kv.Key, (string)cv);
+                    AddClassForSlot(builders, key, (string)value);
                 }
             }
         }
@@ -379,11 +378,11 @@ public static class TvFunction
 
         if (options?.Variants is not null)
         {
-            foreach (var kv in options.Variants)
+            foreach (var (key, value) in options.Variants)
             {
-                var keyStr = kv.Key.ToString() ?? Guid.NewGuid().ToString();
-                var accessor = kv.Key.Compile();
-                variants[keyStr] = new(kv.Key, kv.Value, accessor);
+                var id = key.ToString() ?? Guid.NewGuid().ToString();
+                var accessor = key.Compile();
+                variants[id] = new(key, value, accessor);
             }
         }
 
