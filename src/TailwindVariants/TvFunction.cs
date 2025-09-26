@@ -185,48 +185,26 @@ public static class TvFunction
     public static TvReturnType<TOwner, TSlots> Tv<TOwner, TSlots>(TvOptions<TOwner, TSlots> options)
         where TSlots : ISlots
     {
+        // 1) base classes (from options)
+        var builder = PrecomputeBaseAndTopLevelSlots(options);
+
+        // 2) Precompute variants definitions
+        var variants = PrecomputeVariantDefinitions(options);
+
         return (owner, merge, overrides) =>
         {
-            var builder = new CssBuilder();
+            // 3) combine variant overridden by `overrides` (call-time overrides)
+            variants = MergeVariantDefinitions(variants, overrides);
 
-            // 1) base classes (from options)
-            builder = AddBaseAndTopLevelSlots(options, builder);
-
-            // 2) combine variant definitions: options.Variants, overridden by `overrides` (call-time overrides)
-            var variants = MergeVariantDefinitions(options, overrides);
-
-            // 3) for each active variant, evaluate the accessor and add corresponding slot classes
+            // 4) for each active variant, evaluate the accessor and add corresponding slot classes
             builder = ApplyVariants(owner, builder, variants);
 
-            // 4) compound variants from options
+            // 5) compound variants from options
             builder = ApplyCompoundVariants(options, owner, builder);
 
             // Final string (Tailwind merge not applied here; plug merge.Merge(...) if desired)
-            return builder.Build();
+            return merge.Merge(builder.Build());
         };
-    }
-
-    private static CssBuilder AddBaseAndTopLevelSlots<TOwner, TSlots>(TvOptions<TOwner, TSlots> options, CssBuilder builder) where TSlots : ISlots
-    {
-        if (options?.Base is not null)
-        {
-            builder.AddClass((string)options.Base);
-        }
-
-        // top-level slots from options (if any) — add all defined classes
-        if (options?.Slots is not null)
-        {
-            foreach (var kv in options.Slots)
-            {
-                var cv = kv.Value;
-                if (cv is not null)
-                {
-                    builder.AddClass((string)cv);
-                }
-            }
-        }
-
-        return builder;
     }
 
     private static CssBuilder ApplyCompoundVariants<TOwner, TSlots>(TvOptions<TOwner, TSlots> options, TOwner owner, CssBuilder builder) where TSlots : ISlots
@@ -288,13 +266,13 @@ public static class TvFunction
         return builder;
     }
 
-    private static Dictionary<string, CompiledVariant<TOwner, TSlots>> MergeVariantDefinitions<TOwner, TSlots>(TvOptions<TOwner, TSlots> options, VariantCollection<TOwner, TSlots>? overrides) where TSlots : ISlots
+    private static Dictionary<string, CompiledVariant<TOwner, TSlots>> MergeVariantDefinitions<TOwner, TSlots>(
+        Dictionary<string, CompiledVariant<TOwner, TSlots>> variants,
+        VariantCollection<TOwner, TSlots>? overrides) where TSlots : ISlots
     {
-        var variants = new Dictionary<string, CompiledVariant<TOwner, TSlots>>();
-
-        if (options?.Variants is not null)
+        if (overrides is not null)
         {
-            foreach (var kv in options.Variants)
+            foreach (var kv in overrides)
             {
                 var keyStr = kv.Key.ToString() ?? Guid.NewGuid().ToString();
                 var accessor = kv.Key.Compile();
@@ -302,9 +280,41 @@ public static class TvFunction
             }
         }
 
-        if (overrides is not null)
+        return variants;
+    }
+
+    private static CssBuilder PrecomputeBaseAndTopLevelSlots<TOwner, TSlots>(TvOptions<TOwner, TSlots> options)
+                    where TSlots : ISlots
+    {
+        var builder = new CssBuilder();
+
+        if (options?.Base is not null)
         {
-            foreach (var kv in overrides)
+            builder.AddClass((string)options.Base);
+        }
+
+        if (options?.Slots is not null)
+        {
+            foreach (var kv in options.Slots)
+            {
+                var cv = kv.Value;
+                if (cv is not null)
+                {
+                    builder.AddClass((string)cv);
+                }
+            }
+        }
+
+        return builder;
+    }
+
+    private static Dictionary<string, CompiledVariant<TOwner, TSlots>> PrecomputeVariantDefinitions<TOwner, TSlots>(TvOptions<TOwner, TSlots> options) where TSlots : ISlots
+    {
+        var variants = new Dictionary<string, CompiledVariant<TOwner, TSlots>>();
+
+        if (options?.Variants is not null)
+        {
+            foreach (var kv in options.Variants)
             {
                 var keyStr = kv.Key.ToString() ?? Guid.NewGuid().ToString();
                 var accessor = kv.Key.Compile();
