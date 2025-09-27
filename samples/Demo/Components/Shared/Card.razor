@@ -1,0 +1,22 @@
+﻿@inherits TailwindComponentBase
+
+<figure class="@GetClass(b => b.Base)" @attributes="AdditionalAttributes">
+    <img class="@GetClass(b => b.Avatar)"
+         src="https://www.tailwind-variants.org/_next/image?url=%2Fintro-avatar.png&w=384&q=75"
+         alt=""
+         width="384"
+         height="512" />
+    <div class="@GetClass(b => b.Wrapper)">
+        <blockquote>
+            <p class="@GetClass(b => b.Description)">
+                “Tailwind variants allows you to reduce repeated code in your project
+                and make it more readable. They fixed the headache of building a
+                design system with TailwindCSS.”
+            </p>
+        </blockquote>
+        <figcaption class="@GetClass(b => b.InfoWrapper)">
+            <div class="@GetClass(b => b.Name)">Zoey Lang</div>
+            <div class="@GetClass(b => b.Role)">Full-stack developer, HeroUI</div>
+        </figcaption>
+    </div>
+</figure>

@@ -7,7 +7,7 @@ public partial class Button
 {
     private static readonly TvReturnType<Button, Slots> _button = Tv<Button, Slots>(new()
     {
-        Base = "font-medium rounded-full active:opacity-80",
+        Base = "font-medium rounded-full cursor-pointer active:opacity-80",
         Variants = new()
         {
             [b => b.Color] = new Variant<Colors, Slots>()
@@ -20,6 +20,10 @@ public partial class Button
                 [Sizes.Small] = "text-sm",
                 [Sizes.Medium] = "text-base",
                 [Sizes.Large] = "px-4 py-3 text-lg",
+            },
+            [b => b.Disabled] = new Variant<bool, Slots>()
+            {
+                [true] = "opacity-50 bg-gray-500 pointer-events-none",
             }
         },
         CompoundVariants =
@@ -27,7 +31,15 @@ public partial class Button
             new(b => b.Size is Sizes.Small or Sizes.Medium)
             {
                 Class = "px-3 py-1"
-            }
+            },
+            new(b => b.Color is Colors.Primary && !b.Disabled)
+            {
+                Class = "hover:bg-blue-600"
+            },
+            new(b => b.Color is Colors.Secondary && !b.Disabled)
+            {
+                Class = "hover:bg-purple-600"
+            },
         ]
     });
 
