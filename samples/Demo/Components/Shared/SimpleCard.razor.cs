@@ -2,9 +2,11 @@
 using TailwindVariants;
 using static TailwindVariants.TvFunction;
 
+using Card = Demo.Components.Shared.SimpleCard;
+
 namespace Demo.Components.Shared;
 
-public partial class Card
+public partial class SimpleCard
 {
     private static readonly TvReturnType<Card, Slots> _card = Tv<Card, Slots>(new()
     {
