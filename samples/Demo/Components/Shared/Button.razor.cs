@@ -3,7 +3,7 @@ using static TailwindVariants.TvFunction;
 
 namespace Demo.Components.Shared;
 
-public partial class Button
+public partial class Button : ISlotted<Button.Slots>
 {
     private static readonly TvReturnType<Button, Slots> _button = Tv<Button, Slots>(new()
     {

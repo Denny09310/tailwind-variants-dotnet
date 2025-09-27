@@ -1,24 +1,3 @@
 ﻿@page "/"
 
-<ComplexCard Sizes="@_sizes" Color="@_color" />
-
-<div class="mt-8 flex items-center gap-4">
-	<InputRadioGroup @bind-Value="_color">
-		@foreach (ComplexCard.Colors color in Enum.GetValues(typeof(ComplexCard.Colors)))
-		{
-			<div>
-				<InputRadio Value="color" class="peer sr-only" id="@color.ToString()" />
-				<label for="@color.ToString()" class="cursor-pointer px-4 py-2 rounded border border-gray-300 transition-colors peer-checked:bg-blue-500 peer-checked:text-white">
-					@color.ToString()
-				</label>
-			</div>
-		}
-	</InputRadioGroup>
-</div>
-
-@code
-{
-	private static readonly string[] _sizes = ["xs", "s", "m", "l", "xl"];
-
-	private ComplexCard.Colors _color;
-}
+<Button Color="@Button.Colors.Primary">This is a button</Button>

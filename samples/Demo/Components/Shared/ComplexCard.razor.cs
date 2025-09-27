@@ -2,13 +2,11 @@ using System.Linq.Expressions;
 using TailwindVariants;
 using static TailwindVariants.TvFunction;
 
-using Card = Demo.Components.Shared.ComplexCard;
-
 namespace Demo.Components.Shared;
 
-public partial class ComplexCard
+public partial class ComplexCard : ISlotted<ComplexCard.Slots>
 {
-    private static readonly TvReturnType<Card, Slots> _card = Tv<Card, Slots>(new()
+    private static readonly TvReturnType<ComplexCard, Slots> _card = Tv<ComplexCard, Slots>(new()
     {
         Slots = new()
         {
@@ -51,6 +49,9 @@ public partial class ComplexCard
 
     private SlotMap<Slots> _slots = new();
 
+    public enum Colors
+    { Primary, Secondary, Success }
+
     protected override void OnParametersSet()
     {
         _slots = _card(this, Tw);
@@ -58,20 +59,17 @@ public partial class ComplexCard
 
     private string? GetClass(Expression<SlotAccessor<Slots>> accessor) => _slots[accessor];
 
-    public enum Colors
-    { Primary, Secondary, Success }
-
     public sealed class Slots : ISlots
     {
+        public string? AddToBagButton { get; set; }
         public string? Base { get; set; }
+        public string? BuyButton { get; set; }
         public string? ImageWrapper { get; set; }
         public string? Img { get; set; }
-        public string? Title { get; set; }
-        public string? Price { get; set; }
-        public string? PreviousPrice { get; set; }
-        public string? SizeButton { get; set; }
-        public string? BuyButton { get; set; }
-        public string? AddToBagButton { get; set; }
         public string? PercentOff { get; set; }
+        public string? PreviousPrice { get; set; }
+        public string? Price { get; set; }
+        public string? SizeButton { get; set; }
+        public string? Title { get; set; }
     }
 }

@@ -14,39 +14,40 @@ public static class TvFunction
     /// per-call overrides do not mutate precomputed definitions.
     /// </summary>
     public static TvReturnType<TOwner, TSlots> Tv<TOwner, TSlots>(TvOptions<TOwner, TSlots> options)
-        where TSlots : ISlots
+        where TSlots : ISlots, new()
+        where TOwner : ISlotted<TSlots>
     {
-        // Precompute base classes and slot classes as simple strings (immutable)
         var baseClasses = PrecomputeBaseAndTopLevelSlots(options);
-
-        // Precompute compiled variants (compile expression once)
         var baseVariants = PrecomputeVariantDefinitions(options);
 
-        return (owner, merge, overrides) =>
+        return (owner, merge) =>
         {
-            // Create a per-call set of builders seeded with base classes
+            // 1. Start with base slots
             var builders = baseClasses.ToDictionary(
                 kv => kv.Key,
                 kv => new CssBuilder(kv.Value));
 
-            Dictionary<string, CompiledVariant<TOwner, TSlots>> variants = [];
-            if (overrides is not null)
+            // 2. Apply variants
+            builders = ApplyVariants(owner, builders, baseVariants);
+
+            // 3. Apply compound variants
+            builders = ApplyCompoundVariants(options, owner, builders);
+
+            // 4. Apply per-instance slot overrides (Classes property)
+            if (owner.Classes is not null)
             {
-                foreach (var (keyExpr, variant) in overrides)
+                foreach (var (slot, value) in EnumerateClassesOverrides(owner.Classes))
                 {
-                    var id = keyExpr.ToString() ?? Guid.NewGuid().ToString();
-                    var accessor = keyExpr.Compile();
-                    variants[id] = new CompiledVariant<TOwner, TSlots>(keyExpr, variant, accessor);
+                    if (!builders.TryGetValue(slot, out var builder))
+                    {
+                        builder = new CssBuilder();
+                        builders[slot] = builder;
+                    }
+                    builder.AddClass(value);
                 }
             }
 
-            // Apply variants using overlay enumeration (overrides take precedence).
-            builders = ApplyVariants(owner, builders, baseVariants, variants);
-
-            // Apply compound variants etc. (unchanged)
-            builders = ApplyCompoundVariants(options, owner, builders);
-
-            // Build final dictionary and run TailwindMerge's Merge over each class string
+            // 5. Build final map
             return builders.ToDictionary(
                 kv => kv.Key,
                 kv => merge.Merge(kv.Value.Build()));
@@ -122,21 +123,17 @@ public static class TvFunction
     private static Dictionary<string, CssBuilder> ApplyVariants<TOwner, TSlots>(
         TOwner owner,
         Dictionary<string, CssBuilder> builders,
-        IReadOnlyDictionary<string, CompiledVariant<TOwner, TSlots>> baseVariants,
-        IReadOnlyDictionary<string, CompiledVariant<TOwner, TSlots>> overrideVariants)
+        IReadOnlyDictionary<string, CompiledVariant<TOwner, TSlots>> baseVariants)
         where TSlots : ISlots
     {
-        // Helper to evaluate one compiled variant safely and apply its classes
-        void TryApply(CompiledVariant<TOwner, TSlots> compiled)
+        foreach (var compiled in baseVariants.Values)
         {
-            var entry = compiled.Entry;
-            var accessor = compiled.Accessor;
             try
             {
-                var selected = accessor(owner);
-                if (selected is null) return;
+                var selected = compiled.Accessor(owner);
+                if (selected is null) continue;
 
-                if (entry.TryGetSlots(selected, out var slots) && slots is not null)
+                if (compiled.Entry.TryGetSlots(selected, out var slots) && slots is not null)
                 {
                     foreach (var kv in slots)
                     {
@@ -146,25 +143,8 @@ public static class TvFunction
             }
             catch (Exception ex)
             {
-                // keep library robust — use Debug or logger per your preference
                 Debug.WriteLine($"Variant evaluation failed for '{compiled.Expr}': {ex.Message}");
             }
-        }
-
-        // 1) apply all override variants first (they win)
-        if (overrideVariants is not null && overrideVariants.Count > 0)
-        {
-            foreach (var compiled in overrideVariants.Values)
-                TryApply(compiled);
-        }
-
-        // 2) apply base variants that weren't overridden
-        foreach (var kv in baseVariants)
-        {
-            if (overrideVariants != null && overrideVariants.ContainsKey(kv.Key))
-                continue;
-
-            TryApply(kv.Value);
         }
 
         return builders;
