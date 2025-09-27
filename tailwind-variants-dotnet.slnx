@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/samples/">
-    <Project Path="samples/Demo/Demo.csproj" Id="a873cf34-f4d8-445b-be18-834faa38d4f6" />
+    <Project Path="samples/Demo/Demo.csproj" Id="777619bd-d19b-4180-9f0a-a2067fd5e967" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/TailwindVariants/TailwindVariants.csproj" />

@@ -3,11 +3,19 @@
   "ConfigurationFiles": [
     {
       "Path": "wwwroot\\css\\tailwind.css"
+    },
+    {
+      "Path": "..\\demo\\wwwroot\\css\\tailwind.css"
     }
   ],
   "BuildFiles": [
     {
       "Input": "wwwroot\\css\\tailwind.css",
+      "Output": "",
+      "Behavior": "Default"
+    },
+    {
+      "Input": "..\\Demo\\wwwroot\\css\\tailwind.css",
       "Output": "",
       "Behavior": "Default"
     }
