@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using TailwindVariants;
 using static TailwindVariants.TvFunction;
 
@@ -7,59 +8,57 @@ public partial class Button : ISlotted<Button.Slots>
 {
     private static readonly TvReturnType<Button, Slots> _button = Tv<Button, Slots>(new()
     {
-        Base = "font-medium rounded-full cursor-pointer active:opacity-80",
+        Base = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none dark:focus:ring-slate-400 dark:focus:ring-offset-slate-900",
+        Slots = new()
+        {
+            [b => b.Icon] = "mr-2 -ml-1 w-5 h-5",
+            [b => b.Spinner] = "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 animate-spin",
+        },
         Variants = new()
         {
-            [b => b.Color] = new Variant<Colors, Slots>()
+            [b => b.Variant] = new Variant<Variants, Slots>()
             {
-                [Colors.Primary] = "bg-blue-500 text-white",
-                [Colors.Secondary] = "bg-purple-500 text-white",
+                [Variants.Solid] = "bg-slate-900 text-white hover:bg-slate-700 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-100",
+                [Variants.Outline] = "border border-slate-200 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-800",
+                [Variants.Ghost] = "hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-100 data-[state=open]:bg-slate-100 dark:data-[state=open]:bg-slate-800",
+                [Variants.Link] = "underline-offset-4 hover:underline text-slate-900 dark:text-slate-100 hover:bg-transparent dark:hover:bg-transparent",
             },
             [b => b.Size] = new Variant<Sizes, Slots>()
             {
-                [Sizes.Small] = "text-sm",
-                [Sizes.Medium] = "text-base",
-                [Sizes.Large] = "px-4 py-3 text-lg",
+                [Sizes.Small] = "h-9 px-3 rounded-md",
+                [Sizes.Medium] = "h-10 px-4 rounded-md",
+                [Sizes.Large] = "h-11 px-6 rounded-md",
             },
-            [b => b.Disabled] = new Variant<bool, Slots>()
+            [b => b.FullWidth] = new Variant<bool, Slots>()
             {
-                [true] = "opacity-50 bg-gray-500 pointer-events-none",
-            }
-        },
-        CompoundVariants =
-        [
-            new(b => b.Size is Sizes.Small or Sizes.Medium)
-            {
-                Class = "px-3 py-1"
+                [true] = "w-full",
             },
-            new(b => b.Color is Colors.Primary && !b.Disabled)
+            [b => b.Loading] = new Variant<bool, Slots>()
             {
-                Class = "hover:bg-blue-600"
+                [true] = "relative text-transparent hover:text-transparent disabled:pointer-events-none",
             },
-            new(b => b.Color is Colors.Secondary && !b.Disabled)
-            {
-                Class = "hover:bg-purple-600"
-            },
-        ]
+        }
     });
 
     private SlotMap<Slots> _slots = new();
-
-    public enum Colors
-    { Default, Primary, Secondary, Ghost }
-
-    public enum Sizes
-    { Small, Medium, Large }
 
     protected override void OnParametersSet()
     {
         _slots = _button(this, Tw);
     }
 
-    private string? GetClasses() => _slots[b => b.Base];
+    private string? GetSlot(Expression<SlotAccessor<Slots>> slot) => _slots[slot];
+
+    public enum Variants
+    { Solid, Outline, Ghost, Link, }
+
+    public enum Sizes
+    { Small, Medium, Large, }
 
     public sealed class Slots : ISlots
     {
         public string? Base { get; set; }
+        public string? Icon { get; set; }
+        public string? Spinner { get; set; }
     }
 }
