@@ -34,11 +34,13 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
             var namespaceName = symbol.ContainingNamespace?.ToDisplayString() ?? "GlobalNamespace";
             var recordName = symbol.Name;
 
-            var properties = string.Join("\n", symbol.GetMembers().OfType<IPropertySymbol>()
-                .Select(m => $$"""        public string? {{m.Name}} => _slots[b => b.{{m.Name}}];"""));
+            var properties = string.Join("\n\t\t", symbol.GetMembers().OfType<IPropertySymbol>()
+                .Select(m => $"public string? {m.Name} => _slots[s => s.{m.Name}];"));
 
             var code = $$"""
                 using TailwindVariants;
+
+                #nullable enable
 
                 namespace {{namespaceName}};
 
@@ -57,7 +59,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
                             _slots = slots;
                         }
 
-                {{properties}}
+                        {{properties}}
                     }
                 }
                 """;
