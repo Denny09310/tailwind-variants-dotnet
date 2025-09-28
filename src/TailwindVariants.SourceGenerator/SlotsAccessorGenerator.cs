@@ -12,7 +12,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Collect all class/record declarations that implement ISlots
-        IncrementalValuesProvider<RecordToGenerate> recordDeclarations =
+        IncrementalValuesProvider<RecordToGenerate?> recordDeclarations =
             context.SyntaxProvider.CreateSyntaxProvider(
                 predicate: IsSyntaxTargetForGeneration,
                 transform: GetSemanticTargetForGeneration)
@@ -23,52 +23,71 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
             static (spc, records) => Execute(records, spc));
     }
 
-    private static void Execute(ImmutableArray<RecordToGenerate> records, SourceProductionContext spc)
+    private static void Execute(ImmutableArray<RecordToGenerate?> records, SourceProductionContext spc)
     {
         foreach (var record in records)
         {
-            var symbol = record.Symbol;
+            var symbol = record!.Value.Symbol;
             if (symbol == null) continue;
 
-            var className = symbol.ContainingType?.Name ?? symbol.Name;
-            var namespaceName = symbol.ContainingNamespace?.ToDisplayString() ?? "GlobalNamespace";
-            var recordName = symbol.Name;
+            var slotsMember = symbol.ContainingType?.GetMembers().FirstOrDefault(m =>
+            {
+                INamedTypeSymbol? named = null;
 
+                if (m is IPropertySymbol prop && prop.Type is INamedTypeSymbol np)
+                    named = np;
+                else if (m is IFieldSymbol field && field.Type is INamedTypeSymbol nf)
+                    named = nf;
+
+                if (named == null) return false;
+
+                // Check that the generic type is SlotMap<T>
+                if (named.Name != "SlotMap" || named.TypeArguments.Length != 1)
+                    return false;
+
+                // Check that the type argument matches the slots type (symbol)
+                return SymbolEqualityComparer.Default.Equals(named.TypeArguments[0], symbol);
+            });
+
+            // Skip generating if no SlotMap<TSlots> found
+            if (slotsMember == null)
+                continue;
+
+            var className = symbol.ContainingSymbol?.Name ?? symbol.Name;
+            var namespaceName = symbol.ContainingNamespace?.ToDisplayString() ?? "GlobalNamespace";
             var properties = string.Join("\n\t\t", symbol.GetMembers().OfType<IPropertySymbol>()
                 .Select(m => $"public string? {m.Name} => _slots[s => s.{m.Name}];"));
 
             var code = $$"""
-                using TailwindVariants;
+            #nullable enable
 
-                #nullable enable
+            namespace {{namespaceName}};
 
-                namespace {{namespaceName}};
+            public partial class {{className}}
+            {
+                private SlotsAccessors? _accessors;
 
-                public partial class {{className}}
+                public SlotsAccessors Accessors => _accessors ??= new SlotsAccessors({{slotsMember}});
+
+                public sealed class SlotsAccessors
                 {
-                    private SlotsAccessors? _accessors;
+                    private readonly TailwindVariants.SlotMap<{{symbol}}> _slots;
 
-                    public SlotsAccessors Accessors => _accessors ??= new SlotsAccessors(_slots);
-
-                    public sealed class SlotsAccessors
+                    public SlotsAccessors(TailwindVariants.SlotMap<{{symbol}}> slots)
                     {
-                        private readonly SlotMap<{{recordName}}> _slots;
-
-                        public SlotsAccessors(SlotMap<{{recordName}}> slots)
-                        {
-                            _slots = slots;
-                        }
-
-                        {{properties}}
+                        _slots = slots;
                     }
+
+                    {{properties}}
                 }
-                """;
+            }
+            """;
 
             spc.AddSource($"{className}.Slots.g.cs", SourceText.From(code, Encoding.UTF8));
         }
     }
 
-    private RecordToGenerate GetSemanticTargetForGeneration(GeneratorSyntaxContext context, CancellationToken token)
+    private RecordToGenerate? GetSemanticTargetForGeneration(GeneratorSyntaxContext context, CancellationToken token)
     {
         if (context.Node is ClassDeclarationSyntax or RecordDeclarationSyntax)
         {
@@ -84,7 +103,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
                 }
             }
         }
-        return null!;
+        return null;
     }
 
     private bool IsSyntaxTargetForGeneration(SyntaxNode node, CancellationToken token)
@@ -111,5 +130,4 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
     }
 }
 
-// Placeholder record to pass information
-public record RecordToGenerate(INamedTypeSymbol? Symbol);
+public record struct RecordToGenerate(INamedTypeSymbol? Symbol);
