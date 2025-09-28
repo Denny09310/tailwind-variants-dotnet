@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using TailwindVariants;
 using static TailwindVariants.TvFunction;
 
@@ -32,8 +31,6 @@ public partial class Badge : ISlotted<Badge.Slots>
     {
         _slots = _badge(this, Tw);
     }
-
-    private string? GetSlot(Expression<SlotAccessor<Slots>> slot) => _slots[slot];
 
     public enum Colors
     { Default, Primary, Secondary, }

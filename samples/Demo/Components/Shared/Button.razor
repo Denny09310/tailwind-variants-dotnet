@@ -2,13 +2,13 @@
 
 @if (!string.IsNullOrEmpty(Href))
 {
-	<a class="@GetSlot(b => b.Base)" href="@Href" @attributes="AdditionalAttributes">
+	<a class="@Accessors.Base" href="@Href" @attributes="AdditionalAttributes">
 		@RenderInnerContent()
 	</a>
 }
 else
 {
-	<button class="@GetSlot(b => b.Base)" type="@Type" @attributes="AdditionalAttributes">
+	<button class="@Accessors.Base" type="@Type" @attributes="AdditionalAttributes">
 		@RenderInnerContent()
 	</button>
 }
@@ -47,13 +47,13 @@ else
 		if (Loading)
 		{
 			builder.OpenElement(0, "span");
-			builder.AddAttribute(1, "class", GetSlot(b => b.Spinner));
+			builder.AddAttribute(1, "class", Accessors.Spinner);
 			builder.CloseElement();
 		}
 		else if (IconContent is not null)
 		{
 			builder.OpenElement(2, "div");
-			builder.AddAttribute(3, "class", GetSlot(b => b.Icon));
+			builder.AddAttribute(3, "class", Accessors.Icon);
 			builder.AddContent(4, IconContent);
 			builder.CloseElement();
 		}

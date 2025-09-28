@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using TailwindVariants;
 using static TailwindVariants.TvFunction;
 
@@ -46,8 +45,6 @@ public partial class Button : ISlotted<Button.Slots>
     {
         _slots = _button(this, Tw);
     }
-
-    private string? GetSlot(Expression<SlotAccessor<Slots>> slot) => _slots[slot];
 
     public enum Variants
     { Solid, Outline, Ghost, Link, }
