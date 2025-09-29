@@ -127,15 +127,7 @@ You can use strongly typed properties:
 <p class="@_slots.GetDescription()">Description text</p>
 ```
 
-This is enabled by the **incremental source generator** (`TailwindVariants.SourceGenerator`), which automatically generates a `SlotsAccessors` class for each component that implements `ISlots`.
-
----
-
-## Requirements
-
-* .NET 8 or .NET 9 (Blazor)
-* .NET Standard 2.0 (generator only)
-* TailwindCSS [standalone CLI](https://tailwindcss.com/blog/standalone-cli) (for styles)
+This is enabled by the **incremental source generator** (`TailwindVariants.SourceGenerator`), which automatically generates a accessors for each component that implements `ISlots`.
 
 ---
 
