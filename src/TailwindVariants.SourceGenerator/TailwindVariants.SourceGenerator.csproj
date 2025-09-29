@@ -7,9 +7,10 @@
 		<LangVersion>latest</LangVersion>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<EnforceExtendedAnalyzerRules>enable</EnforceExtendedAnalyzerRules>
-		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
 		<IsRoslynComponent>true</IsRoslynComponent>
+		
+		<!-- NuGet Package Metadata -->
+		<PackageId>TailwindVariants.SourceGenerator</PackageId>
 	</PropertyGroup>
 
 	<ItemGroup>

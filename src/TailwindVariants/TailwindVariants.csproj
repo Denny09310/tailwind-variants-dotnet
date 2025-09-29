@@ -9,15 +9,6 @@
 
 		<!-- NuGet Package Metadata -->
 		<PackageId>tailwind-variants-dotnet</PackageId>
-		<Version>1.0.0</Version>
-		<Authors>Denny09310</Authors>
-		<Description>A Blazor library to manage TailwindCSS variants and slot-based styling with strongly typed APIs.</Description>
-		<PackageTags>blazor;tailwind;css;ui;csharp</PackageTags>
-		<RepositoryUrl>https://github.com/Denny09310/tailwind-variants-dotnet</RepositoryUrl>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageProjectUrl>https://github.com/Denny09310/tailwind-variants-dotnet</PackageProjectUrl>
-		<PackageIcon>isotipo.png</PackageIcon>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -30,21 +21,6 @@
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
 		<PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.8" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\..\isotipo.png">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-		<None Include="..\..\README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-		<InternalsVisibleTo Include="TailwindVariants.SourceGenerator" />
 	</ItemGroup>
 
 </Project>

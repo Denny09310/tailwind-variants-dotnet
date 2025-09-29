@@ -3,6 +3,7 @@
     <Project Path="samples/Demo/Demo.csproj" Id="777619bd-d19b-4180-9f0a-a2067fd5e967" />
   </Folder>
   <Folder Name="/src/">
+    <File Path="Directory.build.props" />
     <Project Path="src/TailwindVariants.SourceGenerator/TailwindVariants.SourceGenerator.csproj" />
     <Project Path="src/TailwindVariants/TailwindVariants.csproj" />
   </Folder>
