@@ -10,7 +10,7 @@ public partial class Button : ISlotted<Button.Slots>
         Base = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none dark:focus:ring-slate-400 dark:focus:ring-offset-slate-900",
         Slots = new()
         {
-            [b => b.Icon] = "mr-2 -ml-1 w-5 h-5",
+            [b => b.Icon] = "mr-2 -ml-1",
             [b => b.Spinner] = "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 animate-spin",
         },
         Variants = new()
@@ -36,21 +36,29 @@ public partial class Button : ISlotted<Button.Slots>
             {
                 [true] = "relative text-transparent hover:text-transparent disabled:pointer-events-none",
             },
-        }
+            [b => b.IconOnly] = new Variant<bool, Slots>()
+            {
+                [true] = new()
+                {
+                    [s => s.Base] = "aspect-square p-0",
+                    [s => s.Icon] = "m-0"
+                }
+            }
+        },
     });
 
     private SlotMap<Slots> _slots = new();
+
+    public enum Sizes
+    { Small, Medium, Large, }
+
+    public enum Variants
+    { Solid, Outline, Ghost, Link, }
 
     protected override void OnParametersSet()
     {
         _slots = _button(this, Tw);
     }
-
-    public enum Variants
-    { Solid, Outline, Ghost, Link, }
-
-    public enum Sizes
-    { Small, Medium, Large, }
 
     public sealed class Slots : ISlots
     {
