@@ -10,13 +10,14 @@ public class SlotMap<TSlots> where TSlots : ISlots
 {
     private readonly Dictionary<string, string?> _map = new(StringComparer.Ordinal);
 
+    public IReadOnlyDictionary<string, string?> Map => _map;
+
     /// <summary>
     /// Indexer that accepts a slot accessor expression and returns the computed class string or null.
     /// </summary>
     public string? this[Expression<SlotAccessor<TSlots>> key]
     {
-        get => _map.TryGetValue(GetSlot(key), out var value) ? value : null;
-        set => _map[GetSlot(key)] = value; // Allow setting to null to clear the slot intentionally
+        get => Map.TryGetValue(GetSlot(key), out var value) ? value : null;
     }
 
     /// <summary>
@@ -36,5 +37,5 @@ public class SlotMap<TSlots> where TSlots : ISlots
     /// <summary>
     /// Add a named slot mapping.
     /// </summary>
-    public void Add(string key, string? value) => _map.Add(key, value);
+    internal void Add(string key, string? value) => _map.Add(key, value);
 }
