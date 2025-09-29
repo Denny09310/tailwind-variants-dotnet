@@ -42,22 +42,19 @@ else
 	[Parameter] 
 	public Slots? Classes { get; set; }
 
-	private RenderFragment RenderInnerContent() => builder =>
+	private RenderFragment RenderInnerContent() => __builder =>
 	{
-		if (Loading)
+		@if (Loading)
 		{
-			builder.OpenElement(0, "span");
-			builder.AddAttribute(1, "class", Accessors.Spinner);
-			builder.CloseElement();
+			<span class="@Accessors.Spinner"></span>
 		}
 		else if (IconContent is not null)
 		{
-			builder.OpenElement(2, "div");
-			builder.AddAttribute(3, "class", Accessors.Icon);
-			builder.AddContent(4, IconContent);
-			builder.CloseElement();
+			<div class="@Accessors.Icon">
+				@IconContent
+			</div>
 		}
 
-		builder.AddContent(5, ChildContent);
+		@ChildContent
 	};
 }
