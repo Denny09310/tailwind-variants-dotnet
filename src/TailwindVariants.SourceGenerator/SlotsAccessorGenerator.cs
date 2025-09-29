@@ -67,7 +67,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
             {
                 private SlotsAccessors? _accessors;
 
-                public SlotsAccessors Accessors => _accessors ??= new SlotsAccessors({{slotsMember}});
+                public SlotsAccessors Accessors => _accessors ??= new SlotsAccessors({{slotsMember.Name}});
 
                 public sealed class SlotsAccessors
                 {
