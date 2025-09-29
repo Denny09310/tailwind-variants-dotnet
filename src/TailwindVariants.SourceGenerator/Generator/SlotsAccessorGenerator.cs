@@ -108,10 +108,10 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
                                 .ThenBy(p => p.Name, StringComparer.Ordinal)
                                 .ToArray();
 
-        var slotsTypeName = slotsType.ContainingSymbol?.Name ?? slotsType.Name;
+        var slotsTypeName = slotsType.ContainingType?.Name ?? slotsType.Name.Replace("Slots", string.Empty);
 
         // Build names
-        var enumName = SymbolHelpers.MakeSafeIdentifier(slotsTypeName + "Slots");
+        var enumName = SymbolHelpers.MakeSafeIdentifier(slotsTypeName + "SlotsTypes");
         var extClassName = SymbolHelpers.MakeSafeIdentifier(slotsTypeName + "SlotsExtensions");
         var namesClass = SymbolHelpers.MakeSafeIdentifier(slotsTypeName + "SlotsNames");
 
