@@ -1,4 +1,5 @@
-# AnalyzerReleases.Unshipped.md
+### New Rules
 
-## Release Unshipped
-- TVSG001
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+TVSG001 | TailwindVariants.SourceGenerator | Info | Descriptors

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace TailwindVariants.SourceGenerator;
 
-internal static class SymbolHelpers
+internal static class SymbolHelper
 {
     public static string MakeSafeFileName(string input)
     {

@@ -9,14 +9,6 @@ namespace TailwindVariants.SourceGenerator;
 [Generator]
 public class SlotsAccessorGenerator : IIncrementalGenerator
 {
-    private static readonly DiagnosticDescriptor NoPropertiesDescriptor = new(
-        id: "TVSG001",
-        title: "Slots type contains no public instance properties",
-        messageFormat: "The slots type '{0}' contains no public instance properties. No extension methods will be generated.",
-        category: "TailwindVariants.SourceGenerator",
-        defaultSeverity: DiagnosticSeverity.Info,
-        isEnabledByDefault: true);
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Emit extension methods for SlotMap at post-init so they are available to generated code and consumers
@@ -68,11 +60,11 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
                 INamedTypeSymbol? slotsArg = null;
                 if (member is IFieldSymbol fs)
                 {
-                    if (SymbolHelpers.TryGetSlotMapArgument(fs.Type, slotMapSym, out var a)) slotsArg = a;
+                    if (SymbolHelper.TryGetSlotMapArgument(fs.Type, slotMapSym, out var a)) slotsArg = a;
                 }
                 else if (member is IPropertySymbol ps)
                 {
-                    if (SymbolHelpers.TryGetSlotMapArgument(ps.Type, slotMapSym, out var a)) slotsArg = a;
+                    if (SymbolHelper.TryGetSlotMapArgument(ps.Type, slotMapSym, out var a)) slotsArg = a;
                 }
 
                 if (slotsArg != null && !unique.ContainsKey(slotsArg))
@@ -98,7 +90,11 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
         if (properties.Length == 0)
         {
-            var diag = Diagnostic.Create(NoPropertiesDescriptor, Location.None, slotsType.ToDisplayString());
+            var diag = Diagnostic.Create(
+                DiagnosticHelper.NoPropertiesDescriptor, 
+                Location.None, 
+                slotsType.ToDisplayString());
+
             spc.ReportDiagnostic(diag);
             return;
         }
@@ -111,9 +107,9 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         var slotsTypeName = slotsType.ContainingType?.Name ?? slotsType.Name.Replace("Slots", string.Empty);
 
         // Build names
-        var enumName = SymbolHelpers.MakeSafeIdentifier(slotsTypeName + "SlotsTypes");
-        var extClassName = SymbolHelpers.MakeSafeIdentifier(slotsTypeName + "SlotsExtensions");
-        var namesClass = SymbolHelpers.MakeSafeIdentifier(slotsTypeName + "SlotsNames");
+        var enumName = SymbolHelper.MakeSafeIdentifier(slotsTypeName + "SlotsTypes");
+        var extClassName = SymbolHelper.MakeSafeIdentifier(slotsTypeName + "SlotsExtensions");
+        var namesClass = SymbolHelper.MakeSafeIdentifier(slotsTypeName + "SlotsNames");
 
         var namespaceName = slotsType.ContainingNamespace?.ToDisplayString() ?? string.Empty;
 
@@ -128,7 +124,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         var fq = slotsType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var assembly = slotsType.ContainingAssembly?.Name ?? "assembly";
         var rawFileName = assembly + "_" + fq + ".SlotsExtensions.g.cs";
-        var filename = SymbolHelpers.MakeSafeFileName(rawFileName);
+        var filename = SymbolHelper.MakeSafeFileName(rawFileName);
 
         var sb = new Indenter();
         sb.AppendLine("using TailwindVariants;");
@@ -147,7 +143,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.Indent();
         for (int i = 0; i < slotNames.Length; i++)
         {
-            var nm = SymbolHelpers.MakeSafeIdentifier(slotNames[i]);
+            var nm = SymbolHelper.MakeSafeIdentifier(slotNames[i]);
             sb.AppendLine($"{nm} = {i},");
         }
         sb.Dedent();
@@ -180,7 +176,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         foreach (var p in ordered)
         {
             var propName = p.Name;
-            var safe = SymbolHelpers.MakeSafeIdentifier(propName);
+            var safe = SymbolHelper.MakeSafeIdentifier(propName);
             sb.AppendLine($"public static string? Get{safe}(this {slotMapTypeFull} slots) => slots.Get({enumName}.{safe});");
             sb.AppendLine($"public static bool TryGet{safe}(this {slotMapTypeFull} slots, out string? value) => slots.TryGet({enumName}.{safe}, out value);");
             sb.AppendLine();
