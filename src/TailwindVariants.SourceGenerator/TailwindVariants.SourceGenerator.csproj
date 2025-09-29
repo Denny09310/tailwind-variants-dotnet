@@ -8,9 +8,14 @@
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<EnforceExtendedAnalyzerRules>enable</EnforceExtendedAnalyzerRules>
 		<IsRoslynComponent>true</IsRoslynComponent>
-		
+		<IsPackable>true</IsPackable>
+
 		<!-- NuGet Package Metadata -->
 		<PackageId>TailwindVariants.SourceGenerator</PackageId>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<NoWarn>NU5128</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>

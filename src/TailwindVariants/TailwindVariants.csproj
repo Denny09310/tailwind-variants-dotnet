@@ -8,7 +8,7 @@
 		<IsPackable>true</IsPackable>
 
 		<!-- NuGet Package Metadata -->
-		<PackageId>tailwind-variants-dotnet</PackageId>
+		<PackageId>TailwindVariants.NET</PackageId>
 	</PropertyGroup>
 
 	<ItemGroup>
