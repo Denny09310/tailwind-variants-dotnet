@@ -53,27 +53,27 @@ public static class Button
 {
     private static readonly TvReturnType<Button, Slots> _button = Tv<Button, Slots>(new()
     {
-      Base = "font-semibold border rounded",
-      Variants = new()
-      {
-        [b => b.Variant] = new Variant<Variants, Slots>()
+        Base = "font-semibold border rounded",
+        Variants = new()
         {
-          [Variants.Primary] = "bg-blue-500 text-white border-transparent",
-          [Variants.Secondary] = "bg-white text-gray-800 border-gray-400",
-        },
-        [b => b.Size] = new Variant<Sizes, Slots>()
-        {
-          [Sizes.Small] = "text-sm py-1 px-2",
-          [Sizes.Medium] = "text-base py-2 px-4",
-        },
-      }
-      CompoundVariants = 
-      [
-        new(b => b.Variant == Variants.Primary && !b.Disabled)
-        {
-          Class = "hover:bg-blue-600"
+            [b => b.Variant] = new Variant<Variants, Slots>()
+            {
+                [Variants.Primary] = "bg-blue-500 text-white border-transparent",
+                [Variants.Secondary] = "bg-white text-gray-800 border-gray-400",
+            },
+            [b => b.Size] = new Variant<Sizes, Slots>()
+            {
+              [Sizes.Small] = "text-sm py-1 px-2",
+              [Sizes.Medium] = "text-base py-2 px-4",
+            },
         }
-      ]
+        CompoundVariants = 
+        [
+            new(b => b.Variant == Variants.Primary && !b.Disabled)
+            {
+                Class = "hover:bg-blue-600"
+            }
+        ]
     });
 
     private SlotMap<Slots> _slots = new();
@@ -86,8 +86,6 @@ public static class Button
     public sealed class Slots : ISlots
     {
         public string? Base { get; set; }
-        public string? Icon { get; set; }
-        public string? Spinner { get; set; }
     }
 
     // ... enums omitted for brevity ...
@@ -110,6 +108,9 @@ In the component:
 
     [Parameter]
     public Sizes Size { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
 
     [Parameter]
     public Slots? Classes { get; set; }
