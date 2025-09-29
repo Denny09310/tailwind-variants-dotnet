@@ -11,11 +11,6 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // Emit extension methods for SlotMap at post-init so they are available to generated code and consumers
-        context.RegisterPostInitializationOutput(ctx =>
-            ctx.AddSource("TailwindVariants_NET_SlotMap_Extensions.g.cs",
-                          SourceText.From(SourceGenerationHelper.ExtensionMethods, Encoding.UTF8)));
-
         // Find the SlotMap<> symbol in the compilation
         var slotMapSymbolProvider = context.CompilationProvider
             .Select((comp, _) => comp.GetTypeByMetadataName("TailwindVariants.NET.SlotMap`1"));
@@ -166,8 +161,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.AppendLine($"public static class {extClassName}");
         sb.AppendLine("{");
         sb.Indent();
-        sb.AppendLine($"public static string? Get(this {slotMapTypeFull} slots, {enumName} key) => slots.GetByName({namesClass}.NameOf(key));");
-        sb.AppendLine($"public static bool TryGet(this {slotMapTypeFull} slots, {enumName} key, out string? value) => slots.TryGetByName({namesClass}.NameOf(key), out value);");
+        sb.AppendLine($"public static string? Get(this {slotMapTypeFull} slots, {enumName} key) => slots.Map[{namesClass}.NameOf(key)];");
         sb.Dedent();
         sb.AppendLine();
 
@@ -178,7 +172,6 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
             var propName = p.Name;
             var safe = SymbolHelper.MakeSafeIdentifier(propName);
             sb.AppendLine($"public static string? Get{safe}(this {slotMapTypeFull} slots) => slots.Get({enumName}.{safe});");
-            sb.AppendLine($"public static bool TryGet{safe}(this {slotMapTypeFull} slots, out string? value) => slots.TryGet({enumName}.{safe}, out value);");
             sb.AppendLine();
         }
         sb.Dedent();
