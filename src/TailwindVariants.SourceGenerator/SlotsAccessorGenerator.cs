@@ -11,123 +11,165 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // Collect all class/record declarations that implement ISlots
-        IncrementalValuesProvider<RecordToGenerate?> recordDeclarations =
-            context.SyntaxProvider.CreateSyntaxProvider(
-                predicate: IsSyntaxTargetForGeneration,
-                transform: GetSemanticTargetForGeneration)
-            .Where(static s => s is not null)!;
+        // Pre-resolve SlotMap<> symbol from the compilation
+        var slotMapSymbolProvider = context.CompilationProvider
+            .Select((comp, _) => comp.GetTypeByMetadataName("TailwindVariants.SlotMap`1"));
 
-        // Combine all symbols into a collection and generate source
-        context.RegisterSourceOutput(recordDeclarations.Collect(),
-            static (spc, records) => Execute(records, spc));
-    }
-
-    private static void Execute(ImmutableArray<RecordToGenerate?> records, SourceProductionContext spc)
-    {
-        foreach (var record in records)
-        {
-            var symbol = record!.Value.Symbol;
-            if (symbol == null) continue;
-
-            var slotsMember = symbol.ContainingType?.GetMembers().FirstOrDefault(m =>
+        // Candidate types: every class/record declaration syntax
+        var candidateTypes = context.SyntaxProvider.CreateSyntaxProvider(
+            predicate: static (node, _) => node is ClassDeclarationSyntax or RecordDeclarationSyntax,
+            transform: static (ctx, _) =>
             {
-                INamedTypeSymbol? named = null;
+                var decl = (TypeDeclarationSyntax)ctx.Node;
+                if (ctx.SemanticModel.GetDeclaredSymbol(decl) is INamedTypeSymbol named)
+                    return named;
+                return null;
+            })
+            .Where(static s => s != null)!;
 
-                if (m is IPropertySymbol prop && prop.Type is INamedTypeSymbol np)
-                    named = np;
-                else if (m is IFieldSymbol field && field.Type is INamedTypeSymbol nf)
-                    named = nf;
+        // Combine compilation-level slotMap symbol + candidate types
+        var targets = slotMapSymbolProvider.Combine(candidateTypes.Collect())
+            .SelectMany(static (pair, _) =>
+            {
+                var slotMapSymbol = pair.Left;
+                var namedSymbols = pair.Right; // ImmutableArray<INamedTypeSymbol?>
+                var list = new List<SlotsGenerationTarget>();
 
-                if (named == null) return false;
+                if (slotMapSymbol == null) return list;
 
-                // Check that the generic type is SlotMap<T>
-                if (named.Name != "SlotMap" || named.TypeArguments.Length != 1)
-                    return false;
+                foreach (var maybeNamed in namedSymbols)
+                {
+                    if (maybeNamed is null) continue;
+                    var named = maybeNamed;
 
-                // Check that the type argument matches the slots type (symbol)
-                return SymbolEqualityComparer.Default.Equals(named.TypeArguments[0], symbol);
+                    // Find members that are SlotMap<T>
+                    foreach (var member in named.GetMembers())
+                    {
+                        if (member is IFieldSymbol fs && IsSlotMapOfT(fs.Type, slotMapSymbol, out var tSym))
+                        {
+                            if (tSym != null)
+                                list.Add(new SlotsGenerationTarget(named, member, tSym));
+                        }
+                        else if (member is IPropertySymbol ps && IsSlotMapOfT(ps.Type, slotMapSymbol, out var tSym2))
+                        {
+                            if (tSym2 != null)
+                                list.Add(new SlotsGenerationTarget(named, member, tSym2));
+                        }
+                    }
+                }
+
+                return list;
             });
 
-            // Skip generating if no SlotMap<TSlots> found
-            if (slotsMember == null)
-                continue;
-
-            var className = symbol.ContainingSymbol?.Name ?? symbol.Name;
-            var namespaceName = symbol.ContainingNamespace?.ToDisplayString() ?? "GlobalNamespace";
-            var properties = string.Join("\n\t\t", symbol.GetMembers().OfType<IPropertySymbol>()
-                .Select(m => $"public string? {m.Name} => _slots[s => s.{m.Name}];"));
-
-            var code = $$"""
-            #nullable enable
-
-            namespace {{namespaceName}};
-
-            public partial class {{className}}
-            {
-                private SlotsAccessors? _accessors;
-
-                public SlotsAccessors Accessors => _accessors ??= new SlotsAccessors({{slotsMember.Name}});
-
-                public sealed class SlotsAccessors
-                {
-                    private readonly TailwindVariants.SlotMap<{{symbol}}> _slots;
-
-                    public SlotsAccessors(TailwindVariants.SlotMap<{{symbol}}> slots)
-                    {
-                        _slots = slots;
-                    }
-
-                    {{properties}}
-                }
-            }
-            """;
-
-            spc.AddSource($"{className}.Slots.g.cs", SourceText.From(code, Encoding.UTF8));
-        }
+        // Collect and register output
+        context.RegisterSourceOutput(targets.Collect(), static (spc, arr) => Execute(arr, spc));
     }
 
-    private RecordToGenerate? GetSemanticTargetForGeneration(GeneratorSyntaxContext context, CancellationToken token)
+    // versione corretta e più robusta
+    private static bool IsSlotMapOfT(ITypeSymbol type, INamedTypeSymbol? slotMapSymbol, out INamedTypeSymbol? t)
     {
-        if (context.Node is ClassDeclarationSyntax or RecordDeclarationSyntax)
-        {
-            if (context.SemanticModel.GetDeclaredSymbol(context.Node) is INamedTypeSymbol symbol)
-            {
-                // Check if it implements ISlots
-                foreach (var iface in symbol.AllInterfaces)
-                {
-                    if (iface.ToDisplayString() == "TailwindVariants.ISlots")
-                    {
-                        return new RecordToGenerate(symbol);
-                    }
-                }
-            }
-        }
-        return null;
-    }
+        t = null;
+        if (slotMapSymbol == null) return false;
 
-    private bool IsSyntaxTargetForGeneration(SyntaxNode node, CancellationToken token)
-    {
-        var baseList = node switch
+        if (type is INamedTypeSymbol named)
         {
-            ClassDeclarationSyntax cds => cds.BaseList,
-            RecordDeclarationSyntax rds => rds.BaseList,
-            _ => null
-        };
-        if (baseList == null) return false;
-        foreach (var baseType in baseList.Types)
-        {
-            if (baseType.Type is IdentifierNameSyntax ins && ins.Identifier.Text == "ISlots")
+            // confronta l'OriginalDefinition (stabile) col simbolo SlotMap`1
+            if (SymbolEqualityComparer.Default.Equals(named.OriginalDefinition, slotMapSymbol)
+                && named.TypeArguments.Length == 1)
             {
-                return true;
-            }
-            else if (baseType.Type is QualifiedNameSyntax qns && qns.Right.Identifier.Text == "ISlots")
-            {
+                // il type argument può essere qualsiasi ITypeSymbol; proviamo a castare a INamedTypeSymbol se è nominale
+                t = named.TypeArguments[0] as INamedTypeSymbol;
                 return true;
             }
         }
+
         return false;
     }
-}
 
-public record struct RecordToGenerate(INamedTypeSymbol? Symbol);
+
+    private static void Execute(ImmutableArray<SlotsGenerationTarget> targets, SourceProductionContext spc)
+    {
+        if (targets.IsDefaultOrEmpty) return;
+
+        foreach (var target in targets)
+        {
+            // Validate
+            if (target.SlotsType == null) continue;
+
+            var slotProps = target.SlotsType.GetMembers().OfType<IPropertySymbol>()
+                .Where(p => !p.IsStatic && p.DeclaredAccessibility == Accessibility.Public).ToArray();
+
+            if (slotProps.Length == 0) continue;
+
+            // Prepare names and full type strings safely
+            var container = target.ContainingType;
+            var containerFullName = container.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                .Replace("global::", "");
+            var slotsTypeFullName = target.SlotsType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                .Replace("global::", "");
+
+            var memberName = target.SlotMapMember.Name;
+            var filenameSafe = $"{container.Name}.Slots.g.cs";
+
+            // Decide whether we can generate a partial member on the type (requires type to be partial)
+            var canGenerateOnType = container.DeclaringSyntaxReferences
+                .Select(r => r.GetSyntax())
+                .OfType<TypeDeclarationSyntax>()
+                .Any(d => d.Modifiers.Any(m => m.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.PartialKeyword)));
+
+            string code;
+            if (canGenerateOnType)
+            {
+                // generate nested SlotsAccessors as a partial member
+                var sb = new StringBuilder();
+                sb.AppendLine("#nullable enable");
+                sb.AppendLine();
+                sb.AppendLine($"namespace {container.ContainingNamespace.ToDisplayString()};");
+                sb.AppendLine();
+                sb.AppendLine($"public partial class {container.Name}");
+                sb.AppendLine("{");
+                sb.AppendLine("    private SlotsAccessors? _accessors;");
+                sb.AppendLine();
+                sb.AppendLine($"    public SlotsAccessors Accessors => _accessors ??= new SlotsAccessors({memberName});");
+                sb.AppendLine();
+                sb.AppendLine("    public sealed class SlotsAccessors");
+                sb.AppendLine("    {");
+                sb.AppendLine($"        private readonly TailwindVariants.SlotMap<{slotsTypeFullName}> _slots;");
+                sb.AppendLine();
+                sb.AppendLine($"        public SlotsAccessors(TailwindVariants.SlotMap<{slotsTypeFullName}> slots) => _slots = slots;");
+                foreach (var p in slotProps)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine($"        public string? {p.Name} => _slots[s => s.{p.Name}];");
+                }
+                sb.AppendLine("    }");
+                sb.AppendLine("}");
+                code = sb.ToString();
+            }
+            else
+            {
+                // Generate extension methods instead (safe, non-intrusive)
+                var sb = new StringBuilder();
+                sb.AppendLine("#nullable enable");
+                sb.AppendLine();
+                sb.AppendLine($"namespace {container.ContainingNamespace.ToDisplayString()};");
+                sb.AppendLine();
+                sb.AppendLine($"public static class {container.Name}SlotsExtensions");
+                sb.AppendLine("{");
+                sb.AppendLine($"    public static string? Get{container.Name}Base(this TailwindVariants.SlotMap<{slotsTypeFullName}> slots) => slots[s => s.Base];");
+                // A better approach: generate one method per property
+                foreach (var p in slotProps)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine($"    public static string? Get{p.Name}(this TailwindVariants.SlotMap<{slotsTypeFullName}> slots) => slots[s => s.{p.Name}];");
+                }
+                sb.AppendLine("}");
+                code = sb.ToString();
+            }
+
+            spc.AddSource(filenameSafe, SourceText.From(code, Encoding.UTF8));
+        }
+    }
+
+    private readonly record struct SlotsGenerationTarget(INamedTypeSymbol ContainingType, ISymbol SlotMapMember, INamedTypeSymbol SlotsType);
+}
