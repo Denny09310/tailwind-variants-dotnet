@@ -46,8 +46,8 @@ Both packages support:
 ### Button (without additional slots)
 
 ```csharp
-using TailwindVariants;
-using static TailwindVariants.TvFunction;
+using TailwindVariants.NET;
+using static TailwindVariants.NET.TvFunction;
 
 public static class Button
 {

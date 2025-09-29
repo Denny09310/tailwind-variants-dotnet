@@ -4,7 +4,7 @@
   </Folder>
   <Folder Name="/src/">
     <File Path="src/Directory.Build.props" />
-    <Project Path="src/TailwindVariants.SourceGenerator/TailwindVariants.SourceGenerator.csproj" />
-    <Project Path="src/TailwindVariants/TailwindVariants.csproj" />
+    <Project Path="src/TailwindVariants.NET.SourceGenerators/TailwindVariants.NET.SourceGenerators.csproj" />
+    <Project Path="src/TailwindVariants.NET/TailwindVariants.NET.csproj" />
   </Folder>
 </Solution>
