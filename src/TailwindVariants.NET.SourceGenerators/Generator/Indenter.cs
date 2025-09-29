@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace TailwindVariants.SourceGenerator;
+namespace TailwindVariants.NET.SourceGenerator;
 
 internal class Indenter
 {

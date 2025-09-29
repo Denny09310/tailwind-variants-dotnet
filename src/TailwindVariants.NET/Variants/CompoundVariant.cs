@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Linq.Expressions;
 
-namespace TailwindVariants;
+namespace TailwindVariants.NET;
 
 /// <summary>
 /// A compound variant: a predicate on owner + slot classes to apply when the predicate matches.

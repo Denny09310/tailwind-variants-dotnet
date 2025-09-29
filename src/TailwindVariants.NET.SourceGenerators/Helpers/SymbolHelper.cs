@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Text;
 
-namespace TailwindVariants.SourceGenerator;
+namespace TailwindVariants.NET.SourceGenerator;
 
 internal static class SymbolHelper
 {

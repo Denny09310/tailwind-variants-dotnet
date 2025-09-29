@@ -7,10 +7,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\TailwindVariants\TailwindVariants.csproj" />
+		<ProjectReference Include="..\..\src\TailwindVariants.NET\TailwindVariants.NET.csproj" />
 
 		<ProjectReference 
-			Include="..\..\src\TailwindVariants.SourceGenerator\TailwindVariants.SourceGenerator.csproj"
+			Include="..\..\src\TailwindVariants.NET.SourceGenerators\TailwindVariants.NET.SourceGenerators.csproj"
 			OutputItemType="Analyzer"
 			ReferenceOutputAssembly="false" />
 	</ItemGroup>

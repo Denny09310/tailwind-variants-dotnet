@@ -1,6 +1,6 @@
 ﻿using Tw = TailwindMerge.TwMerge;
 
-namespace TailwindVariants;
+namespace TailwindVariants.NET;
 
 /// <summary>
 /// A delegate that returns a slot's classes from a typed slots object.

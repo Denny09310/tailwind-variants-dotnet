@@ -1,4 +1,4 @@
-﻿namespace TailwindVariants;
+﻿namespace TailwindVariants.NET;
 
 /// <summary>
 /// The options passed into Tv(...) describing base, variants, slots, and compound variants.

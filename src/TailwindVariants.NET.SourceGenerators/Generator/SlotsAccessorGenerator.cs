@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using System.Text;
 
-namespace TailwindVariants.SourceGenerator;
+namespace TailwindVariants.NET.SourceGenerator;
 
 [Generator]
 public class SlotsAccessorGenerator : IIncrementalGenerator
@@ -13,12 +13,12 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
     {
         // Emit extension methods for SlotMap at post-init so they are available to generated code and consumers
         context.RegisterPostInitializationOutput(ctx =>
-            ctx.AddSource("TailwindVariants_SlotMap_Extensions.g.cs",
+            ctx.AddSource("TailwindVariants_NET_SlotMap_Extensions.g.cs",
                           SourceText.From(SourceGenerationHelper.ExtensionMethods, Encoding.UTF8)));
 
         // Find the SlotMap<> symbol in the compilation
         var slotMapSymbolProvider = context.CompilationProvider
-            .Select((comp, _) => comp.GetTypeByMetadataName("TailwindVariants.SlotMap`1"));
+            .Select((comp, _) => comp.GetTypeByMetadataName("TailwindVariants.NET.SlotMap`1"));
 
         // Collect all type declarations (classes / records / structs) from syntax
         var candidateTypes = context.SyntaxProvider.CreateSyntaxProvider(
@@ -127,7 +127,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         var filename = SymbolHelper.MakeSafeFileName(rawFileName);
 
         var sb = new Indenter();
-        sb.AppendLine("using TailwindVariants;");
+        sb.AppendLine("using TailwindVariants.NET;");
         sb.AppendLine();
         sb.AppendLine("#nullable enable");
         sb.AppendLine();

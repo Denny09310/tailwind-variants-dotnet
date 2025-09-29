@@ -1,5 +1,5 @@
-using TailwindVariants;
-using static TailwindVariants.TvFunction;
+using TailwindVariants.NET;
+using static TailwindVariants.NET.TvFunction;
 
 namespace Demo.Components.Shared;
 

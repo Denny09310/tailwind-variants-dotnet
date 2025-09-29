@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace TailwindVariants;
+namespace TailwindVariants.NET;
 
 /// <summary>
 /// Collection of compound variants.

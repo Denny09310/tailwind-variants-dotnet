@@ -1,4 +1,4 @@
-﻿namespace TailwindVariants.SourceGenerator;
+﻿namespace TailwindVariants.NET.SourceGenerator;
 
 public static class SourceGenerationHelper
 {
@@ -10,7 +10,7 @@ public static class SourceGenerationHelper
 
         #nullable enable
 
-        namespace TailwindVariants
+        namespace TailwindVariants.NET
         {
             public static class SlotsMapExtensions
             {

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
-namespace TailwindVariants;
+namespace TailwindVariants.NET;
 
 /// <summary>
 /// A general-purpose variant keyed by a variant value type.

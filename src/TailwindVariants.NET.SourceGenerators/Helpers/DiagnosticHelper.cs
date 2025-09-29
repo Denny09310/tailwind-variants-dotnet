@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace TailwindVariants.SourceGenerator;
+namespace TailwindVariants.NET.SourceGenerator;
 
 internal class DiagnosticHelper
 {

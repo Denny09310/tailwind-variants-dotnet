@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace TailwindVariants;
+namespace TailwindVariants.NET;
 
 /// <summary>
 /// Represents a small wrapper over one or more CSS class fragments.

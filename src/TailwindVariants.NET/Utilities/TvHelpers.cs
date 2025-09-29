@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace TailwindVariants;
+namespace TailwindVariants.NET;
 
 /// <summary>
 /// Helper methods for working with slot accessor expressions.

@@ -1,4 +1,4 @@
-﻿namespace TailwindVariants;
+﻿namespace TailwindVariants.NET;
 
 /// <summary>
 /// Represents a class of slots (the minimal contract).

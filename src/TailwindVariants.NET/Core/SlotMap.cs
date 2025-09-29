@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
-using static TailwindVariants.TvHelpers;
+using static TailwindVariants.NET.TvHelpers;
 
-namespace TailwindVariants;
+namespace TailwindVariants.NET;
 
 /// <summary>
 /// SlotMap is a simple mapping of slot names to final computed class strings (null allowed).

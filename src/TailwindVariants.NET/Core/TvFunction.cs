@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Linq.Expressions;
-using static TailwindVariants.TvHelpers;
+using static TailwindVariants.NET.TvHelpers;
 
-namespace TailwindVariants;
+namespace TailwindVariants.NET;
 
 /// <summary>
 /// Core function factory that builds a Tailwind-variants-like function.

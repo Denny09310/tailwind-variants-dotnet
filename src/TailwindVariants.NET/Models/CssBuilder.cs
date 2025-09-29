@@ -1,4 +1,4 @@
-﻿namespace TailwindVariants;
+﻿namespace TailwindVariants.NET;
 
 internal class CssBuilder()
 {
