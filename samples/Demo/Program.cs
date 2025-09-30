@@ -1,5 +1,4 @@
 using Demo.Components;
-using Demo.Components.Layout;
 using TailwindMerge.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,8 +8,6 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddTailwindMerge();
-
-builder.Services.AddSingleton<SidebarService>();
 
 var app = builder.Build();
 
