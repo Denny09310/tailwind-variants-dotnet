@@ -1,0 +1,15 @@
+﻿@inherits TailwindComponentBase
+
+<a class="@_slots.GetBase()" @attributes="AdditionalAttributes">
+    @ChildContent
+</a>
+
+@code
+{
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public Slots? Classes { get; set; }
+
+    [Parameter] public Variants Variant { get; set; } = Variants.Underline;
+    [Parameter] public Colors Color { get; set; }
+    [Parameter] public Sizes Size { get; set; } = Sizes.Medium;
+}

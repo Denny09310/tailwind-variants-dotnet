@@ -6,6 +6,15 @@
     [role="button"]:not(:disabled) {
         cursor: pointer;
     }
+    ::-webkit-scrollbar {
+        @apply w-2;
+    }
+    ::-webkit-scrollbar-track {
+        @apply bg-gray-100 dark:bg-neutral-700 rounded;
+    }
+    ::-webkit-scrollbar-thumb {
+        @apply bg-gray-300 dark:bg-neutral-500 rounded;
+    }
 }
 
 /* Defaults hover styles on all devices */

@@ -19,7 +19,7 @@ public partial class Button : ISlotted<Button.Slots>
             {
                 [Variants.Solid] = "bg-slate-900 text-white hover:bg-slate-700 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-100",
                 [Variants.Outline] = "border border-slate-200 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-800",
-                [Variants.Ghost] = "hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-100 data-[state=open]:bg-slate-100 dark:data-[state=open]:bg-slate-800",
+                [Variants.Ghost] = "hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-100",
                 [Variants.Link] = "underline-offset-4 hover:underline text-slate-900 dark:text-slate-100 hover:bg-transparent dark:hover:bg-transparent",
             },
             [b => b.Size] = new Variant<Sizes, Slots>()

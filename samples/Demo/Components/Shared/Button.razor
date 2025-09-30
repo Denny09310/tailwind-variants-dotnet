@@ -1,17 +1,8 @@
 ﻿@inherits TailwindComponentBase
 
-@if (!string.IsNullOrEmpty(Href))
-{
-	<a class="@_slots.GetBase()" href="@Href" @attributes="AdditionalAttributes">
-		@RenderInnerContent()
-	</a>
-}
-else
-{
-	<button class="@_slots.GetBase()" type="@Type" @attributes="AdditionalAttributes">
-		@RenderInnerContent()
-	</button>
-}
+<button class="@_slots.GetBase()" type="@Type" @attributes="AdditionalAttributes">
+	@RenderInnerContent()
+</button>
 
 @code 
 {
@@ -29,9 +20,6 @@ else
 	
 	[Parameter] 
 	public string Type { get; set; } = "button";
-	
-	[Parameter] 
-	public string? Href { get; set; }
 	
 	[Parameter] 
 	public bool FullWidth { get; set; }

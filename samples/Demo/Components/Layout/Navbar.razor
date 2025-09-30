@@ -1,11 +1,14 @@
-﻿<nav class="sticky top-0 backdrop-blur">
+﻿@rendermode InteractiveServer
+@inject SidebarService SidebarService
+
+<nav class="sticky top-0 z-30 backdrop-blur">
 	<div class="mx-auto flex min-h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
 		<!-- Logo -->
 		<div class="flex flex-shrink-0 items-center gap-x-2">
-			<a href="" class="inline-flex items-center gap-x-2 text-xl font-bold text-slate-900 dark:text-white">
+			<Link href="" Variant="@Link.Variants.Ghost" Class="gap-x-2">
 				<Logo />
 				<span class="text-sm font-medium tracking-tight">Tailwind Variants Dotnet</span>
-			</a>
+			</Link>
 			<Badge Size="@Badge.Sizes.Small">
 				v1.0.0
 			</Badge>
@@ -13,32 +16,23 @@
 		<!-- Right Side -->
 		<div class="flex items-center gap-x-2">
 			<div class="hidden space-x-4 md:flex">
-				<Button Href="docs" Variant="@Button.Variants.Link">
-					<IconContent>
-						<svg class="size-5 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M12 7v14" />
-							<path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
-						</svg>
-					</IconContent>
-					<ChildContent>
-						Docs
-					</ChildContent>
-				</Button>
+				<Link href="#" Variant="@Link.Variants.Ghost" Size="@Link.Sizes.Small">
+					Docs
+				</Link>
 			</div>
 			<!-- Community Links -->
 			<div>
-				<Button Variant="@Button.Variants.Link" IconOnly>
-					<IconContent>
-						<svg class="size-6 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-							<path d="M9 18c-4.51 2-5-2-7-2" />
-						</svg>
-					</IconContent>
-				</Button>
+				<Link href="https://github.com/Denny09310/tailwind-variants-dotnet" target="_blank" Variant="@Link.Variants.Ghost">
+					<svg class="size-6 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+						<path d="M9 18c-4.51 2-5-2-7-2" />
+					</svg>
+					<span class="sr-only">GitHub Repository</span>
+				</Link>
 			</div>
 			<!-- Mobile Menu Button -->
 			<div class="md:hidden">
-				<Button Variant="@Button.Variants.Ghost" IconOnly>
+				<Button Variant="@Button.Variants.Ghost" IconOnly @onclick="SidebarService.Toggle">
 					<IconContent>
 						<svg class="size-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />

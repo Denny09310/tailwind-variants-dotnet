@@ -12,7 +12,7 @@ public partial class TailwindComponentBase : ComponentBase
     /// Additional HTML attributes that will be splatted onto the root element.
     /// </summary>
     [Parameter(CaptureUnmatchedValues = true)]
-    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 
     /// <summary>
     /// Optional explicit class string available on components.
