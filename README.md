@@ -1,7 +1,6 @@
 ﻿# TailwindVariants.NET
 
 **TailwindVariants.NET** is a strongly typed Blazor library for managing **TailwindCSS variants** and slot-based styling.
-It takes inspiration from libraries like `tailwind-variants` (in the React ecosystem).
 
 > ⚠️ This package is **not related** to `tailwind-variants` — it only draws inspiration from its ideas and applies them to a strongly typed, Blazor-first API.
 
@@ -135,14 +134,23 @@ This is enabled by the **incremental source generator** (`TailwindVariants.Sourc
 
 This project draws inspiration from several excellent projects:
 
-* **tailwind-variants** — for the general concept of variants & compound variants.
+* [**tailwind-variants**](https://github.com/heroui-inc/tailwind-variants) — for the general concept of variants & compound variants.
 
-Special thanks to the authors/maintainers of the following projects that are either used or inspired this work:
+Special thanks to the authors of the following projects that are either used or inspired this work:
 
 * [**tailwind-merge-dotnet**](https://github.com/desmondinho/tailwind-merge-dotnet) — Tailwind class merge utilities.
-* [**BlazorComponentUtilities**](https://github.com/EdCharbeneau/BlazorComponentUtilities) — Blazor CSS builder utilities.
 
 Check out those projects for more tools and context.
+
+---
+
+## Contributing
+
+Contributions are always welcome!
+
+Please follow our [contributing guidelines](./CONTRIBUTING.md).
+
+Please adhere to this project's [CODE_OF_CONDUCT](./CODE_OF_CONDUCT.md).
 
 ---
 
