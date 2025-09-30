@@ -16,6 +16,8 @@ internal static class SymbolHelper
         return sb.ToString();
     }
 
+    public const string SlotsMapTypeName = "TailwindVariants.NET.SlotsMap`1";
+
     public static string MakeSafeIdentifier(string name)
     {
         if (string.IsNullOrEmpty(name)) return "_";

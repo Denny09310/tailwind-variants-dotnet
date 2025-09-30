@@ -13,7 +13,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
     {
         // Find the SlotMap<> symbol in the compilation
         var slotMapSymbolProvider = context.CompilationProvider
-            .Select((comp, _) => comp.GetTypeByMetadataName("TailwindVariants.NET.SlotMap`1"));
+            .Select((comp, _) => comp.GetTypeByMetadataName(SymbolHelper.SlotsMapTypeName));
 
         // Collect all type declarations (classes / records / structs) from syntax
         var candidateTypes = context.SyntaxProvider.CreateSyntaxProvider(
@@ -113,7 +113,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
         // Full type display for the slots generic type argument
         var slotsTypeFull = slotsType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", "");
-        var slotMapTypeFull = $"SlotMap<{slotsTypeFull}>";
+        var slotMapTypeFull = $"SlotsMap<{slotsTypeFull}>";
 
         // Prepare unique filename
         var fq = slotsType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
