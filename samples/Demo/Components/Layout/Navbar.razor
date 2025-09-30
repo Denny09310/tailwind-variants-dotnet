@@ -19,6 +19,7 @@
 				<Link href="#" Variant="@Link.Variants.Ghost" Size="@Link.Sizes.Small">
 					Docs
 				</Link>
+				<Textbox @bind-Value="_value" Placeholder="Search documentation" Size="@Textbox.Sizes.Small" />
 			</div>
 			<!-- Community Links -->
 			<div>
@@ -43,3 +44,10 @@
 		</div>
 	</div>
 </nav>
+
+<p>@_value</p>
+
+@code
+{
+	private string? _value;
+}

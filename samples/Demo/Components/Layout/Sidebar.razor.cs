@@ -12,8 +12,8 @@ public partial class Sidebar : ISlotted<Sidebar.Slots>
         {
             [s => s.Backdrop] = "absolute inset-0 bg-black/40 transition-opacity dark:bg-black/60",
             [s => s.Panel] = "fixed left-0 top-0 h-full w-64 transform transition-transform border-r bg-white shadow-lg dark:bg-neutral-900 dark:border-neutral-800 dark:shadow-none",
-            [s => s.Link] = "px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700/50",
-            [s => s.ActiveLink] = "bg-gray-50! dark:bg-gray-700/50!"
+            [s => s.Link] = "px-3 py-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50",
+            [s => s.ActiveLink] = "bg-slate-50! dark:bg-slate-700/50!"
         },
         Variants = new()
         {
