@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+		<!-- NuGet Package Metadata -->
+		<PackageId>TailwindVariants.NET</PackageId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="TailwindMerge.NET" Version="1.0.0" />
+	</ItemGroup>
+
+</Project>

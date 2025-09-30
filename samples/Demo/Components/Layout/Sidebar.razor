@@ -1,0 +1,67 @@
+@rendermode InteractiveServer
+@inherits TailwindComponentBase
+@implements IDisposable
+@inject SidebarService SidebarService
+
+<aside class="@Map.GetBase()">
+	<div class="p-4">
+		@RenderLinksContent()
+	</div>
+</aside>
+
+<!-- Mobile off-canvas drawer -->
+<div class="md:hidden">
+	<div class="fixed inset-0" aria-hidden="@AriaHidden">
+		<!-- backdrop -->
+		<div class="@Map.GetBackdrop()" aria-hidden="true" @onclick="Close"></div>
+
+		<!-- sliding panel -->
+		<aside class="@Map.GetPanel()" role="dialog" aria-modal="true">
+			<div class="p-4">
+				<div class="flex items-center justify-between">
+					<h3 class="text-lg font-semibold">Menu</h3>
+					<button class="p-2" @onclick="Close" aria-label="Close menu">
+						<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+						</svg>
+					</button>
+				</div>
+				@RenderLinksContent()
+			</div>
+		</aside>
+	</div>
+</div>
+
+@code
+{
+	[Parameter]
+	public Slots? Classes { get; set; }
+
+	private string AriaHidden => SidebarService.IsOpen ? "false" : "true";
+
+	private bool Open => SidebarService.IsOpen;
+
+	public void Dispose()
+	{
+		SidebarService.Changed -= StateHasChanged;
+	}
+
+	protected override void OnInitialized()
+	{
+		SidebarService.Changed += StateHasChanged;
+	}
+
+	private void Close()
+	{
+		SidebarService.Close();
+	}
+
+	private RenderFragment RenderLinksContent() => __builder =>
+	{
+		<nav class="mt-4 flex flex-col gap-1 text-sm md:mt-0">
+			<NavLink class="@Map.GetLink()" href=""  ActiveClass="@Map.GetActiveLink()" Match="NavLinkMatch.All" @onclick="Close">Overview</NavLink>
+			<NavLink class="@Map.GetLink()" href="#" ActiveClass="@Map.GetActiveLink()" @onclick="Close">Guides</NavLink>
+			<NavLink class="@Map.GetLink()" href="#" ActiveClass="@Map.GetActiveLink()" @onclick="Close">Components</NavLink>
+		</nav>
+	};
+}
