@@ -25,7 +25,7 @@ public partial class Badge : ISlotted<Badge.Slots>
         }
     });
 
-    private SlotMap<Slots> _slots = new();
+    private SlotsMap<Slots> _slots = new();
 
     protected override void OnParametersSet()
     {

@@ -10,7 +10,7 @@ public delegate string? SlotAccessor<TSlots>(TSlots slots) where TSlots : ISlots
 /// <summary>
 /// Return type of Tv: given an owner and a TwMerge instance, returns a SlotMap.
 /// </summary>
-public delegate SlotMap<TSlots> TvReturnType<TOwner, TSlots>(
+public delegate SlotsMap<TSlots> TvReturnType<TOwner, TSlots>(
     TOwner owner,
     Tw merge
 )

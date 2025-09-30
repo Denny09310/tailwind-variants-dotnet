@@ -6,7 +6,7 @@ namespace TailwindVariants.NET;
 /// <summary>
 /// SlotMap is a simple mapping of slot names to final computed class strings (null allowed).
 /// </summary>
-public class SlotMap<TSlots> where TSlots : ISlots
+public class SlotsMap<TSlots> where TSlots : ISlots
 {
     private readonly Dictionary<string, string?> _map = new(StringComparer.Ordinal);
 
@@ -23,9 +23,9 @@ public class SlotMap<TSlots> where TSlots : ISlots
     /// <summary>
     /// Create a SlotMap from a prefilled dictionary.
     /// </summary>
-    public static implicit operator SlotMap<TSlots>(Dictionary<string, string?> map)
+    public static implicit operator SlotsMap<TSlots>(Dictionary<string, string?> map)
     {
-        var slots = new SlotMap<TSlots>();
+        var slots = new SlotsMap<TSlots>();
         foreach (var (key, value) in map)
         {
             slots.Add(key, value);

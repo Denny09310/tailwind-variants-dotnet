@@ -47,7 +47,7 @@ public partial class Button : ISlotted<Button.Slots>
         },
     });
 
-    private SlotMap<Slots> _slots = new();
+    private SlotsMap<Slots> _slots = new();
 
     public enum Sizes
     { Small, Medium, Large, }
