@@ -10,6 +10,9 @@ public class SlotsMap<TSlots> where TSlots : ISlots
 {
     private readonly Dictionary<string, string?> _map = new(StringComparer.Ordinal);
 
+    /// <summary>
+    /// Gets a read-only dictionary containing key-value pairs mapped by string identifiers.
+    /// </summary>
     public IReadOnlyDictionary<string, string?> Map => _map;
 
     /// <summary>
