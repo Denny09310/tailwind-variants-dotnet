@@ -124,8 +124,14 @@ public static class TvFunction
         TOwner owner,
         Dictionary<string, CssBuilder> builders,
         IReadOnlyDictionary<string, CompiledVariant<TOwner, TSlots>> baseVariants)
-        where TSlots : ISlots
+        where TSlots : ISlots, new()
+        where TOwner : ISlotted<TSlots>
     {
+        if (!string.IsNullOrEmpty(owner.Class))
+        {
+            AddClassForSlot<TSlots>(builders, s => s.Base, owner.Class);
+        }
+
         foreach (var compiled in baseVariants.Values)
         {
             try

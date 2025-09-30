@@ -10,6 +10,11 @@ public interface ISlotted<TSlots>
     where TSlots : ISlots
 {
     /// <summary>
+    /// Gets the base slot CSS classes.
+    /// </summary>
+    string? Class { get; }
+
+    /// <summary>
     /// Gets the slot-based CSS classes.
     /// </summary>
     TSlots? Classes { get; }
