@@ -6,9 +6,19 @@ using System.Text;
 
 namespace TailwindVariants.NET.SourceGenerator;
 
+/// <summary>
+/// Generates source code to provide strongly-typed accessors and extension methods for slot-based mapping types at
+/// compile time.
+/// </summary>
+/// <remarks>This generator scans the compilation for types that use slot mapping patterns and produces helper
+/// classes, enums, and extension methods to simplify and optimize access to slot properties. The generated code enables
+/// type-safe access to slot names and values, reducing reliance on string-based lookups and improving maintainability.
+/// This generator is intended for use with types following the SlotMap&lt;T&gt; convention and is typically invoked
+/// automatically by the build process when included in a project.</remarks>
 [Generator]
 public class SlotsAccessorGenerator : IIncrementalGenerator
 {
+    ///<inheritdoc />
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Find the SlotMap<> symbol in the compilation
@@ -86,8 +96,8 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         if (properties.Length == 0)
         {
             var diag = Diagnostic.Create(
-                DiagnosticHelper.NoPropertiesDescriptor, 
-                Location.None, 
+                DiagnosticHelper.NoPropertiesDescriptor,
+                Location.None,
                 slotsType.ToDisplayString());
 
             spc.ReportDiagnostic(diag);

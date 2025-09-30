@@ -8,7 +8,7 @@
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<EnforceExtendedAnalyzerRules>enable</EnforceExtendedAnalyzerRules>
 		<IsRoslynComponent>true</IsRoslynComponent>
-		<IsPackable>true</IsPackable>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 
 		<!-- NuGet Package Metadata -->
 		<PackageId>TailwindVariants.NET.SourceGenerator</PackageId>
