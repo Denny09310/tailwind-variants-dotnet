@@ -46,14 +46,13 @@ Both packages support:
 
 ```csharp
 using TailwindVariants.NET;
-using static TailwindVariants.NET.TvFunction;
 
 public static class Button
 {
-    private static readonly TvReturnType<Button, Slots> _button = Tv<Button, Slots>(new()
-    {
-        Base = "font-semibold border rounded",
-        Variants = new()
+    private static readonly TvOptions<Button, Slots> _button = new
+    (
+        @base: "font-semibold border rounded",
+        variants: new()
         {
             [b => b.Variant] = new Variant<Variants, Slots>()
             {
@@ -66,20 +65,20 @@ public static class Button
               [Sizes.Medium] = "text-base py-2 px-4",
             },
         }
-        CompoundVariants = 
+        compoundVariants: 
         [
             new(b => b.Variant == Variants.Primary && !b.Disabled)
             {
                 Class = "hover:bg-blue-600"
             }
         ]
-    });
+    );
 
     private SlotsMap<Slots> _slots = new();
 
     protected override void OnParametersSet()
     {
-        _slots = _button(this, Tw);
+        _slots = Tv.Invoke(this, _button);
     }
 
     public sealed class Slots : ISlots
