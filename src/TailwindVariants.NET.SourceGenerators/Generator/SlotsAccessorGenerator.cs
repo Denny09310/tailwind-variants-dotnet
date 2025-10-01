@@ -135,7 +135,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
     private static bool HasProperties(SlotsAccessorToGenerate accessor, out Diagnostic diag)
     {
-        if (accessor.Properties.Length == 0)
+        if (accessor.Properties.IsEmpty)
         {
             diag = Diagnostic.Create(
                DiagnosticHelper.NoPropertiesDescriptor,
@@ -297,8 +297,8 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         string NamespaceName,
         string Modifiers,
         bool IsPartial,
-        ImmutableArray<string> Hierarchy,
-        ImmutableArray<string> Properties)
+        EquatableArray<string> Hierarchy,
+        EquatableArray<string> Properties)
     {
         public Location? Location { get; init; }
     };
