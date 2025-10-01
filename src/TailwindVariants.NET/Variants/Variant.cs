@@ -9,7 +9,7 @@ namespace TailwindVariants.NET;
 public class Variant<TVariant, TSlots> : IVariant<TSlots>,
     IEnumerable<KeyValuePair<TVariant, SlotCollection<TSlots>>>
     where TVariant : notnull
-    where TSlots : ISlots
+    where TSlots : ISlots, new()
 {
     private readonly Dictionary<TVariant, SlotCollection<TSlots>> _variants = [];
 

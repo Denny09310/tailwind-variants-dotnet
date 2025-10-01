@@ -7,7 +7,7 @@ namespace TailwindVariants.NET;
 /// A collection mapping Slot accessors to ClassValue objects.
 /// </summary>
 public class SlotCollection<TSlots>() : IEnumerable<KeyValuePair<Expression<SlotAccessor<TSlots>>, ClassValue>>
-    where TSlots : ISlots
+    where TSlots : ISlots, new()
 {
     private readonly Dictionary<Expression<SlotAccessor<TSlots>>, ClassValue> _slots = [];
 

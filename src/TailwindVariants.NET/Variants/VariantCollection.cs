@@ -7,7 +7,8 @@ namespace TailwindVariants.NET;
 /// Collection of variant definitions keyed by an accessor expression.
 /// </summary>
 public class VariantCollection<TOwner, TSlots> : IEnumerable<KeyValuePair<Expression<VariantAccessor<TOwner>>, IVariant<TSlots>>>
-    where TSlots : ISlots
+    where TSlots : ISlots, new()
+    where TOwner : ISlotted<TSlots>
 {
     private readonly Dictionary<Expression<VariantAccessor<TOwner>>, IVariant<TSlots>> _variants = [];
 
