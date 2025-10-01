@@ -108,7 +108,7 @@ public partial class Textbox : ISlotted<Textbox.Slots>
     }
 
     // Slots that can be overridden via the Classes parameter
-    public sealed class Slots : ISlots
+    public sealed partial class Slots : ISlots
     {
         public string? Base { get; set; }
         public string? Error { get; set; }

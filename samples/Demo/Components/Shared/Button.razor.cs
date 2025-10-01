@@ -59,7 +59,7 @@ public partial class Button : ISlotted<Button.Slots>
         _slots = Tv.Invoke(this, _button);
     }
 
-    public sealed class Slots : ISlots
+    public sealed partial class Slots : ISlots
     {
         public string? Base { get; set; }
         public string? Icon { get; set; }

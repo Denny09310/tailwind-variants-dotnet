@@ -37,7 +37,7 @@ public partial class Badge : ISlotted<Badge.Slots>
     public enum Sizes
     { Small, Medium, Large, }
 
-    public sealed class Slots : ISlots
+    public sealed partial class Slots : ISlots
     {
         public string? Base { get; set; }
     }

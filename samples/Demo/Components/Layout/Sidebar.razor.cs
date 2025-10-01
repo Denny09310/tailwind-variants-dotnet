@@ -35,7 +35,7 @@ public partial class Sidebar : ISlotted<Sidebar.Slots>
     // I don't like this one, but OnParametersSet is not being invoked
     private SlotsMap<Slots> Map => Tv.Invoke(this, _sidebar);
 
-    public sealed class Slots : ISlots
+    public sealed partial class Slots : ISlots
     {
         public string? Backdrop { get; set; }
         public string? Base { get; set; }
