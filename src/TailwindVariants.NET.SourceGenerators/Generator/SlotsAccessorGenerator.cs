@@ -26,25 +26,18 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
             .CreateSyntaxProvider(
                 static (node, _) => node is TypeDeclarationSyntax,
                 static (ctx, _) => ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) as INamedTypeSymbol)
-            .Where(static s => s is not null)
-            .Collect();
+            .Where(static s => s is not null && ImplementsISlots(s))
+            .Select(static (symbol, _) => symbol);
 
-        context.RegisterSourceOutput(candidates, static (spc, types) => Execute(types!, spc));
+        context.RegisterSourceOutput(candidates, GenerateForSlotsType);
     }
 
-    private static void Execute(ImmutableArray<INamedTypeSymbol> types, SourceProductionContext spc)
+    private static void GenerateForSlotsType(SourceProductionContext spc, INamedTypeSymbol? slotsType)
     {
-        foreach (var type in types)
+        if (slotsType == null)
         {
-            if (!ImplementsISlots(type))
-                continue;
-
-            GenerateForSlotsType(type, spc);
+            return;
         }
-    }
-
-    private static void GenerateForSlotsType(INamedTypeSymbol slotsType, SourceProductionContext spc)
-    {
 
         if (!IsPartial(slotsType, out var diag))
         {
