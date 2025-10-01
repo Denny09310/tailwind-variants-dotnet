@@ -1,14 +1,13 @@
 using TailwindVariants.NET;
-using static TailwindVariants.NET.TvFunction;
 
 namespace Demo.Components.Shared;
 
 public partial class Link : ISlotted<Link.Slots>
 {
-    private static readonly TvReturnType<Link, Slots> _link = Tv<Link, Slots>(new()
-    {
-        Base = "inline-flex items-center font-medium transition-colors",
-        Variants = new()
+    private static readonly TvOptions<Link, Slots> _link = new
+    (
+        @base: "inline-flex items-center font-medium transition-colors",
+        variants: new()
         {
             [l => l.Variant] = new Variant<Variants, Slots>()
             {
@@ -29,27 +28,10 @@ public partial class Link : ISlotted<Link.Slots>
                 [Sizes.Medium] = "text-base px-3 py-1.5",
                 [Sizes.Large] = "text-lg px-4 py-2"
             }
-        },
-    });
+        }
+    );
 
     private SlotsMap<Slots> _slots = new();
-
-    protected override void OnParametersSet()
-    {
-        _slots = _link(this, Tw);
-    }
-
-    public sealed class Slots : ISlots
-    {
-        public string? Base { get; set; }
-    }
-
-    public enum Variants
-    {
-        Solid,
-        Ghost,
-        Underline
-    }
 
     public enum Colors
     {
@@ -64,5 +46,22 @@ public partial class Link : ISlotted<Link.Slots>
         Small,
         Medium,
         Large
+    }
+
+    public enum Variants
+    {
+        Solid,
+        Ghost,
+        Underline
+    }
+
+    protected override void OnParametersSet()
+    {
+        _slots = Tv.Invoke(this, _link);
+    }
+
+    public sealed class Slots : ISlots
+    {
+        public string? Base { get; set; }
     }
 }

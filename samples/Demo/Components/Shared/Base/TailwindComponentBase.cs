@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using TailwindMerge;
 
 namespace TailwindVariants.NET;
 
@@ -24,5 +23,5 @@ public partial class TailwindComponentBase : ComponentBase
     /// TailwindMerge service used to merge class strings in a conflict-aware manner.
     /// </summary>
     [Inject]
-    protected TwMerge Tw { get; set; } = default!;
+    protected TwVariants Tv { get; set; } = default!;
 }

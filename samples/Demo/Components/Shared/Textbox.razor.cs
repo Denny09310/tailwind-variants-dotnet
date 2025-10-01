@@ -1,14 +1,13 @@
 using TailwindVariants.NET;
-using static TailwindVariants.NET.TvFunction;
 
 namespace Demo.Components.Shared;
 
 public partial class Textbox : ISlotted<Textbox.Slots>
 {
-    private static readonly TvReturnType<Textbox, Slots> _textbox = Tv<Textbox, Slots>(new()
-    {
-        Base = "block w-full rounded-md border bg-white py-2 px-3 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder:text-neutral-500",
-        Slots = new()
+    private static readonly TvOptions<Textbox, Slots> _textbox = new
+    (
+        @base: "block w-full rounded-md border bg-white py-2 px-3 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder:text-neutral-500",
+        slots: new()
         {
             [t => t.InnerWrapper] = "relative flex items-center",
             [t => t.OuterWrapper] = "flex flex-col gap-1",
@@ -17,7 +16,7 @@ public partial class Textbox : ISlotted<Textbox.Slots>
             [t => t.Label] = "text-sm font-medium text-neutral-700 dark:text-neutral-200",
             [t => t.Error] = "mt-1 text-sm text-red-600"
         },
-        Variants = new()
+        variants: new()
         {
             [t => t.Variant] = new Variant<Variants, Slots>()
             {
@@ -67,7 +66,7 @@ public partial class Textbox : ISlotted<Textbox.Slots>
         },
 
         // Compound variants: special cases combining variant + size + invalid
-        CompoundVariants =
+        compoundVariants:
         [
             // Small + Solid -> slightly reduced padding for compact appearance
             new(b => b.Size == Sizes.Small && b.Variant == Variants.Solid)
@@ -87,7 +86,7 @@ public partial class Textbox : ISlotted<Textbox.Slots>
                 [s => s.OuterWrapper] = "border-b-2"
             }
         ]
-    });
+    );
 
     private SlotsMap<Slots> _slots = new();
 
@@ -105,7 +104,7 @@ public partial class Textbox : ISlotted<Textbox.Slots>
     {
         // When parameters change recompute the slots map (uses the current parameter values)
         // Note: we set the helper/derived properties via closure above (Invalid).
-        _slots = _textbox(this, Tw);
+        _slots = Tv.Invoke(this, _textbox);
     }
 
     // Slots that can be overridden via the Classes parameter

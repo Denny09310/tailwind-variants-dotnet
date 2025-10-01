@@ -2,57 +2,53 @@
 using System.Linq.Expressions;
 using System.Text;
 using static TailwindVariants.NET.TvHelpers;
+using Tw = TailwindMerge.TwMerge;
 
 namespace TailwindVariants.NET;
 
 /// <summary>
 /// Core function factory that builds a Tailwind-variants-like function.
 /// </summary>
-public static class TvFunction
+public class TwVariants(Tw merge)
 {
     /// <summary>
     /// Create a Tv function using the provided options. The returned function is safe to call multiple times;
     /// per-call overrides do not mutate precomputed definitions.
     /// </summary>
-    public static TvReturnType<TOwner, TSlots> Tv<TOwner, TSlots>(TvOptions<TOwner, TSlots> options)
+    public SlotsMap<TSlots> Invoke<TOwner, TSlots>(TOwner owner, TvOptions<TOwner, TSlots> definition)
         where TSlots : ISlots, new()
         where TOwner : ISlotted<TSlots>
     {
-        var baseClasses = PrecomputeBaseAndTopLevelSlots(options);
-        var baseVariants = PrecomputeVariantDefinitions(options);
+        // 1. Start with base slots
+        var builders = definition.BaseSlots.ToDictionary(
+            kv => kv.Key,
+            kv => new StringBuilder(kv.Value));
 
-        return (owner, merge) =>
+        // 2. Apply variants
+        builders = ApplyVariants(owner, builders, definition.BaseVariants);
+
+        // 3. Apply compound variants
+        builders = ApplyCompoundVariants(definition, owner, builders);
+
+        // 4. Apply per-instance slot overrides (Classes property)
+        if (owner.Classes is not null)
         {
-            // 1. Start with base slots
-            var builders = baseClasses.ToDictionary(
-                kv => kv.Key,
-                kv => new StringBuilder(kv.Value));
-
-            // 2. Apply variants
-            builders = ApplyVariants(owner, builders, baseVariants);
-
-            // 3. Apply compound variants
-            builders = ApplyCompoundVariants(options, owner, builders);
-
-            // 4. Apply per-instance slot overrides (Classes property)
-            if (owner.Classes is not null)
+            foreach (var (slot, value) in EnumerateClassesOverrides(owner.Classes))
             {
-                foreach (var (slot, value) in EnumerateClassesOverrides(owner.Classes))
+                if (!builders.TryGetValue(slot, out var builder))
                 {
-                    if (!builders.TryGetValue(slot, out var builder))
-                    {
-                        builder = new StringBuilder();
-                        builders[slot] = builder;
-                    }
-                    builder.Append(value + " ");
+                    builder = new StringBuilder();
+                    builders[slot] = builder;
                 }
+                builder.Append(' ');
+                builder.Append(value);
             }
+        }
 
-            // 5. Build final map
-            return builders.ToDictionary(
-                kv => kv.Key,
-                kv => merge.Merge(kv.Value.ToString()));
-        };
+        // 5. Build final map
+        return builders.ToDictionary(
+            kv => kv.Key,
+            kv => merge.Merge(kv.Value.ToString()));
     }
 
     #region Helpers
@@ -68,14 +64,16 @@ public static class TvFunction
             builder = new StringBuilder();
             builders[name] = builder;
         }
-        builder.Append(classes + " ");
+        builder.Append(' ');
+        builder.Append(classes);
     }
 
     private static Dictionary<string, StringBuilder> ApplyCompoundVariants<TOwner, TSlots>(
         TvOptions<TOwner, TSlots>? options,
         TOwner owner,
         Dictionary<string, StringBuilder> builders)
-        where TSlots : ISlots
+        where TSlots : ISlots, new()
+        where TOwner : ISlotted<TSlots>
     {
         if (options?.CompoundVariants is null)
         {
@@ -156,51 +154,6 @@ public static class TvFunction
 
         return builders;
     }
-
-    private static Dictionary<string, string?> PrecomputeBaseAndTopLevelSlots<TOwner, TSlots>(TvOptions<TOwner, TSlots>? options)
-        where TSlots : ISlots
-    {
-        var map = new Dictionary<string, string?>(StringComparer.Ordinal);
-
-        if (options?.Base is not null)
-        {
-            map[GetSlot<TSlots>(s => s.Base)] = (string)options.Base;
-        }
-
-        if (options?.Slots is not null)
-        {
-            foreach (var (key, value) in options.Slots)
-            {
-                if (value is not null)
-                {
-                    map[GetSlot(key)] = (string)value;
-                }
-            }
-        }
-
-        return map;
-    }
-
-    private static Dictionary<string, CompiledVariant<TOwner, TSlots>> PrecomputeVariantDefinitions<TOwner, TSlots>(TvOptions<TOwner, TSlots>? options)
-        where TSlots : ISlots
-    {
-        var variants = new Dictionary<string, CompiledVariant<TOwner, TSlots>>(StringComparer.Ordinal);
-
-        if (options?.Variants is not null)
-        {
-            foreach (var (key, value) in options.Variants)
-            {
-                var id = key.ToString() ?? Guid.NewGuid().ToString();
-                var accessor = key.Compile();
-                variants[id] = new CompiledVariant<TOwner, TSlots>(key, value, accessor);
-            }
-        }
-
-        return variants;
-    }
-
-    private record struct CompiledVariant<TOwner, TSlots>(Expression<VariantAccessor<TOwner>> Expr, IVariant<TSlots> Entry, VariantAccessor<TOwner> Accessor)
-        where TSlots : ISlots;
 
     #endregion Helpers
 }

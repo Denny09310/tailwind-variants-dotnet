@@ -1,14 +1,13 @@
 using TailwindVariants.NET;
-using static TailwindVariants.NET.TvFunction;
 
 namespace Demo.Components.Shared;
 
 public partial class Badge : ISlotted<Badge.Slots>
 {
-    private static readonly TvReturnType<Badge, Slots> _badge = Tv<Badge, Slots>(new()
-    {
-        Base = "inline-flex items-center rounded-full border border-transparent px-2.5 py-0.5 text-xs font-medium",
-        Variants = new()
+    private static readonly TvOptions<Badge, Slots> _badge = new
+    (
+        @base: "inline-flex items-center rounded-full border border-transparent px-2.5 py-0.5 text-xs font-medium",
+        variants: new()
         {
             [b => b.Color] = new Variant<Colors, Slots>()
             {
@@ -23,13 +22,13 @@ public partial class Badge : ISlotted<Badge.Slots>
                 [Sizes.Large] = "px-3.5 py-1 text-sm",
             },
         }
-    });
+    );
 
     private SlotsMap<Slots> _slots = new();
 
     protected override void OnParametersSet()
     {
-        _slots = _badge(this, Tw);
+        _slots = Tv.Invoke(this, _badge);
     }
 
     public enum Colors

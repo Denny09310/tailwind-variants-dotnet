@@ -12,4 +12,8 @@
 		<ProjectReference Include="..\..\src\TailwindVariants.NET.SourceGenerators\TailwindVariants.NET.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Components\Layout\Extensions\" />
+	</ItemGroup>
+
 </Project>

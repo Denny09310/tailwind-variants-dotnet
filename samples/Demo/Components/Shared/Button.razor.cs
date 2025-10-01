@@ -1,19 +1,18 @@
 using TailwindVariants.NET;
-using static TailwindVariants.NET.TvFunction;
 
 namespace Demo.Components.Shared;
 
 public partial class Button : ISlotted<Button.Slots>
 {
-    private static readonly TvReturnType<Button, Slots> _button = Tv<Button, Slots>(new()
-    {
-        Base = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none dark:focus:ring-slate-400 dark:focus:ring-offset-slate-900",
-        Slots = new()
+    private static readonly TvOptions<Button, Slots> _button = new
+    (
+        @base: "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none dark:focus:ring-slate-400 dark:focus:ring-offset-slate-900",
+        slots: new()
         {
             [b => b.Icon] = "mr-2 -ml-1",
             [b => b.Spinner] = "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 animate-spin",
         },
-        Variants = new()
+        variants: new()
         {
             [b => b.Variant] = new Variant<Variants, Slots>()
             {
@@ -44,8 +43,8 @@ public partial class Button : ISlotted<Button.Slots>
                     [s => s.Icon] = "m-0"
                 }
             }
-        },
-    });
+        }
+    );
 
     private SlotsMap<Slots> _slots = new();
 
@@ -57,7 +56,7 @@ public partial class Button : ISlotted<Button.Slots>
 
     protected override void OnParametersSet()
     {
-        _slots = _button(this, Tw);
+        _slots = Tv.Invoke(this, _button);
     }
 
     public sealed class Slots : ISlots
