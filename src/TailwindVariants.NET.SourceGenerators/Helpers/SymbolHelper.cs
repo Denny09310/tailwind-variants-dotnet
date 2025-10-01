@@ -1,5 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
-using System.Text;
+﻿using System.Text;
 
 namespace TailwindVariants.NET.SourceGenerator;
 
@@ -35,25 +34,5 @@ internal static class SymbolHelper
             }
         }
         return sb.ToString();
-    }
-
-    public static bool TryGetSlotMapArgument(ITypeSymbol type, INamedTypeSymbol? slotMapSymbol, out INamedTypeSymbol? slotsArg)
-    {
-        slotsArg = null;
-        if (slotMapSymbol == null) return false;
-
-        if (type is INamedTypeSymbol named && named.IsGenericType)
-        {
-            var original = named.OriginalDefinition;
-            if (SymbolEqualityComparer.Default.Equals(original, slotMapSymbol))
-            {
-                if (named.TypeArguments.Length == 1 && named.TypeArguments[0] is INamedTypeSymbol t)
-                {
-                    slotsArg = t;
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }
