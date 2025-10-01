@@ -44,7 +44,8 @@ public static class TvFunction
                         builder = new StringBuilder();
                         builders[slot] = builder;
                     }
-                    builder.Append(value + " ");
+                    builder.Append(' ');
+                    builder.Append(value);
                 }
             }
 
@@ -68,7 +69,8 @@ public static class TvFunction
             builder = new StringBuilder();
             builders[name] = builder;
         }
-        builder.Append(classes + " ");
+        builder.Append(' ');
+        builder.Append(classes);
     }
 
     private static Dictionary<string, StringBuilder> ApplyCompoundVariants<TOwner, TSlots>(
