@@ -33,7 +33,7 @@ public class TwVariants(Tw merge)
         // 4. Apply per-instance slot overrides (Classes property)
         if (owner.Classes is not null)
         {
-            foreach (var (slot, value) in EnumerateClassesOverrides(owner.Classes))
+            foreach (var (slot, value) in owner.Classes.EnumerateOverrides())
             {
                 if (!builders.TryGetValue(slot, out var builder))
                 {
