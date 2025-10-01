@@ -75,7 +75,7 @@ public static class Button
         ]
     });
 
-    private SlotMap<Slots> _slots = new();
+    private SlotsMap<Slots> _slots = new();
 
     protected override void OnParametersSet()
     {

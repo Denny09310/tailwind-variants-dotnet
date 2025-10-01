@@ -13,7 +13,7 @@ namespace TailwindVariants.NET.SourceGenerator;
 /// <remarks>This generator scans the compilation for types that use slot mapping patterns and produces helper
 /// classes, enums, and extension methods to simplify and optimize access to slot properties. The generated code enables
 /// type-safe access to slot names and values, reducing reliance on string-based lookups and improving maintainability.
-/// This generator is intended for use with types following the SlotMap&lt;T&gt; convention and is typically invoked
+/// This generator is intended for use with types following the SlotsMap&lt;T&gt; convention and is typically invoked
 /// automatically by the build process when included in a project.</remarks>
 [Generator]
 public class SlotsAccessorGenerator : IIncrementalGenerator
@@ -21,7 +21,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
     ///<inheritdoc />
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // Find the SlotMap<> symbol in the compilation
+        // Find the SlotsMap<> symbol in the compilation
         var slotMapSymbolProvider = context.CompilationProvider
             .Select((comp, _) => comp.GetTypeByMetadataName(SymbolHelper.SlotsMapTypeName));
 
@@ -52,7 +52,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         if (slotMapSym is null) return;
         if (candidates.IsDefaultOrEmpty) return;
 
-        // Discover unique slots types used as SlotMap<T>
+        // Discover unique slots types used as SlotsMap<T>
         var unique = new Dictionary<INamedTypeSymbol, INamedTypeSymbol>(SymbolEqualityComparer.Default);
 
         foreach (var maybeNamed in candidates)
@@ -65,11 +65,11 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
                 INamedTypeSymbol? slotsArg = null;
                 if (member is IFieldSymbol fs)
                 {
-                    if (SymbolHelper.TryGetSlotMapArgument(fs.Type, slotMapSym, out var a)) slotsArg = a;
+                    if (SymbolHelper.TryGetSlotsMapArgument(fs.Type, slotMapSym, out var a)) slotsArg = a;
                 }
                 else if (member is IPropertySymbol ps)
                 {
-                    if (SymbolHelper.TryGetSlotMapArgument(ps.Type, slotMapSym, out var a)) slotsArg = a;
+                    if (SymbolHelper.TryGetSlotsMapArgument(ps.Type, slotMapSym, out var a)) slotsArg = a;
                 }
 
                 if (slotsArg != null && !unique.ContainsKey(slotsArg))
@@ -167,7 +167,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.AppendLine("}");
         sb.AppendLine();
 
-        // Extension methods on SlotMap<SlotsType>
+        // Extension methods on SlotsMap<SlotsType>
         sb.AppendLine($"public static class {extClassName}");
         sb.AppendLine("{");
         sb.Indent();

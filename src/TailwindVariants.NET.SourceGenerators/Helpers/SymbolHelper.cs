@@ -37,7 +37,7 @@ internal static class SymbolHelper
         return sb.ToString();
     }
 
-    public static bool TryGetSlotMapArgument(ITypeSymbol type, INamedTypeSymbol? slotMapSymbol, out INamedTypeSymbol? slotsArg)
+    public static bool TryGetSlotsMapArgument(ITypeSymbol type, INamedTypeSymbol? slotMapSymbol, out INamedTypeSymbol? slotsArg)
     {
         slotsArg = null;
         if (slotMapSymbol == null) return false;

@@ -4,7 +4,7 @@ using static TailwindVariants.NET.TvHelpers;
 namespace TailwindVariants.NET;
 
 /// <summary>
-/// SlotMap is a simple mapping of slot names to final computed class strings (null allowed).
+/// SlotsMap is a simple mapping of slot names to final computed class strings (null allowed).
 /// </summary>
 public class SlotsMap<TSlots> where TSlots : ISlots
 {
@@ -24,7 +24,7 @@ public class SlotsMap<TSlots> where TSlots : ISlots
     }
 
     /// <summary>
-    /// Create a SlotMap from a prefilled dictionary.
+    /// Create a SlotsMap from a prefilled dictionary.
     /// </summary>
     public static implicit operator SlotsMap<TSlots>(Dictionary<string, string?> map)
     {
