@@ -95,6 +95,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
             Location = symbol.Locations.FirstOrDefault()
         };
     }
+
     #region Helpers
 
     private static ImmutableArray<string> CollectPublicProperties(INamedTypeSymbol type) =>
