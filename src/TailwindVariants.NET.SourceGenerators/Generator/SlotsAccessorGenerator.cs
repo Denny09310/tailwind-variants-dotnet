@@ -196,14 +196,13 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.Indent();
         sb.AppendLine($"public static string? Get(this {slotMapTypeFull} slots, {enumName} key) => slots.Map[{namesClass}.NameOf(key)];");
         sb.Dedent();
-        sb.AppendLine();
 
         sb.Indent();
         foreach (var p in props)
         {
             var safe = SymbolHelper.MakeSafeIdentifier(p.Name);
-            sb.AppendLine($"public static string? Get{safe}(this {slotMapTypeFull} slots) => slots.Get({enumName}.{safe});");
             sb.AppendLine();
+            sb.AppendLine($"public static string? Get{safe}(this {slotMapTypeFull} slots) => slots.Get({enumName}.{safe});");
         }
         sb.Dedent();
 
@@ -242,8 +241,9 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.Indent();
         sb.AppendLine($"private static readonly string[] _names = new[] {{ {string.Join(", ", slotNames.Select(n => "\"" + n + "\""))} }};");
         sb.AppendLine();
-        sb.AppendLine($"public static string NameOf({enumName} key) => _names[(int)key];");
         sb.AppendLine($"public static IReadOnlyList<string> AllNames => _names;");
+        sb.AppendLine();
+        sb.AppendLine($"public static string NameOf({enumName} key) => _names[(int)key];");
         sb.Dedent();
         sb.AppendLine("}");
         sb.AppendLine();
@@ -256,6 +256,8 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
             sb.Dedent();
             sb.AppendLine("}");
         }
+
+        sb.AppendLine();
     }
 
     private static void WriteNestedOpenings(Indenter sb, string[] hierarchy)
