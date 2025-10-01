@@ -101,7 +101,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
     private static ImmutableArray<string> CollectPublicProperties(INamedTypeSymbol type) =>
         [.. type.GetMembers()
             .OfType<IPropertySymbol>()
-            .Where(p => !p.IsStatic && p.DeclaredAccessibility == Accessibility.Public)
+            .Where(p => !p.IsStatic && p.DeclaredAccessibility == Accessibility.Public && p.Type.SpecialType == SpecialType.System_String)
             .OrderBy(p => p.Locations.FirstOrDefault()?.SourceSpan.Start ?? int.MaxValue)
             .ThenBy(p => p.Name, StringComparer.Ordinal)
             .Select(x => x.Name)];
