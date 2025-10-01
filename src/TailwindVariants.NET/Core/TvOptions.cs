@@ -14,7 +14,7 @@ public sealed class TvOptions<TOwner, TSlots>
     /// <summary>
     /// Initializes a new instance of the <see cref="TvOptions{TOwner, TSlots}"/> class.
     /// </summary>
-    /// <param name="base">The base CSS classes to apply to the primary slot.</param>
+    /// <param name="base">The base CSS classes to apply to the base slot.</param>
     /// <param name="slots">A collection mapping slot accessors to their corresponding CSS class values.</param>
     /// <param name="variants">A collection of variant definitions, each keyed by an accessor expression.</param>
     /// <param name="compoundVariants">A collection of compound variants, which apply additional classes based on specific predicates.</param>
@@ -33,7 +33,7 @@ public sealed class TvOptions<TOwner, TSlots>
     }
 
     /// <summary>
-    /// The base CSS classes to apply to the primary slot.
+    /// The base CSS classes to apply to the base slot.
     /// </summary>
     public ClassValue? Base { get; }
 

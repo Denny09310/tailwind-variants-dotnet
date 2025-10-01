@@ -31,8 +31,8 @@ public class ClassValue : IEnumerable<string>
     /// <summary>
     /// Implicit conversion from ClassValue to string.
     /// Will return the underlying string or the joined values.
-    /// Throws an informative InvalidOperationException if empty.
     /// </summary>
+    /// <exception cref="InvalidOperationException">Throws an informative if empty.</exception>
     public static implicit operator string(ClassValue @class)
     {
         if (!string.IsNullOrEmpty(@class._value))
@@ -45,7 +45,7 @@ public class ClassValue : IEnumerable<string>
             return string.Join(" ", @class._values);
         }
 
-        throw new InvalidOperationException("ClassValue does not contain any class data (neither a single value nor a collection).");
+        throw new InvalidOperationException($"{nameof(ClassValue)} does not contain any class data (neither a single value nor a collection).");
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ public class ClassValue : IEnumerable<string>
             return new List<string> { _value }.GetEnumerator();
         }
 
-        throw new InvalidOperationException("Cannot enumerate ClassValue because it contains no values.");
+        throw new InvalidOperationException($"Cannot enumerate {nameof(ClassValue)} because it contains no values.");
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
