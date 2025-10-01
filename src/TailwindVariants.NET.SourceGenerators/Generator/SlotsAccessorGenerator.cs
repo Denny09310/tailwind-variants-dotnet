@@ -45,19 +45,16 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
     private static void GenerateForSlotsType(INamedTypeSymbol slotsType, SourceProductionContext spc)
     {
+
         if (!IsPartial(slotsType, out var diag))
         {
             spc.ReportDiagnostic(diag);
             return;
         }
 
-        var properties = CollectPublicProperties(slotsType);
-        if (properties.Length == 0)
+        if (!HasProperties(slotsType, out var properties, out diag))
         {
-            spc.ReportDiagnostic(Diagnostic.Create(
-                DiagnosticHelper.NoPropertiesDescriptor,
-                Location.None,
-                slotsType.ToDisplayString()));
+            spc.ReportDiagnostic(diag);
             return;
         }
 
@@ -125,8 +122,24 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         return mods;
     }
 
+    private static bool HasProperties(INamedTypeSymbol type, out IPropertySymbol[] properties, out Diagnostic diag)
+    {
+        properties = CollectPublicProperties(type);
+        if (properties.Length == 0)
+        {
+            diag = Diagnostic.Create(
+               DiagnosticHelper.NoPropertiesDescriptor,
+               type.Locations.FirstOrDefault(),
+               type.Name);
+            return false;
+        }
+
+        diag = null!;
+        return true;
+    }
+
     private static bool ImplementsISlots(INamedTypeSymbol type)
-        => type.AllInterfaces.Any(i => i.ToDisplayString() == "TailwindVariants.NET.ISlots");
+            => type.AllInterfaces.Any(i => i.ToDisplayString() == "TailwindVariants.NET.ISlots");
 
     private static bool IsPartial(INamedTypeSymbol type, out Diagnostic diag)
     {
@@ -146,6 +159,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         diag = null!;
         return true;
     }
+
     private static IPropertySymbol[] OrderProperties(IPropertySymbol[] properties) =>
         [.. properties.OrderBy(p => p.Locations.FirstOrDefault()?.SourceSpan.Start ?? int.MaxValue)
             .ThenBy(p => p.Name, StringComparer.Ordinal)];
