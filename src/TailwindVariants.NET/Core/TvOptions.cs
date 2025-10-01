@@ -35,22 +35,22 @@ public sealed class TvOptions<TOwner, TSlots>
     /// <summary>
     /// The base CSS classes to apply to the primary slot.
     /// </summary>
-    public ClassValue? Base { get; set; }
+    public ClassValue? Base { get; }
 
     /// <summary>
     /// A collection of compound variants, which apply additional classes based on specific predicates.
     /// </summary>
-    public CompoundVariantCollection<TOwner, TSlots>? CompoundVariants { get; set; }
+    public CompoundVariantCollection<TOwner, TSlots>? CompoundVariants { get; }
 
     /// <summary>
     /// A collection mapping slot accessors to their corresponding CSS class values.
     /// </summary>
-    public SlotCollection<TSlots>? Slots { get; set; }
+    public SlotCollection<TSlots>? Slots { get; }
 
     /// <summary>
     /// A collection of variant definitions, each keyed by an accessor expression.
     /// </summary>
-    public VariantCollection<TOwner, TSlots>? Variants { get; set; }
+    public VariantCollection<TOwner, TSlots>? Variants { get; }
 
     internal IReadOnlyDictionary<string, string?> BaseSlots { get; private set; } = default!;
 
