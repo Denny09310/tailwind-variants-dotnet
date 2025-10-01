@@ -9,10 +9,38 @@
 
 		<!-- NuGet Package Metadata -->
 		<PackageId>TailwindVariants.NET</PackageId>
+		<Version>0.0.1-preview.13</Version>
+		<Authors>Denny09310</Authors>
+		<Description>A Blazor library to manage TailwindCSS variants and slot-based styling with strongly typed APIs.</Description>
+		<PackageTags>blazor;tailwind;css;ui;csharp</PackageTags>
+		<RepositoryUrl>https://github.com/Denny09310/tailwind-variants-dotnet</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/Denny09310/tailwind-variants-dotnet</PackageProjectUrl>
+		<PackageIcon>isotipo.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\isotipo.png" Pack="true" PackagePath="\" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="TailwindMerge.NET" Version="1.0.0" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\TailwindVariants.NET.SourceGenerators\bin\$(Configuration)\netstandard2.0\TailwindVariants.NET.SourceGenerators.dll"
+			  Pack="true"
+			  PackagePath="analyzers/dotnet/cs"
+			  Visible="false" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\TailwindVariants.NET.SourceGenerators\TailwindVariants.NET.SourceGenerators.csproj"
+						  OutputItemType="Analyzer"
+						  ReferenceOutputAssembly="false" />
+	</ItemGroup>
+
 
 </Project>
