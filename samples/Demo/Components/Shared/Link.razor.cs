@@ -39,7 +39,7 @@ public partial class Link : ISlotted<Link.Slots>
         _slots = _link(this, Tw);
     }
 
-    public sealed class Slots : ISlots
+    public sealed partial class Slots : ISlots
     {
         public string? Base { get; set; }
     }

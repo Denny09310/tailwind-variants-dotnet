@@ -60,7 +60,7 @@ public partial class Button : ISlotted<Button.Slots>
         _slots = _button(this, Tw);
     }
 
-    public sealed class Slots : ISlots
+    public sealed partial class Slots : ISlots
     {
         public string? Base { get; set; }
         public string? Icon { get; set; }

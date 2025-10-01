@@ -9,4 +9,6 @@ public interface ISlots
     /// The primary/base slot (commonly the root element).
     /// </summary>
     string? Base { get; }
+
+    IEnumerable<(string Slot, string Value)> EnumerateOverrides();
 }
