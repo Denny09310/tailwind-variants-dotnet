@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Text;
 using static TailwindVariants.NET.TvHelpers;
 
 namespace TailwindVariants.NET;
@@ -25,7 +26,7 @@ public static class TvFunction
             // 1. Start with base slots
             var builders = baseClasses.ToDictionary(
                 kv => kv.Key,
-                kv => new CssBuilder(kv.Value));
+                kv => new StringBuilder(kv.Value));
 
             // 2. Apply variants
             builders = ApplyVariants(owner, builders, baseVariants);
@@ -40,40 +41,42 @@ public static class TvFunction
                 {
                     if (!builders.TryGetValue(slot, out var builder))
                     {
-                        builder = new CssBuilder();
+                        builder = new StringBuilder();
                         builders[slot] = builder;
                     }
-                    builder.AddClass(value);
+                    builder.Append(' ');
+                    builder.Append(value);
                 }
             }
 
             // 5. Build final map
             return builders.ToDictionary(
                 kv => kv.Key,
-                kv => merge.Merge(kv.Value.Build()));
+                kv => merge.Merge(kv.Value.ToString()));
         };
     }
 
     #region Helpers
 
-    private static void AddClassForSlot<TSlots>(
-        Dictionary<string, CssBuilder> builders,
+    private static void AddSlotClass<TSlots>(
+        Dictionary<string, StringBuilder> builders,
         Expression<SlotAccessor<TSlots>> accessor,
         string classes) where TSlots : ISlots
     {
         var name = GetSlot(accessor);
         if (!builders.TryGetValue(name, out var builder))
         {
-            builder = new CssBuilder();
+            builder = new StringBuilder();
             builders[name] = builder;
         }
-        builder.AddClass(classes);
+        builder.Append(' ');
+        builder.Append(classes);
     }
 
-    private static Dictionary<string, CssBuilder> ApplyCompoundVariants<TOwner, TSlots>(
+    private static Dictionary<string, StringBuilder> ApplyCompoundVariants<TOwner, TSlots>(
         TvOptions<TOwner, TSlots>? options,
         TOwner owner,
-        Dictionary<string, CssBuilder> builders)
+        Dictionary<string, StringBuilder> builders)
         where TSlots : ISlots
     {
         if (options?.CompoundVariants is null)
@@ -92,7 +95,7 @@ public static class TvFunction
 
                 if (!string.IsNullOrEmpty(cv.Class))
                 {
-                    AddClassForSlot<TSlots>(builders, s => s.Base, cv.Class);
+                    AddSlotClass<TSlots>(builders, s => s.Base, cv.Class);
                 }
 
                 foreach (var pairs in cv)
@@ -106,7 +109,7 @@ public static class TvFunction
 
                     foreach (var slotKv in slots)
                     {
-                        AddClassForSlot(builders, slotKv.Key, (string)slotKv.Value);
+                        AddSlotClass(builders, slotKv.Key, (string)slotKv.Value);
                     }
                 }
             }
@@ -120,16 +123,16 @@ public static class TvFunction
         return builders;
     }
 
-    private static Dictionary<string, CssBuilder> ApplyVariants<TOwner, TSlots>(
+    private static Dictionary<string, StringBuilder> ApplyVariants<TOwner, TSlots>(
         TOwner owner,
-        Dictionary<string, CssBuilder> builders,
+        Dictionary<string, StringBuilder> builders,
         IReadOnlyDictionary<string, CompiledVariant<TOwner, TSlots>> baseVariants)
         where TSlots : ISlots, new()
         where TOwner : ISlotted<TSlots>
     {
         if (!string.IsNullOrEmpty(owner.Class))
         {
-            AddClassForSlot<TSlots>(builders, s => s.Base, owner.Class);
+            AddSlotClass<TSlots>(builders, s => s.Base, owner.Class);
         }
 
         foreach (var compiled in baseVariants.Values)
@@ -143,7 +146,7 @@ public static class TvFunction
                 {
                     foreach (var kv in slots)
                     {
-                        AddClassForSlot(builders, kv.Key, (string)kv.Value);
+                        AddSlotClass(builders, kv.Key, (string)kv.Value);
                     }
                 }
             }
