@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "TailwindVariants.SourceGenerator": {
+    "TailwindVariants.NET.SourceGenerators": {
       "commandName": "DebugRoslynComponent",
       "targetProject": "..\\..\\samples\\Demo\\Demo.csproj"
     }

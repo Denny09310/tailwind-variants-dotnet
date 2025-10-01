@@ -10,7 +10,8 @@ namespace TailwindVariants.NET;
 /// Create a compound variant that applies when <paramref name="predicate"/> returns true.
 /// </remarks>
 public class CompoundVariant<TOwner, TSlots>(Predicate<TOwner> predicate) : IEnumerable<KeyValuePair<Expression<VariantAccessor<TSlots>>, SlotCollection<TSlots>>>
-    where TSlots : ISlots
+    where TSlots : ISlots, new()
+    where TOwner : ISlotted<TSlots>
 {
     private Dictionary<Expression<VariantAccessor<TSlots>>, SlotCollection<TSlots>>? _values;
 

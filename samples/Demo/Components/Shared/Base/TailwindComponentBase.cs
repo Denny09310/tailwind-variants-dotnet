@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Components;
-using TailwindMerge;
+using TailwindVariants.NET;
 
 namespace Demo.Components.Shared;
 
 /// <summary>
 /// Base component that integrates TailwindMerge and allows passing through additional HTML attributes.
 /// </summary>
-public partial class TailwindComponentBase : ComponentBase
+public partial class TwComponentBase : ComponentBase
 {
     /// <summary>
     /// Additional HTML attributes that will be splatted onto the root element.
@@ -24,5 +24,5 @@ public partial class TailwindComponentBase : ComponentBase
     /// TailwindMerge service used to merge class strings in a conflict-aware manner.
     /// </summary>
     [Inject]
-    protected TwMerge Tw { get; set; } = default!;
+    protected TwVariants Tv { get; set; } = default!;
 }

@@ -46,14 +46,13 @@ Both packages support:
 
 ```csharp
 using TailwindVariants.NET;
-using static TailwindVariants.NET.TvFunction;
 
-public static class Button
+public partial class Button
 {
-    private static readonly TvReturnType<Button, Slots> _button = Tv<Button, Slots>(new()
-    {
-        Base = "font-semibold border rounded",
-        Variants = new()
+    private static readonly TvOptions<Button, Slots> _button = new
+    (
+        @base: "font-semibold border rounded",
+        variants: new()
         {
             [b => b.Variant] = new Variant<Variants, Slots>()
             {
@@ -66,23 +65,23 @@ public static class Button
               [Sizes.Medium] = "text-base py-2 px-4",
             },
         }
-        CompoundVariants = 
+        compoundVariants: 
         [
             new(b => b.Variant == Variants.Primary && !b.Disabled)
             {
                 Class = "hover:bg-blue-600"
             }
         ]
-    });
+    );
 
-    private SlotMap<Slots> _slots = new();
+    private SlotsMap<Slots> _slots = new();
 
     protected override void OnParametersSet()
     {
-        _slots = _button(this, Tw);
+        _slots = Tv.Invoke(this, _button);
     }
 
-    public sealed class Slots : ISlots
+    public sealed partial class Slots : ISlots
     {
         public string? Base { get; set; }
     }
@@ -132,13 +131,10 @@ This is enabled by the **incremental source generator** (`TailwindVariants.Sourc
 
 ## Acknowledgements / Credits
 
-This project draws inspiration from several excellent projects:
-
-* [**tailwind-variants**](https://github.com/heroui-inc/tailwind-variants) — for the general concept of variants & compound variants.
-
 Special thanks to the authors of the following projects that are either used or inspired this work:
 
-* [**tailwind-merge-dotnet**](https://github.com/desmondinho/tailwind-merge-dotnet) — Tailwind class merge utilities.
+* [**tailwind-variants**](https://github.com/heroui-inc/tailwind-variants) ([jrgarciadev](https://github.com/jrgarciadev)) — for the general concept of variants & compound variants.
+* [**tailwind-merge-dotnet**](https://github.com/desmondinho/tailwind-merge-dotnet) ([desmondinho](https://github.com/desmondinho)) — Tailwind class merge utilities.
 
 Check out those projects for more tools and context.
 
