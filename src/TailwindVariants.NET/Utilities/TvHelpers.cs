@@ -17,7 +17,7 @@ internal static class TvHelpers
     /// Thrown if the expression is not a simple member access (e.g. <c>s => s.Base</c>).
     /// </exception>
     public static string GetSlot<TSlots>(Expression<SlotAccessor<TSlots>> accessor)
-        where TSlots : ISlots
+        where TSlots : ISlots, new()
     {
         if (accessor.Body is MemberExpression memberExpr)
         {

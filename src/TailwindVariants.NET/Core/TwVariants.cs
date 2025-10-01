@@ -12,9 +12,18 @@ namespace TailwindVariants.NET;
 public class TwVariants(Tw merge)
 {
     /// <summary>
-    /// Create a Tv function using the provided options. The returned function is safe to call multiple times;
-    /// per-call overrides do not mutate precomputed definitions.
+    /// Creates a slot map containing the final computed CSS class strings for each slot, based on the provided owner and options.
     /// </summary>
+    /// <typeparam name="TOwner">The type that owns the slots and variants.</typeparam>
+    /// <typeparam name="TSlots">The type representing the slots, which must implement <see cref="ISlots"/>.</typeparam>
+    /// <param name="owner">The instance providing slot and variant values.</param>
+    /// <param name="definition">The configuration options for base slots, variants, and compound variants.</param>
+    /// <returns>
+    /// A <see cref="SlotsMap{TSlots}"/> mapping slot names to their final computed CSS class strings.
+    /// </returns>
+    /// <remarks>
+    /// The returned function is safe to call multiple times; per-call overrides do not mutate precomputed definitions.
+    /// </remarks>
     public SlotsMap<TSlots> Invoke<TOwner, TSlots>(TOwner owner, TvOptions<TOwner, TSlots> definition)
         where TSlots : ISlots, new()
         where TOwner : ISlotted<TSlots>
@@ -56,7 +65,7 @@ public class TwVariants(Tw merge)
     private static void AddSlotClass<TSlots>(
         Dictionary<string, StringBuilder> builders,
         Expression<SlotAccessor<TSlots>> accessor,
-        string classes) where TSlots : ISlots
+        string classes) where TSlots : ISlots, new()
     {
         var name = GetSlot(accessor);
         if (!builders.TryGetValue(name, out var builder))
