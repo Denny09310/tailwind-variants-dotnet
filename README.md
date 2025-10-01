@@ -47,7 +47,7 @@ Both packages support:
 ```csharp
 using TailwindVariants.NET;
 
-public static class Button
+public partial class Button
 {
     private static readonly TvOptions<Button, Slots> _button = new
     (
@@ -81,7 +81,7 @@ public static class Button
         _slots = Tv.Invoke(this, _button);
     }
 
-    public sealed class Slots : ISlots
+    public sealed partial class Slots : ISlots
     {
         public string? Base { get; set; }
     }
@@ -131,13 +131,10 @@ This is enabled by the **incremental source generator** (`TailwindVariants.Sourc
 
 ## Acknowledgements / Credits
 
-This project draws inspiration from several excellent projects:
-
-* [**tailwind-variants**](https://github.com/heroui-inc/tailwind-variants) — for the general concept of variants & compound variants.
-
 Special thanks to the authors of the following projects that are either used or inspired this work:
 
-* [**tailwind-merge-dotnet**](https://github.com/desmondinho/tailwind-merge-dotnet) — Tailwind class merge utilities.
+* [**tailwind-variants**](https://github.com/heroui-inc/tailwind-variants) ([jrgarciadev](https://github.com/jrgarciadev)) — for the general concept of variants & compound variants.
+* [**tailwind-merge-dotnet**](https://github.com/desmondinho/tailwind-merge-dotnet) ([desmondinho](https://github.com/desmondinho)) — Tailwind class merge utilities.
 
 Check out those projects for more tools and context.
 
