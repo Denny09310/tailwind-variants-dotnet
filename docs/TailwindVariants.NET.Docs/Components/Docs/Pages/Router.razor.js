@@ -10,11 +10,7 @@ export default class extends BlazorJSComponents.Component {
     }
 
     highlightAll() {
-        if (window.Prism && typeof window.Prism.highlightAll === 'function') {
-            window.Prism.highlightAll();
-        } else {
-            setTimeout(() => this.highlightAll(), 250);
-        }
+        window.Prism.highlightAll();
     }
 
     addCopyButtons() {
