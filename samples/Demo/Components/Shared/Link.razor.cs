@@ -6,26 +6,86 @@ public partial class Link : ISlotted<Link.Slots>
 {
     private static readonly TvOptions<Link, Slots> _link = new
     (
-        @base: "inline-flex items-center font-medium transition-colors bg-transparent hover:opacity-75",
+        @base: "relative inline-flex items-center outline-solid outline-transparent tap-highlight-transparent",
         variants: new()
         {
-            [l => l.Color] = new Variant<Colors, Slots>()
-            {
-                [Colors.Default] = "text-black dark:text-white",
-                [Colors.Primary] = "text-blue-600 hover:text-blue-700",
-                [Colors.Secondary] = "text-gray-600 hover:text-gray-800",
-                [Colors.Danger] = "text-red-600 hover:text-red-700"
-            },
             [l => l.Size] = new Variant<Sizes, Slots>()
             {
-                [Sizes.Small] = "text-sm px-2 py-1",
-                [Sizes.Medium] = "text-base px-3 py-1.5",
-                [Sizes.Large] = "text-lg px-4 py-2"
+                [Sizes.Small] = "text-sm",
+                [Sizes.Medium] = "text-base",
+                [Sizes.Large] = "text-lg"
+            },
+            [l => l.Color] = new Variant<Colors, Slots>()
+            {
+                [Colors.Foreground] = "text-black dark:text-white",
+                [Colors.Primary] = "text-sky-600 dark:text-sky-400",
+                [Colors.Secondary] = "text-gray-600 dark:text-gray-400",
+                [Colors.Success] = "text-green-600 dark:text-green-400",
+                [Colors.Warning] = "text-yellow-600 dark:text-yellow-400",
+                [Colors.Danger] = "text-red-600 dark:text-red-400",
+                [Colors.Info] = "text-teal-600 dark:text-teal-400",
+            },
+            [l => l.Underline] = new Variant<Underlines, Slots>()
+            {
+                [Underlines.NoUnderline] = "no-underline",
+                [Underlines.Hover] = "hover:underline",
+                [Underlines.Always] = "underline",
+                [Underlines.Active] = "active:underline",
+                [Underlines.Focus] = "focus:underline"
+            },
+            [l => l.Block] = new Variant<bool, Slots>()
+            {
+                [true] = new[]
+                {
+                    "px-2",
+                    "py-1",
+                    "hover:after:opacity-100",
+                    "after:content-['']",
+                    "after:inset-0",
+                    "after:opacity-0",
+                    "after:w-full",
+                    "after:h-full",
+                    "after:rounded-xl",
+                    "after:transition-background",
+                    "after:absolute",
+                },
+                [false] = "hover:opacity-hover active:opacity-disabled transition-opacity"
+            },
+            [l => l.Disabled] = new Variant<bool, Slots>()
+            {
+                [true] = "opacity-disabled cursor-default pointer-events-none",
             }
         }
     );
 
     private SlotsMap<Slots> _slots = new();
+
+    public enum Colors
+    {
+        Foreground,
+        Primary,
+        Secondary,
+        Success,
+        Warning,
+        Danger,
+        Info,
+    }
+
+    public enum Sizes
+    {
+        Small,
+        Medium,
+        Large
+    }
+
+    public enum Underlines
+    {
+        NoUnderline,
+        Hover,
+        Always,
+        Active,
+        Focus
+    }
 
     protected override void OnParametersSet()
     {
@@ -35,20 +95,5 @@ public partial class Link : ISlotted<Link.Slots>
     public sealed partial class Slots : ISlots
     {
         public string? Base { get; set; }
-    }
-
-    public enum Colors
-    {
-        Default,
-        Primary,
-        Secondary,
-        Danger
-    }
-
-    public enum Sizes
-    {
-        Small,
-        Medium,
-        Large
     }
 }
