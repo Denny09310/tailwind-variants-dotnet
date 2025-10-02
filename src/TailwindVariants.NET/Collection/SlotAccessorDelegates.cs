@@ -3,7 +3,7 @@
 /// <summary>
 /// A delegate that returns a slot's classes from a typed slots object.
 /// </summary>
-public delegate string? SlotAccessor<TSlots>(TSlots slots) 
+public delegate string? SlotAccessor<TSlots>(TSlots slots)
     where TSlots : ISlots, new();
 
 /// <summary>

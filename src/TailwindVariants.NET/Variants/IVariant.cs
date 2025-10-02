@@ -5,7 +5,7 @@ namespace TailwindVariants.NET;
 /// <summary>
 /// Generic variant storage interface used by VariantCollection.
 /// </summary>
-public interface IVariant<TSlots> 
+public interface IVariant<TSlots>
     where TSlots : ISlots, new()
 {
     /// <summary>

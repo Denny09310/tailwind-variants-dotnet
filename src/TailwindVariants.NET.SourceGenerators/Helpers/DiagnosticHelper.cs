@@ -12,7 +12,7 @@ internal class DiagnosticHelper
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
 
-    public static readonly DiagnosticDescriptor MustBePartial =new(
+    public static readonly DiagnosticDescriptor MustBePartial = new(
         id: "TVSG002",
         title: "ISlots types must be declared partial",
         messageFormat: "The ISlots implementation '{0}' must be declared partial",

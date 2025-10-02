@@ -14,7 +14,7 @@ public class SlotsAccessorGeneratorTests
         namespace TailwindVariants.NET
         {
             public interface ISlots { string? Base { get; } }
-            public class SlotsMap<T> 
+            public class SlotsMap<T>
             {
                 public System.Collections.Generic.Dictionary<string, string?> Map { get; } = new();
             }

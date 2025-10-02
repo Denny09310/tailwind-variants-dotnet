@@ -1,5 +1,4 @@
 using Demo.Components;
-using Demo.Components.Layout;
 
 var builder = WebApplication.CreateBuilder(args);
 
