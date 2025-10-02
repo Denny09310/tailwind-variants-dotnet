@@ -7,8 +7,8 @@
 <main class="relative isolate">
 	<!-- Hero Section -->
 	<section class="pt-20 pb-24 text-center">
-		<div class="max-w-3xl mx-auto px-4">
-			<h1 class="text-4xl md:text-6xl font-bold tracking-tight">
+		<div class="mx-auto max-w-3xl px-4">
+			<h1 class="text-4xl font-bold tracking-tight md:text-6xl">
 				Typed <span class="text-sky-500 dark:text-sky-400">Tailwind Variants</span> for Blazor
 			</h1>
 			<p class="mt-6 text-lg text-gray-600 dark:text-gray-300">
@@ -16,13 +16,13 @@
 				Forget about stringly-typed classes – use strongly-typed slots and variants instead.
 			</p>
 
-			<div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+			<div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
 				<Link href="docs/getting-started"
-					  Class="px-4 py-3 rounded-lg bg-sky-500 text-white!" Size="Link.Sizes.Large">
+					  Class="rounded-lg bg-sky-500 px-4 py-3 text-white!" Size="Link.Sizes.Large">
 					Get Started
 				</Link>
 				<Link href="https://github.com/Denny09310/tailwind-variants-dotnet" target="_blank"
-					  Class="px-4 py-3 rounded-lg border" Size="Link.Sizes.Large">
+					  Class="rounded-lg border px-4 py-3" Size="Link.Sizes.Large">
 					Star on GitHub
 				</Link>
 			</div>
@@ -30,10 +30,10 @@
 	</section>
 
 	<!-- Why Section -->
-	<section class="py-24 border-t border-gray-200 dark:border-gray-800">
-		<div class="max-w-5xl mx-auto px-4 text-center">
+	<section class="border-t border-gray-200 py-24 dark:border-gray-800">
+		<div class="mx-auto max-w-5xl px-4 text-center">
 			<h2 class="text-2xl font-bold tracking-tight">Why Tailwind Variants .NET?</h2>
-			<div class="mt-10 grid md:grid-cols-3 gap-8 text-left">
+			<div class="mt-10 grid gap-8 text-left md:grid-cols-3">
 				<Card>
 					<HeaderContent>
 						<h3 class="font-semibold">Typed Safety</h3>
@@ -69,22 +69,22 @@
 	</section>
 
 	<!-- Install Section -->
-	<section class="py-24 border-t border-gray-200 dark:border-neutral-800">
-		<div class="max-w-4xl mx-auto px-4 text-center">
+	<section class="border-t border-gray-200 py-24 dark:border-neutral-800">
+		<div class="mx-auto max-w-4xl px-4 text-center">
 			<h2 class="text-2xl font-bold">Get Started in Seconds</h2>
 			<p class="mt-4 text-gray-600 dark:text-gray-400">Install via NuGet and start building typed components.</p>
 
-			<div class="mt-6 relative bg-gray-900 text-left text-sm text-gray-100 rounded-lg p-4 font-mono overflow-x-auto dark:bg-neutral-800">
+			<div class="relative mt-6 overflow-x-auto rounded-lg bg-gray-900 p-4 text-left font-mono text-sm text-gray-100 dark:bg-neutral-800">
 				<span class="text-gray-500"># Package Manager</span>
 				<pre class="mt-1">Install-Package TailwindVariants.NET</pre>
-				<span class="text-gray-500 mt-4 block"># .NET CLI</span>
+				<span class="mt-4 block text-gray-500"># .NET CLI</span>
 				<pre class="mt-1">dotnet add package TailwindVariants.NET</pre>
 			</div>
 		</div>
 	</section>
 
 	<!-- Footer -->
-	<footer class="py-10 border-t border-gray-200 dark:border-gray-800 text-center text-sm text-gray-600 dark:text-gray-400">
+	<footer class="border-t border-gray-200 py-10 text-center text-sm text-gray-600 dark:border-gray-800 dark:text-gray-400">
 		<p>© @DateTime.Now.Year Tailwind Variants .NET — Open source under MIT</p>
 	</footer>
 </main>

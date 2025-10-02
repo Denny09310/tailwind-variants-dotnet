@@ -9,11 +9,11 @@
     }
 
     ::-webkit-scrollbar-track {
-        @apply bg-gray-100 dark:bg-neutral-700 rounded;
+        @apply rounded bg-gray-100 dark:bg-neutral-700;
     }
 
     ::-webkit-scrollbar-thumb {
-        @apply bg-gray-300 dark:bg-neutral-500 rounded;
+        @apply rounded bg-gray-300 dark:bg-neutral-500;
     }
 
     body {
