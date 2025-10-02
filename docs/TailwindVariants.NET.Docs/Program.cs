@@ -1,4 +1,5 @@
 using TailwindVariants.NET.Docs.Components;
+using TailwindVariants.NET.Docs.Components.Docs.Pages.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddTailwindVariants();
+
+builder.Services.AddSingleton<MarkdownRenderer>();
 
 var app = builder.Build();
 

@@ -1,5 +1,7 @@
 ﻿@import "tailwindcss";
 
+@plugin '@tailwindcss/typography';
+
 /* Adds pointer cursor to buttons */
 @layer base {
     ::-webkit-scrollbar {

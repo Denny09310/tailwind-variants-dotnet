@@ -7,6 +7,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Markdig" Version="0.42.0" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\..\src\TailwindVariants.NET\TailwindVariants.NET.csproj" />
 		<ProjectReference Include="..\..\src\TailwindVariants.NET.SourceGenerators\TailwindVariants.NET.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>

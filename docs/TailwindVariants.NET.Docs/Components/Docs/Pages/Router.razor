@@ -1,18 +1,88 @@
 ﻿@page "/docs/{*slug}"
-@inject NavigationManager Navigation
+@rendermode InteractiveServer
+@implements IAsyncDisposable
 
-@Slug
+@inject NavigationManager Navigation
+@inject Services.MarkdownRenderer MarkdownRenderer
+@inject IJSRuntime JS
+
+<HeadContent>
+    <!-- Prism styles: default (light) and a dark theme. We use media queries for system prefs -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism.min.css"
+          media="(prefers-color-scheme: light)">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism-tomorrow.min.css"
+          media="(prefers-color-scheme: dark)">
+
+    <!-- Prism core (no theme) -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/prism.min.js" defer></script>
+    
+    <!-- Prism language components -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-bash.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-csharp.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-cshtml.min.js" defer></script>
+
+    <!-- Optional plugin: line numbers (if you want) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-numbers/prism-line-numbers.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-numbers/prism-line-numbers.min.js" defer></script>
+</HeadContent>
+
+@if (_content is null)
+{
+    <div class="flex justify-center items-center h-full">
+        <div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-gray-600" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="max-w-4xl mx-auto px-4 py-8 prose dark:prose-invert">
+        @((MarkupString)_content)
+    </div>
+}
 
 @code 
 {
     [Parameter]
     public string? Slug { get; set; }
 
-    protected override void OnInitialized()
+    private IJSObjectReference? _reference;
+
+    private string? _content;
+
+    protected override async Task OnInitializedAsync()
     {
         if (string.IsNullOrEmpty(Slug))
         {
             Navigation.NavigateTo("/docs/getting-started", true);
-		}
+            return;
+        }
+
+        var filepath = Path.Combine("wwwroot", "docs", Path.ChangeExtension(Slug, ".md"));
+        _content = await MarkdownRenderer.RenderAsync(filepath);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _reference = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Docs/Pages/Router.razor.js");
+            await _reference.InvokeVoidAsync("init");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_reference != null)
+            {
+                await _reference.InvokeVoidAsync("dispose");
+                await _reference.DisposeAsync();
+            }
+        }
+        catch { /* swallow */ }
     }
 }
