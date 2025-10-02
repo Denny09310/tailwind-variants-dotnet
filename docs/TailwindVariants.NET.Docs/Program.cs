@@ -1,4 +1,4 @@
-using Demo.Components;
+using TailwindVariants.NET.Docs.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 

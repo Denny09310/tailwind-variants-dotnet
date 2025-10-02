@@ -1,6 +1,6 @@
 <Solution>
-  <Folder Name="/samples/">
-    <Project Path="samples/Demo/Demo.csproj" Id="777619bd-d19b-4180-9f0a-a2067fd5e967" />
+  <Folder Name="/docs/">
+    <Project Path="docs/TailwindVariants.NET.Docs/TailwindVariants.NET.Docs.csproj" Id="777619bd-d19b-4180-9f0a-a2067fd5e967" />
   </Folder>
   <Folder Name="/src/">
     <File Path="src/Directory.Build.props" />

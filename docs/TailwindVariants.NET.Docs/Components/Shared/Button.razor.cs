@@ -1,6 +1,6 @@
 using TailwindVariants.NET;
 
-namespace Demo.Components.Shared;
+namespace TailwindVariants.NET.Docs.Components.Shared;
 
 public partial class Button : ISlotted<Button.Slots>
 {
