@@ -51,7 +51,7 @@ using TailwindVariants.NET;
 
 public partial class Button
 {
-    private static readonly TvOptions<Button, Slots> _button = new
+    private static readonly TvDescriptor<Button, Slots> _button = new
     (
         @base: "font-semibold border rounded",
         variants: new()
