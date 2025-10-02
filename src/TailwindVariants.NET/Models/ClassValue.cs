@@ -52,11 +52,7 @@ public class ClassValue : IEnumerable<string>
     /// Add a single class fragment to the collection.
     /// </summary>
     /// <param name="value">A single class fragment.</param>
-    public void Add(string value)
-    {
-        _values ??= [];
-        _values.Add(value);
-    }
+    public void Add(string value) => (_values ??= []).Add(value);
 
     /// <inheritdoc/>
     public IEnumerator<string> GetEnumerator()

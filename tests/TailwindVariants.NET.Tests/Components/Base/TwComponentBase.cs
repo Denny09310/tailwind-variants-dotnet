@@ -6,7 +6,7 @@ namespace TailwindVariants.NET;
 /// <summary>
 /// Base component that integrates TailwindMerge and allows passing through additional HTML attributes.
 /// </summary>
-public partial class TailwindComponentBase : ComponentBase
+public partial class TwComponentBase : ComponentBase
 {
     /// <summary>
     /// Additional HTML attributes that will be splatted onto the root element.
