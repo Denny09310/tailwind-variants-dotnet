@@ -10,7 +10,7 @@
 	<PropertyGroup>
 		<IsRoslynComponent>true</IsRoslynComponent>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
-		<EnforceExtendedAnalyzerRules>enable</EnforceExtendedAnalyzerRules>
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 	</PropertyGroup>
 
 	<PropertyGroup>
