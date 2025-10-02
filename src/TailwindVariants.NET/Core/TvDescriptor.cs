@@ -7,18 +7,18 @@ namespace TailwindVariants.NET;
 /// </summary>
 /// <typeparam name="TOwner">The type that owns the slots and variants.</typeparam>
 /// <typeparam name="TSlots">The type representing the slots, which must implement <see cref="ISlots"/>.</typeparam>
-public sealed class TvOptions<TOwner, TSlots>
+public sealed class TvDescriptor<TOwner, TSlots>
     where TSlots : ISlots, new()
     where TOwner : ISlotted<TSlots>
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="TvOptions{TOwner, TSlots}"/> class.
+    /// Initializes a new instance of the <see cref="TvDescriptor{TOwner, TSlots}"/> class.
     /// </summary>
     /// <param name="base">The base CSS classes to apply to the base slot.</param>
     /// <param name="slots">A collection mapping slot accessors to their corresponding CSS class values.</param>
     /// <param name="variants">A collection of variant definitions, each keyed by an accessor expression.</param>
     /// <param name="compoundVariants">A collection of compound variants, which apply additional classes based on specific predicates.</param>
-    public TvOptions(
+    public TvDescriptor(
         ClassValue? @base = null,
         SlotCollection<TSlots>? slots = null,
         VariantCollection<TOwner, TSlots>? variants = null,

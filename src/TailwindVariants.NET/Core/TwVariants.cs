@@ -24,7 +24,7 @@ public class TwVariants(Tw merge)
     /// <remarks>
     /// The returned function is safe to call multiple times; per-call overrides do not mutate precomputed definitions.
     /// </remarks>
-    public SlotsMap<TSlots> Invoke<TOwner, TSlots>(TOwner owner, TvOptions<TOwner, TSlots> definition)
+    public SlotsMap<TSlots> Invoke<TOwner, TSlots>(TOwner owner, TvDescriptor<TOwner, TSlots> definition)
         where TSlots : ISlots, new()
         where TOwner : ISlotted<TSlots>
     {
@@ -78,7 +78,7 @@ public class TwVariants(Tw merge)
     }
 
     private static Dictionary<string, StringBuilder> ApplyCompoundVariants<TOwner, TSlots>(
-        TvOptions<TOwner, TSlots>? options,
+        TvDescriptor<TOwner, TSlots>? options,
         TOwner owner,
         Dictionary<string, StringBuilder> builders)
         where TSlots : ISlots, new()

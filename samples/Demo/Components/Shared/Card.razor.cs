@@ -4,7 +4,7 @@ namespace Demo.Components.Shared;
 
 public partial class Card : ISlotted<Card.Slots>
 {
-    private static readonly TvOptions<Card, Slots> _card = new
+    private static readonly TvDescriptor<Card, Slots> _card = new
     (
         @base: "flex flex-col rounded-lg shadow-lg bg-white overflow-hidden dark:bg-zinc-500/20 gap-2 p-4 backdrop-blur",
         slots: new()

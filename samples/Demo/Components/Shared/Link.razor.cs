@@ -4,7 +4,7 @@ namespace Demo.Components.Shared;
 
 public partial class Link : ISlotted<Link.Slots>
 {
-    private static readonly TvOptions<Link, Slots> _link = new
+    private static readonly TvDescriptor<Link, Slots> _link = new
     (
         @base: "relative inline-flex items-center outline-solid outline-transparent tap-highlight-transparent",
         variants: new()

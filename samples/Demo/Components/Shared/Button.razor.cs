@@ -4,7 +4,7 @@ namespace Demo.Components.Shared;
 
 public partial class Button : ISlotted<Button.Slots>
 {
-    public static readonly TvOptions<Button, Slots> _button = new
+    public static readonly TvDescriptor<Button, Slots> _button = new
     (
         @base: "dummy",
         variants: new()
