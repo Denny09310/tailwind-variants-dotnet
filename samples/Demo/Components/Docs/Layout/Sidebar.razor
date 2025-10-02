@@ -1,0 +1,13 @@
+﻿<aside class="hidden p-4 md:w-64 md:sticky md:top-16 md:self-start md:block">
+	@RenderLinksContent()
+</aside>
+
+@code
+{
+	private RenderFragment RenderLinksContent() => __builder =>
+	{
+		<nav class="mt-4 flex flex-col gap-1 text-sm md:mt-0">
+			<NavLink class="px-3 py-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50" href="docs/getting-started" ActiveClass="bg-slate-50! dark:bg-slate-700/50!">Introduction</NavLink>
+		</nav>
+	};
+}

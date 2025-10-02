@@ -1,0 +1,30 @@
+﻿@inherits TwComponentBase
+
+<div class="@_slots.GetBase()" @attributes="AdditionalAttributes">
+	@if (HeaderContent is not null)
+	{
+		<div class="@_slots.GetHeader()">
+			@HeaderContent
+		</div>
+	}
+
+	<div class="@_slots.GetBody()">
+		@(BodyContent ?? ChildContent)
+	</div>
+
+	@if (FooterContent is not null)
+	{
+		<div class="@_slots.GetFooter()">
+			@FooterContent
+		</div>
+	}
+</div>
+
+@code
+{
+	[Parameter] public RenderFragment? ChildContent { get; set; }
+	[Parameter] public RenderFragment? HeaderContent { get; set; }
+	[Parameter] public RenderFragment? BodyContent { get; set; }
+	[Parameter] public RenderFragment? FooterContent { get; set; }
+	[Parameter] public Slots? Classes { get; set; }
+}

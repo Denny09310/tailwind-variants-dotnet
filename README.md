@@ -15,6 +15,8 @@
 * Integration with `TailwindMerge.NET` to resolve conflicts between Tailwind classes.
 * Lightweight, no JS runtime dependencies (pure Blazor/C#).
 * **Incremental source generator** (`TailwindVariants.SourceGenerator`) for generating strongly typed slot accessors.
+* Supports .NET 8, .NET 9, and .NET Standard 2.0 (source generator only).
+* Works seamlessly in Blazor projects (Server, WebAssembly, Hybrid).
 
 ---
 
@@ -125,7 +127,15 @@ You can use strongly typed properties:
 <p class="@_slots.GetDescription()">Description text</p>
 ```
 
-This is enabled by the **incremental source generator** (`TailwindVariants.SourceGenerator`), which automatically generates a accessors for each component that implements `ISlots`.
+This is enabled by the **incremental source generator** (`TailwindVariants.SourceGenerator`), which automatically generates accessors for each component that implements `ISlots`.
+
+---
+
+## How to Use in Blazor
+
+1. Reference `TailwindVariants.NET` in your Blazor project.
+3. Define your component's variants and slots using the provided API.
+4. Use the generated slot accessors in your Razor markup for type-safe Tailwind class management.
 
 ---
 
