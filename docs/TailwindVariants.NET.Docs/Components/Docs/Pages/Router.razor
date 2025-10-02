@@ -1,55 +1,34 @@
 ﻿@page "/docs/{*slug}"
-@rendermode InteractiveServer
-@implements IAsyncDisposable
-
+@attribute [DiscoverCollocatedJS]
 @inject NavigationManager Navigation
-@inject Services.MarkdownRenderer MarkdownRenderer
-@inject IJSRuntime JS
+@inject MarkdownRenderer MarkdownRenderer
 
 <HeadContent>
-    <!-- Prism styles: default (light) and a dark theme. We use media queries for system prefs -->
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism.min.css"
-          media="(prefers-color-scheme: light)">
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism-tomorrow.min.css"
-          media="(prefers-color-scheme: dark)">
-
-    <!-- Prism core (no theme) -->
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/prism.min.js" defer></script>
-    
-    <!-- Prism language components -->
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-bash.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-csharp.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-cshtml.min.js" defer></script>
-
-    <!-- Optional plugin: line numbers (if you want) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism.min.css" media="(prefers-color-scheme: light)">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism-tomorrow.min.css" media="(prefers-color-scheme: dark)">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-numbers/prism-line-numbers.css">
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-numbers/prism-line-numbers.min.js" defer></script>
 </HeadContent>
 
 @if (_content is null)
 {
-    <div class="flex justify-center items-center h-full">
-        <div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-gray-600" role="status">
+    <div class="flex h-full items-center justify-center">
+        <div class="spinner-border inline-block h-8 w-8 animate-spin rounded-full border-4 text-gray-600" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
 }
 else
 {
-    <div class="max-w-4xl mx-auto px-4 py-8 prose dark:prose-invert">
+    <div class="prose mx-auto max-w-4xl px-4 py-8 dark:prose-invert">
         @((MarkupString)_content)
     </div>
 }
 
-@code 
+<JS For="this" />
+
+@code
 {
-    [Parameter]
-    public string? Slug { get; set; }
-
-    private IJSObjectReference? _reference;
-
+    [Parameter] public string? Slug { get; set; }
     private string? _content;
 
     protected override async Task OnInitializedAsync()
@@ -61,28 +40,13 @@ else
         }
 
         var filepath = Path.Combine("wwwroot", "docs", Path.ChangeExtension(Slug, ".md"));
+
+        if (!File.Exists(filepath))
+        {
+            Navigation.NavigateTo("/404", true);
+            return;
+        }
+
         _content = await MarkdownRenderer.RenderAsync(filepath);
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            _reference = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Docs/Pages/Router.razor.js");
-            await _reference.InvokeVoidAsync("init");
-        }
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        try
-        {
-            if (_reference != null)
-            {
-                await _reference.InvokeVoidAsync("dispose");
-                await _reference.DisposeAsync();
-            }
-        }
-        catch { /* swallow */ }
     }
 }

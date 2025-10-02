@@ -1,13 +1,13 @@
 using TailwindVariants.NET.Docs.Components;
-using TailwindVariants.NET.Docs.Components.Docs.Pages.Services;
+using TailwindVariants.NET.Docs.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+builder.Services.AddRazorComponents();
 
 builder.Services.AddTailwindVariants();
+builder.Services.AddJSComponents();
 
 builder.Services.AddSingleton<MarkdownRenderer>();
 
@@ -26,7 +26,6 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+app.MapRazorComponents<App>();
 
 app.Run();

@@ -1,6 +1,6 @@
 ﻿using Markdig;
 
-namespace TailwindVariants.NET.Docs.Components.Docs.Pages.Services;
+namespace TailwindVariants.NET.Docs.Services;
 
 public class MarkdownRenderer
 {

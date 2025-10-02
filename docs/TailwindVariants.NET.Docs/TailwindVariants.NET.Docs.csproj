@@ -7,6 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="BlazorJSComponents" Version="1.0.0" />
 	  <PackageReference Include="Markdig" Version="0.42.0" />
 	</ItemGroup>
 
