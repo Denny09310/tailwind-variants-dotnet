@@ -1,13 +1,14 @@
 <Solution>
-  <Folder Name="/git/">
+  <Folder Name="/samples/">
     <Project Path="samples/Demo/Demo.csproj" Id="777619bd-d19b-4180-9f0a-a2067fd5e967" />
   </Folder>
   <Folder Name="/src/">
+    <File Path="src/Directory.Build.props" />
     <Project Path="src/TailwindVariants.NET.SourceGenerators/TailwindVariants.NET.SourceGenerators.csproj" />
     <Project Path="src/TailwindVariants.NET/TailwindVariants.NET.csproj" />
   </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/TailwindVariants.NET.SourceGenerators.Tests/TailwindVariants.NET.SourceGenerators.Tests.csproj" Id="7b1a519e-a9ee-438c-a7ee-52330fed88e1" />
-    <Project Path="tests/TailwindVariants.NET.Tests/TailwindVariants.NET.Tests.csproj" Id="0fca27c3-4125-4f7a-9976-e6f8ec4d1d74" />
+  <Folder Name="/test/">
+    <Project Path="tests/TailwindVariants.NET.SourceGenerators.Tests/TailwindVariants.NET.SourceGenerators.Tests.csproj" />
+    <Project Path="tests/TailwindVariants.NET.Tests/TailwindVariants.NET.Tests.csproj" />
   </Folder>
 </Solution>
