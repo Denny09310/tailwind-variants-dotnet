@@ -2,24 +2,23 @@
 import "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-bash.min.js";
 import "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-csharp.min.js";
 import "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-cshtml.min.js";
+import "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-numbers/prism-line-numbers.min.js";
+
+import "https://cdn.jsdelivr.net/npm/anchor-js/anchor.min.js";
 
 export default class extends BlazorJSComponents.Component {
     attach() {
-        this.addCopyButtons();
-        this.highlightAll();
-    }
-
-    highlightAll() {
+        anchors.add('h2');
         window.Prism.highlightAll();
+        this.addDecorations();
     }
 
-    addCopyButtons() {
+    addDecorations() {
         document.querySelectorAll('pre > code').forEach(codeEl => {
             const pre = codeEl.parentElement;
             if (!pre) return;
 
-            // optional: enable line numbers:
-            // pre.classList.add('line-numbers');
+            pre.classList.add('line-numbers');
 
             if (pre.querySelector('.docs-copy-btn')) return;
 
