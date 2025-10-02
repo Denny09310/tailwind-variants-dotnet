@@ -1,5 +1,3 @@
-using TailwindVariants.NET;
-
 namespace TailwindVariants.NET.Docs.Components.Shared;
 
 public partial class Button : ISlotted<Button.Slots>

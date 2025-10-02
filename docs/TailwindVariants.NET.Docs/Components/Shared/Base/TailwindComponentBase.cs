@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using TailwindVariants.NET;
 
 namespace TailwindVariants.NET.Docs.Components.Shared;
 

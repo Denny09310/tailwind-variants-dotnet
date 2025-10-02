@@ -1,5 +1,3 @@
-using TailwindVariants.NET;
-
 namespace TailwindVariants.NET.Docs.Components.Shared;
 
 public partial class Card : ISlotted<Card.Slots>
