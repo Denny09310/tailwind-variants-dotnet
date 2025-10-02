@@ -1,0 +1,18 @@
+﻿@page "/docs/{*slug}"
+@inject NavigationManager Navigation
+
+@Slug
+
+@code 
+{
+    [Parameter]
+    public string? Slug { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrEmpty(Slug))
+        {
+            Navigation.NavigateTo("/docs/getting-started", true);
+		}
+    }
+}
