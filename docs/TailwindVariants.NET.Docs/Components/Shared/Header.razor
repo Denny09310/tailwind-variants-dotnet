@@ -21,7 +21,7 @@
 				</svg>
 				<span class="sr-only">GitHub</span>
 			</Link>
-			@if (IsMenuVisible)
+			@if (Menu)
 			{
 				<Button Class="md:hidden" @onclick="SidebarState.Toggle">
 					<svg class="size-5 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -40,5 +40,5 @@
 @code
 {
 	[Parameter]
-	public bool IsMenuVisible { get; set; }
+	public bool Menu { get; set; }
 }

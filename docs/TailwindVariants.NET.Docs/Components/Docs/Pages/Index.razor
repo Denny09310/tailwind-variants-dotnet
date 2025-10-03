@@ -1,6 +1,7 @@
 ﻿@page "/docs/{*slug}"
 @using System.Globalization
 @attribute [DiscoverCollocatedJS]
+@attribute [StreamRendering]
 @inject NavigationManager Navigation
 @inject MarkdownRenderer MarkdownRenderer
 
@@ -15,13 +16,13 @@
 {
     <div class="flex h-full items-center justify-center">
         <div class="spinner-border inline-block h-8 w-8 animate-spin rounded-full border-4 text-gray-600" role="status">
-            <span class="visually-hidden">Loading...</span>
+            <span class="sr-only">Loading...</span>
         </div>
     </div>
 }
 else
 {
-    <div class="prose prose-sm mx-auto px-4 py-8 md:prose md:max-w-4xl dark:prose-invert">
+    <div @key="Slug" class="prose prose-sm mx-auto px-4 py-8 md:prose md:max-w-4xl dark:prose-invert">
         @((MarkupString)_content)
     </div>
 }
@@ -43,8 +44,10 @@ else
             return;
         }
 
+        _content = null;
+
         ParsePageTitle();
-        await ParsePageContentAsync();
+        await ParsePageContentAsync();        
     }
 
     private void ParsePageTitle()
@@ -68,6 +71,6 @@ else
             return;
         }
 
-        _content = await MarkdownRenderer.RenderAsync(filepath);        
+        _content = await MarkdownRenderer.RenderAsync(filepath);
     }
 }

@@ -13,9 +13,9 @@ export default class extends BlazorJSComponents.Component {
     }
 
     dispose() {
-        document.querySelectorAll(".code-block").forEach(codeEl => {
-            codeEl.remove();
-        })
+        document.querySelectorAll('.code-block').forEach(wrapper => {
+            wrapper.remove();
+        });
     }
 
     addDecorations() {

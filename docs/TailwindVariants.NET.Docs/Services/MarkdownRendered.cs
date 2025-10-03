@@ -5,7 +5,7 @@ namespace TailwindVariants.NET.Docs.Services;
 public class MarkdownRenderer
 {
     private readonly MarkdownPipeline _pipeline = new MarkdownPipelineBuilder()
-        .UseGlobalization()
+        .UseAdvancedExtensions()
         .Build();
 
     public async Task<string> RenderAsync(string filepath)
