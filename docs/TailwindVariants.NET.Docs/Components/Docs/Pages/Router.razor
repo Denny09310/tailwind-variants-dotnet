@@ -1,7 +1,10 @@
 ﻿@page "/docs/{*slug}"
+@using System.Globalization
 @attribute [DiscoverCollocatedJS]
 @inject NavigationManager Navigation
 @inject MarkdownRenderer MarkdownRenderer
+
+<PageTitle>@_title - TailwindVariants.NET</PageTitle>
 
 <HeadContent>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism.min.css" media="(prefers-color-scheme: light)">
@@ -28,6 +31,8 @@ else
 @code
 {
     [Parameter] public string? Slug { get; set; }
+
+    private string? _title;
     private string? _content;
 
     protected override async Task OnInitializedAsync()
@@ -38,7 +43,24 @@ else
             return;
         }
 
-        var filepath = Path.Combine("wwwroot", "docs", Path.ChangeExtension(Slug, ".md"));
+        ParsePageTitle();
+        await ParsePageContentAsync();
+    }
+
+    private void ParsePageTitle()
+    {
+        var info = CultureInfo.InvariantCulture.TextInfo;
+        var segments = Slug!.Split('/', StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => info.ToTitleCase(
+                s.Replace("-", " ").Replace("_", " ").ToLowerInvariant()
+            ));
+
+        _title = string.Join(" - ", segments);
+    }
+
+    private async Task ParsePageContentAsync()
+    {
+        var filepath = Path.Combine("wwwroot", "docs", Path.ChangeExtension(Slug!, ".md"));
 
         if (!File.Exists(filepath))
         {
@@ -46,6 +68,6 @@ else
             return;
         }
 
-        _content = await MarkdownRenderer.RenderAsync(filepath);
+        _content = await MarkdownRenderer.RenderAsync(filepath);        
     }
 }

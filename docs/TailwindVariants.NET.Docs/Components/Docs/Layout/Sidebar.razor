@@ -41,9 +41,34 @@
 
     private RenderFragment RenderLinksContent() => __builder =>
     {
-        <nav class="mt-4 flex flex-col gap-1 text-sm md:mt-0">
-            <NavLink class="@_slots.GetLinks()" href="docs/getting-started" ActiveClass="@_slots.GetActiveLinks()" @onclick="Close">Introduction</NavLink>
-            <NavLink class="@_slots.GetLinks()" href="docs/usage" ActiveClass="@_slots.GetActiveLinks()" @onclick="Close">Usage</NavLink>
+        var link = _slots.GetLink();
+		var active = _slots.GetActiveLinks();
+
+        <nav class="@_slots.GetWrapper()">
+            <!-- Getting Started -->
+            <NavLink class="@link" href="docs/introduction" ActiveClass="@active" @onclick="Close">Introduction</NavLink>
+            <NavLink class="@link" href="docs/installation" ActiveClass="@active" @onclick="Close">Installation</NavLink>
+            <NavLink class="@link" href="docs/first-component" ActiveClass="@active" @onclick="Close">First Component</NavLink>
+            <NavLink class="@link" href="docs/faq" ActiveClass="@active" @onclick="Close">FAQ</NavLink>
+
+            <!-- Core Concepts -->
+            <div class="@_slots.GetHeader()">Core Concepts</div>
+            <NavLink class="@link" href="docs/core-concepts/variants" ActiveClass="@active" @onclick="Close">Variants</NavLink>
+            <NavLink class="@link" href="docs/core-concepts/slots" ActiveClass="@active" @onclick="Close">Slots</NavLink>
+            <NavLink class="@link" href="docs/core-concepts/classvalue" ActiveClass="@active" @onclick="Close">ClassValue</NavLink>
+            <NavLink class="@link" href="docs/core-concepts/source-generators" ActiveClass="@active" @onclick="Close">Source Generators</NavLink>
+
+            <!-- API Reference -->
+            <div class="@_slots.GetHeader()">API Reference</div>
+            <NavLink class="@link" href="docs/api-reference/tw-variants" ActiveClass="@active" @onclick="Close">Tv()</NavLink>
+            <NavLink class="@link" href="docs/api-reference/slots-collection" ActiveClass="@active" @onclick="Close">SlotCollection</NavLink>
+            <NavLink class="@link" href="docs/api-reference/islots" ActiveClass="@active" @onclick="Close">ISlots</NavLink>
+
+            <!-- Community -->
+            <div class="@_slots.GetHeader()">Community</div>
+            <NavLink class="@link" href="docs/community/contributing" ActiveClass="@active" @onclick="Close">Contributing</NavLink>
+            <NavLink class="@link" href="docs/community/showcases" ActiveClass="@active" @onclick="Close">Showcases</NavLink>
+            <NavLink class="@link" href="docs/community/roadmap" ActiveClass="@active" @onclick="Close">Roadmap</NavLink>
         </nav>
     };
 }
