@@ -8,12 +8,8 @@ public partial class Button : ISlotted<Button.Slots>
         variants: new()
     );
 
-    private SlotsMap<Slots> _slots = new();
 
-    protected override void OnParametersSet()
-    {
-        _slots = Tv.Invoke(this, _button);
-    }
+    protected override TvDescriptor<Button, Slots> GetDescriptor() => _button;
 
     public enum Variants
     {

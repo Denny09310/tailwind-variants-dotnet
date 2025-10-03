@@ -1,10 +1,12 @@
-﻿@attribute [DiscoverCollocatedJS]
+﻿@rendermode InteractiveServer
+@attribute [DiscoverCollocatedJS]
 @inject JSElementReferenceScope Refs
+@inject SidebarState SidebarState
 
 <header class="sticky top-0 z-20 h-16 transition-[backdrop-filter,background-color] duration-350" data-ref="@Refs["header"]">
-	<div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 h-full">
+	<div class="mx-auto flex h-full max-w-7xl items-center justify-between px-4 py-3">
 		<Link href="" Size="Link.Sizes.Small" Class="gap-x-2">
-		<Logo />
+			<Logo />
 			<span class="track-tight font-medium">Tailwind Variants Dotnet</span>
 		</Link>
 		<div class="inline-flex items-center gap-x-4">
@@ -19,8 +21,24 @@
 				</svg>
 				<span class="sr-only">GitHub</span>
 			</Link>
+			@if (IsMenuVisible)
+			{
+				<Button Class="md:hidden" @onclick="SidebarState.Toggle">
+					<svg class="size-5 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M4 5h16" />
+						<path d="M4 12h16" />
+						<path d="M4 19h16" />
+					</svg>
+				</Button>
+			}
 		</div>
 	</div>
 </header>
 
 <JS For="this" Args="[Refs]" />
+
+@code
+{
+	[Parameter]
+	public bool IsMenuVisible { get; set; }
+}

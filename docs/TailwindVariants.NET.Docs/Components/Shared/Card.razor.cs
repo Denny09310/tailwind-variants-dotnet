@@ -7,18 +7,13 @@ public partial class Card : ISlotted<Card.Slots>
         @base: "flex flex-col rounded-lg shadow-lg bg-white overflow-hidden dark:bg-zinc-500/20 gap-2 p-4 backdrop-blur",
         slots: new()
         {
-            [s => s.Header] = "text-lg font-semibold text-gray-900 dark:text-white",
-            [s => s.Body] = "flex-1 text-gray-700 dark:text-gray-300",
-            [s => s.Footer] = "text-sm text-gray-500 dark:text-gray-400 mt-4"
+            [s => s.Header] = "text-lg font-semibold text-neutral-900 dark:text-white",
+            [s => s.Body] = "flex-1 text-neutral-700 dark:text-neutral-300",
+            [s => s.Footer] = "text-sm text-neutral-500 dark:text-neutral-400 mt-4"
         }
     );
 
-    private SlotsMap<Slots> _slots = new();
-
-    protected override void OnParametersSet()
-    {
-        _slots = Tv.Invoke(this, _card);
-    }
+    protected override TvDescriptor<Card, Slots> GetDescriptor() => _card;
 
     public sealed partial class Slots : ISlots
     {
