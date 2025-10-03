@@ -6,7 +6,7 @@ import "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-cshtml.min.
 import "https://cdn.jsdelivr.net/npm/anchor-js/anchor.min.js";
 
 export default class extends BlazorJSComponents.Component {
-    attach() {
+    setParameters() {
         anchors.add('h2');
         window.Prism.highlightAll();
         this.addDecorations();
