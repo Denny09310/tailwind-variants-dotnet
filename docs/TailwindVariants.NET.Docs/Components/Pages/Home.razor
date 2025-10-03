@@ -6,31 +6,42 @@
 
 <main class="relative isolate">
 	<!-- Hero Section -->
-	<section class="pt-20 pb-24 text-center">
-		<div class="mx-auto max-w-3xl px-4">
-			<h1 class="text-4xl font-bold tracking-tight md:text-6xl">
-				Typed <span class="text-sky-500 dark:text-sky-400">Tailwind Variants</span> for Blazor
-			</h1>
-			<p class="mt-6 text-lg text-gray-600 dark:text-gray-300">
-				Build maintainable, type-safe components with <strong>TailwindCSS</strong> and <strong>Blazor</strong>.
-				Forget about stringly-typed classes – use strongly-typed slots and variants instead.
-			</p>
+	<section class="pt-16 pb-16">
+		<div class="mx-auto max-w-5xl px-4 flex flex-col md:flex-row items-center md:justify-between gap-8 relative">
+			<div class="text-center md:text-start">
+				<h1 class="text-3xl md:text-5xl font-bold tracking-tight">
+					<span class="text-sky-500 dark:text-sky-400">Tailwind Variants</span> .NET
+				</h1>
+				<p class="mt-4 text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto md:mx-0">
+					Build maintainable, type-safe components with <strong>TailwindCSS</strong> and <strong>Blazor</strong>.
+					Forget stringly-typed classes – use strongly-typed slots and variants instead.
+				</p>
+				<div class="mt-8 flex items-center justify-center md:justify-start gap-4">
+					<Link href="docs/getting-started"
+						  Class="px-4 md:px-6 py-3 rounded-md bg-gradient-to-r from-sky-500 to-blue-500 shadow-lg hover:scale-105 focus:outline-none focus:ring-4 focus:ring-sky-300 dark:focus:ring-sky-700 transition-all"
+						  Size="Link.Sizes.Large">
+						Get Started
+					</Link>
 
-			<div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-				<Link href="docs/getting-started"
-					  Class="rounded-lg bg-sky-500 px-4 py-3 text-white!" Size="Link.Sizes.Large">
-					Get Started
-				</Link>
-				<Link href="https://github.com/Denny09310/tailwind-variants-dotnet" target="_blank"
-					  Class="rounded-lg border px-4 py-3" Size="Link.Sizes.Large">
-					Star on GitHub
-				</Link>
+					<Link href="https://github.com/Denny09310/tailwind-variants-dotnet" target="_blank"
+						  Class="px-4 md:px-6 py-3 rounded-md border border-gray-300 dark:border-gray-600 shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 transition-all"
+						  Size="Link.Sizes.Large">
+						Star on GitHub
+					</Link>
+				</div>
+			</div>
+
+			<!-- Logo with soft background -->
+			<div class="flex-shrink-0 relative flex items-center justify-center">
+				<!-- Diffused background -->
+				<div class="absolute w-40 h-40 md:w-60 md:h-60 bg-sky-200 dark:bg-sky-500 rounded-md blur-3xl opacity-30 -z-10"></div>
+				<Logo Class="size-14 md:size-28" />
 			</div>
 		</div>
 	</section>
 
 	<!-- Why Section -->
-	<section class="border-t border-gray-200 py-24 dark:border-gray-800">
+	<section class="py-24 dark:border-gray-800">
 		<div class="mx-auto max-w-5xl px-4 text-center">
 			<h2 class="text-2xl font-bold tracking-tight">Why Tailwind Variants .NET?</h2>
 			<div class="mt-10 grid gap-8 text-left md:grid-cols-3">
