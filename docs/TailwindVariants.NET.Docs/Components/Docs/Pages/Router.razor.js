@@ -12,6 +12,12 @@ export default class extends BlazorJSComponents.Component {
         this.addDecorations();
     }
 
+    dispose() {
+        document.querySelectorAll(".code-block").forEach(codeEl => {
+            codeEl.remove();
+        })
+    }
+
     addDecorations() {
         document.querySelectorAll('pre > code').forEach(codeEl => {
             const pre = codeEl.parentElement;
