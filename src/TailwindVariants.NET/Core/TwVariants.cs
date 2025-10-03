@@ -135,11 +135,6 @@ public class TwVariants(Tw merge)
         where TSlots : ISlots, new()
         where TOwner : ISlotted<TSlots>
     {
-        if (!string.IsNullOrEmpty(owner.Class))
-        {
-            AddSlotClass<TSlots>(builders, s => s.Base, owner.Class);
-        }
-
         foreach (var compiled in baseVariants.Values)
         {
             try
@@ -159,6 +154,11 @@ public class TwVariants(Tw merge)
             {
                 Debug.WriteLine($"Variant evaluation failed for '{compiled.Expr}': {ex.Message}");
             }
+        }
+
+        if (!string.IsNullOrEmpty(owner.Class))
+        {
+            AddSlotClass<TSlots>(builders, s => s.Base, owner.Class);
         }
 
         return builders;
