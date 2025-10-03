@@ -1,3 +1,9 @@
+## [0.0.2] - 2025-10-03
+
+### 🐛 Bug Fixes
+
+- Class variants were overridden by base variants
+- 
 ## [0.0.1] - 2025-10-02
 
 ### 🚀 Features
@@ -39,11 +45,22 @@
 - Wrong example in README.md
 - Migrations issues
 - Changed SlotMap name to SlotsMap
+- Merge conflicts
+- Merge conflicts
+- Merge conflicts
+- Merge conflicts
 - Avoid the consumer instantiating TvOptions through the initializer
 - Adding type parameter constraints
+- Merge conflicts
 - Wrong documentation examples
+- Merge conflicts
+- Merge conflicts
+- Merge conflicts
 - Sidebar was not sticky
 - Wrong EnforceExtendedAnalyzerRules value
+- TvOptions retained in example
+- Test projects were removed from solution
+- CHANGELOG name was spelled wrong
 
 ### 💼 Other
 
@@ -57,6 +74,7 @@
 
 ### 📚 Documentation
 
+- Added missing to public members
 - Added missing to public members
 - Added main layout
 
@@ -74,13 +92,23 @@
 - Added complex slotted component example
 - Initial sample docs website
 - Removed old project folder
+- Updated README.md
 - Better BodyContent rendering
 - Better generator implementation
 - Move diagnostic in its own file
+- Finished demo navbar
 - Renamed package, moved Directory.Build.props
+- Updated README.md
+- Updated version
+- Updated README.md
+- Keep it simple for now
 - Renamed class to follow every other "Slots"
+- Versioning
 - Suppressing warning for external compat
+- Versioning
 - Added active link classes on sidebar
+- Updated README.md
+- Cleanup docs site
 - Added/updated XML documentation
 - Split generator in methods for better readability
 - Moved property check in its own method
@@ -91,5 +119,8 @@
 - Updated README.md
 - Small syntax change
 - Code formatting
+- Update version
+- Updating version
 - Enhanced link component
 - Code formatting
+- Updated version, updated CHANGELOG.md
