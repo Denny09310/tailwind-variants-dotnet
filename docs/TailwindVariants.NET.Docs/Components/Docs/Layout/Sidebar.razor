@@ -36,7 +36,7 @@
     private void RenderStyles()
     {
         _slots = Tv.Invoke(this, _sidebar);
-        StateHasChanged();
+        InvokeAsync(StateHasChanged);
     }
 
     private RenderFragment RenderLinksContent() => __builder =>
