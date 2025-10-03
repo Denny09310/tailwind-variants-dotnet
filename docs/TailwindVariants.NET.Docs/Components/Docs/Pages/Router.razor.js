@@ -17,12 +17,19 @@ export default class extends BlazorJSComponents.Component {
             const pre = codeEl.parentElement;
             if (!pre) return;
 
-            if (pre.querySelector('.docs-copy-btn')) return;
+            // check if already wrapped
+            if (pre.parentElement?.classList.contains('code-block')) return;
 
-            // ensure pre is positioned
-            const cs = window.getComputedStyle(pre);
-            if (cs.position === 'static') pre.style.position = 'relative';
+            // create wrapper
+            const wrapper = document.createElement('div');
+            wrapper.className = 'code-block';
+            wrapper.style.position = 'relative';
 
+            // insert wrapper before <pre> and move pre inside it
+            pre.parentNode.insertBefore(wrapper, pre);
+            wrapper.appendChild(pre);
+
+            // create button
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'docs-copy-btn';
@@ -36,17 +43,16 @@ export default class extends BlazorJSComponents.Component {
                     .catch(() => this.showTransient(btn, 'Failed'));
             });
 
-            // minimal inline styles so it works before CSS loads
-            btn.style.position = 'absolute';
-            btn.style.top = '8px';
-            btn.style.right = '8px';
-            btn.style.padding = '4px 8px';
-            btn.style.fontSize = '12px';
-            btn.style.borderRadius = '6px';
-            btn.style.cursor = 'pointer';
-            btn.style.zIndex = '20';
+            var isSingleLine = codeEl.textContent?.split('\n').length <= 2;
+            if (isSingleLine) {
+                btn.style.top = '50%';
+                btn.style.transform = 'translateY(-50%)';
+            }
+            else {
+                btn.style.top = '8px';
+            }
 
-            pre.appendChild(btn);
+            wrapper.appendChild(btn);
         });
     }
 
@@ -55,5 +61,4 @@ export default class extends BlazorJSComponents.Component {
         btn.textContent = text;
         setTimeout(() => btn.textContent = orig, 1600);
     }
-
 }
