@@ -1,0 +1,42 @@
+﻿@page "/docs/{*slug}"
+@using System.Globalization
+@attribute [StreamRendering]
+@inject NavigationManager Navigation
+
+<PageTitle>@_title - TailwindVariants.NET</PageTitle>
+
+<HeadContent>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism.min.css" media="(prefers-color-scheme: light)">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism-tomorrow.min.css" media="(prefers-color-scheme: dark)">
+</HeadContent>
+
+<MarkdownContent Filepath="@Slug" />
+
+@code
+{
+    [Parameter] public string? Slug { get; set; }
+
+    private string? _title;
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrEmpty(Slug))
+        {
+            Navigation.NavigateTo("/docs/getting-started", true);
+            return;
+        }
+
+        ParseTitle();        
+    }
+
+    private void ParseTitle()
+    {
+        var info = CultureInfo.InvariantCulture.TextInfo;
+        var segments = Slug!.Split('/', StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => info.ToTitleCase(
+                s.Replace("-", " ").Replace("_", " ").ToLowerInvariant()
+            ));
+
+        _title = string.Join(" - ", segments);
+    }
+}

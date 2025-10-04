@@ -6,16 +6,30 @@ import "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-cshtml.min.
 import "https://cdn.jsdelivr.net/npm/anchor-js/anchor.min.js";
 
 export default class extends BlazorJSComponents.Component {
-    setParameters() {
+    attach() {
+        this.cleanupDecorations();
+
         anchors.add('h2');
         window.Prism.highlightAll();
+
         this.addDecorations();
     }
 
-    dispose() {
+    cleanupDecorations() {
+        // Remove any code-block wrappers and move <pre> back
         document.querySelectorAll('.code-block').forEach(wrapper => {
+            const pre = wrapper.querySelector('pre');
+            if (pre && wrapper.parentNode) {
+                wrapper.parentNode.insertBefore(pre, wrapper);
+            }
             wrapper.remove();
         });
+
+        // Remove any leftover copy buttons that somehow got orphaned
+        document.querySelectorAll('.docs-copy-btn').forEach(btn => btn.remove());
+
+        // Optional: remove anchor-js anchors
+        document.querySelectorAll('h2 .anchorjs-link').forEach(a => a.remove());
     }
 
     addDecorations() {
