@@ -1,5 +1,6 @@
 ﻿@rendermode InteractiveServer
 @attribute [DiscoverCollocatedJS]
+@implements IDisposable
 @inject JSElementReferenceScope Refs
 @inject SidebarState SidebarState
 
@@ -7,10 +8,10 @@
 	<div class="mx-auto flex h-full max-w-7xl items-center justify-between px-4 py-3">
 		<Link href="" Size="Link.Sizes.Small" Class="gap-x-2">
 			<Logo />
-			<span class="track-tight font-medium">Tailwind Variants Dotnet</span>
+			<span class="track-tight hidden font-medium md:inline-block">Tailwind Variants .NET</span>
 		</Link>
 		<div class="inline-flex items-center gap-x-4">
-			<Link href="docs/getting-started" Underline="Link.Underlines.Hover">
+			<Link href="docs/introduction" Underline="Link.Underlines.Hover">
 				Docs
 			</Link>
 			<Link href="https://github.com/Denny09310/tailwind-variants-dotnet" target="_blank" title="GitHub">
@@ -29,6 +30,7 @@
 						<path d="M4 12h16" />
 						<path d="M4 19h16" />
 					</svg>
+					<span class="sr-only">@($"{(SidebarState.IsOpen ? "Open" : "Close")} Menu")</span>
 				</Button>
 			}
 		</div>
@@ -41,4 +43,19 @@
 {
 	[Parameter]
 	public bool Menu { get; set; }
+
+	protected override void OnInitialized()
+	{
+		SidebarState.OnChange += RenderComponent;
+	}
+
+	public void Dispose()
+	{
+		SidebarState.OnChange -= RenderComponent;
+	}
+
+	private async void RenderComponent()
+	{
+		await InvokeAsync(StateHasChanged);
+	}
 }
