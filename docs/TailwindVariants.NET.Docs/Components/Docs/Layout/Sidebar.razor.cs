@@ -10,9 +10,9 @@ public partial class Sidebar : ISlotted<Sidebar.Slots>
             [s => s.Overlay] = "transition-[opacity]",
             [s => s.Wrapper] = "p-4 flex flex-col gap-1 overflow-y-auto",
             [s => s.Header] = "flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-700 md:hidden",
-            [s => s.Link] = "rounded px-3 py-2 text-sm hover:bg-sky-200/50 dark:hover:bg-sky-700/50",
+            [s => s.Link] = "rounded px-3 py-2 text-sm hover:bg-slate-200/50 dark:hover:bg-slate-700/50",
             [s => s.LinkHeader] = "mt-3 font-semibold text-neutral-600 dark:text-neutral-300",
-            [s => s.LinkActive] = "bg-sky-200/50! dark:bg-sky-700/50!",
+            [s => s.LinkActive] = "bg-slate-200/50! dark:bg-slate-700/50!",
         },
         variants: new()
         {
