@@ -29,9 +29,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _content = null;
-        await Task.Delay(50); // <-- I need to add this stupidly small delay to make the page force re-render
-
         var filepath = Path.Combine("wwwroot", "docs", Path.ChangeExtension(Filepath, ".md"));
 
         if (!File.Exists(filepath))
