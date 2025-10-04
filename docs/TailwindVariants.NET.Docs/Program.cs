@@ -13,6 +13,11 @@ builder.Services.AddJSComponents();
 builder.Services.AddApplicationState();
 builder.Services.AddSingleton<MarkdownRenderer>();
 
+builder.Services.AddHttpClient("GitHub", client =>
+{
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("TailwindVariants.NET.Docs");
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
