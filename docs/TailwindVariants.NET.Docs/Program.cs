@@ -13,7 +13,7 @@ builder.Services.AddJSComponents();
 builder.Services.AddApplicationState();
 builder.Services.AddSingleton<MarkdownRenderer>();
 
-builder.Services.AddHttpClient("GitHub", client =>
+builder.Services.AddHttpClient<GitHubClient>(client =>
 {
     client.DefaultRequestHeaders.UserAgent.ParseAdd("TailwindVariants.NET.Docs");
 });

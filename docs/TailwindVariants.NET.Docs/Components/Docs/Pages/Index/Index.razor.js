@@ -5,14 +5,22 @@ import "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-cshtml.min.
 
 import "https://cdn.jsdelivr.net/npm/anchor-js/anchor.min.js";
 
+window.Prism = window.Prism || {};
+window.Prism.manual = true;
+
 export default class extends BlazorJSComponents.Component {
     attach() {
-        this.cleanupDecorations();
+        try { anchors.add('h2'); } catch (e) {
+            // ignore if anchorjs already ran or failed
+        }
+    }
 
-        anchors.add('h2');
-        window.Prism.highlightAll();
-
+    setParameters() {
         this.addDecorations();
+    }
+
+    dispose() {
+        this.cleanupDecorations();
     }
 
     cleanupDecorations() {
