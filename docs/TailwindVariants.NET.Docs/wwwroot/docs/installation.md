@@ -18,16 +18,10 @@ If you haven't already, set up Tailwind CSS in your Blazor project. You can foll
 
 ## 3. Configure TailwindVariants.NET
 
-After installing the package, register the services in your `Program.cs` (for Blazor WebAssembly) or `Startup.cs` (for Blazor Server):
+After installing the package, register the services in your `Program.cs`:
 
 ```csharp
 builder.Services.AddTailwindVariants();
-```
-
-Or
-
-```csharp
-services.AddTailwindVariants();
 ```
 
 ## 4. Usage Example

@@ -55,8 +55,16 @@ public static readonly TvDescriptor<Button, Slots> _button = new(
     {
         [b => b.Variant] = new Variant<Variants, Slots>()
         {
-            [Variants.Primary] = new Slots() { Base = "bg-blue-500 text-white", Label = "font-semibold" },
-            [Variants.Secondary] = new Slots() { Base = "bg-gray-200 text-black", Label = "font-medium" }
+            [Variants.Primary] = new() 
+            { 
+                [s => s.Base] = "bg-blue-500 text-white", 
+                [s => s.Label] = "font-semibold" 
+            },
+            [Variants.Secondary] = new() 
+            { 
+                [s => s.Base] = "bg-gray-200 text-black", 
+                [s => s.Label] = "font-medium" 
+            }
         }
     }
 );

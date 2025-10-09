@@ -22,10 +22,11 @@ In **TailwindVariants.NET**, they automatically generate:
 
 ## Why Use Source Generators?
 
-Without Source Generators, developers would have to rely on raw strings for:
+Without Source Generators, developers would have to rely on raw strings/expression for:
 
 ```csharp
-var btnClass = slots.Map["Base"] + " " + slots.Map["Primary"];
+var baseClass = _slots.Map["Base"];
+var iconClass =  _slots.Map[s => s.Icon];
 ````
 
 This is:
@@ -37,8 +38,8 @@ This is:
 With Source Generators, you can do:
 
 ```csharp
-var baseClass = slots.GetBase();
-var iconClass = slots.Get(SlotsTypes.Icon);
+var baseClass = _slots.GetBase();
+var iconClass = _slots.GetIcon();
 ```
 
 * ✅ Compile-time safety

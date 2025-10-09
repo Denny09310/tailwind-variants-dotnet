@@ -62,7 +62,7 @@ Once defined, applying variants is simple:
 The source generator automatically generates helpers to make this type-safe:
 
 ```csharp
-_slots.Get(Button.Variants.Primary)
+_slots.GetBase()
 ```
 
 You can also combine multiple variants (like size, color, or state) without manually concatenating strings.
