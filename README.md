@@ -28,7 +28,7 @@ Install from NuGet:
 dotnet add package TailwindVariants.NET
 ```
 
-To enable automatic generation of slot accessors, also add the source generator package:
+To enable automatic generation of slot accessors, it's included an analyzer with the main package:
 
 ```bash
 dotnet add package TailwindVariants.NET.SourceGenerator
