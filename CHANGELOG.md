@@ -1,32 +1,9 @@
-## [0.0.3] - 2025-10-10
-
-### 🚀 Features
-
-- Mobile sidebar view, simplified base tw component slots access
-- Added documentation links, added work in progress markdown
-- Added sidebar header, fixed styles
-- Added initial docs drafts
-- Added simple stargazers count
-- Added hacky way to force re-render content
-- Disabled data-enhance-nav
+## [0.0.4] - 2025-10-10
 
 ### 🐛 Bug Fixes
 
-- Removing code-blocks on dispose
-- Enabled stream rendering to fix wrapping deletion
-- Using 'attached' instead of 'setParameters'
-- Strange diffing behavior causes duplicate blazor state controls
-- Background color not working in light mode
-- General docs enhancements
-- Null slots were ignored and empty class values throws error
-
-### ⚙️ Miscellaneous Tasks
-
-- Updated InvokeAsync(StateHasChanged)
-- Fixed button styling home page
-- Disabled prismjs DOM update until fix is found
-
-## [0.0.2] - 2025-10-03
+- Now slots can be unset, accessing them returns a null string
+## [0.0.3] - 2025-10-10
 
 ### 🚀 Features
 
@@ -37,6 +14,13 @@
 - Added anchorjs
 - Added dynamic blur to header
 - Improved hero section
+- Mobile sidebar view, simplified base tw component slots access
+- Added documentation links, added work in progress markdown
+- Added sidebar header, fixed styles
+- Added initial docs drafts
+- Added simple stargazers count
+- Added hacky way to force re-render content
+- Disabled data-enhance-nav
 
 ### 🐛 Bug Fixes
 
@@ -44,16 +28,35 @@
 - Button scrolling with component, wrong z-index
 - Wrong function declaration
 - Javascript function was not bound
-- Class variants were overridden by base variants
+- Removing code-blocks on dispose
+- Enabled stream rendering to fix wrapping deletion
+- Using 'attached' instead of 'setParameters'
+- Strange diffing behavior causes duplicate blazor state controls
+- Background color not working in light mode
+- General docs enhancements
+- Null slots were ignored and empty class values throws error
 
 ### ⚙️ Miscellaneous Tasks
 
+- Updated README.md
+- Updated README.md
 - Renamed docs
 - Removed polling lookup as now it's imported
 - Removed line-numbers
 - Tailwind classes sorting
-- Updated version, updated CHANGELOG.md
+- Updated InvokeAsync(StateHasChanged)
+- Fixed button styling home page
+- Disabled prismjs DOM update until fix is found
+- Bump version, update CHANGELOG.md
+## [fix-append-ordering] - 2025-10-03
 
+### 🐛 Bug Fixes
+
+- Class variants were overridden by base variants
+
+### ⚙️ Miscellaneous Tasks
+
+- Updated version, updated CHANGELOG.md
 ## [0.0.1] - 2025-10-02
 
 ### 🚀 Features

@@ -196,7 +196,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.AppendLine($"public static class {extClassName}");
         sb.AppendLine("{");
         sb.Indent();
-        sb.AppendLine($"public static string? Get(this {slotsMapName} slots, {enumName} key) => slots.Map[{namesClass}.NameOf(key)];");
+        sb.AppendLine($"public static string? Get(this {slotsMapName} slots, {enumName} key) => slots[{namesClass}.NameOf(key)];");
         sb.Dedent();
 
         sb.Indent();
