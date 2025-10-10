@@ -1,0 +1,54 @@
+﻿@rendermode InteractiveServer
+@attribute [DiscoverCollocatedJS]
+@implements IDisposable
+@inject JSElementReferenceScope Refs
+@inject SidebarState SidebarState
+
+<header class="sticky top-0 z-20 h-16 transition-[backdrop-filter,background-color] duration-350" data-ref="@Refs["header"]">
+	<div class="mx-auto flex h-full max-w-7xl items-center justify-between px-4 py-3">
+		<Link href="" Size="Link.Sizes.Small" Class="gap-x-2">
+			<Logo />
+			<span class="track-tight hidden font-medium md:inline-block">Tailwind Variants .NET</span>
+		</Link>
+		<div class="inline-flex items-center gap-x-4">
+			<Link href="docs/introduction" Underline="Link.Underlines.Hover">
+				Docs
+			</Link>
+			<StargazersLink />
+			@if (Menu)
+			{
+				<Button Class="md:hidden" @onclick="SidebarState.Toggle">
+					<svg class="size-5 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M4 5h16" />
+						<path d="M4 12h16" />
+						<path d="M4 19h16" />
+					</svg>
+					<span class="sr-only">@($"{(SidebarState.IsOpen ? "Open" : "Close")} Menu")</span>
+				</Button>
+			}
+		</div>
+	</div>
+</header>
+
+<JS For="this" Args="[Refs]" />
+
+@code
+{
+	[Parameter]
+	public bool Menu { get; set; }
+
+	protected override void OnInitialized()
+	{
+		SidebarState.OnChange += RenderComponent;
+	}
+
+	public void Dispose()
+	{
+		SidebarState.OnChange -= RenderComponent;
+	}
+
+	private async void RenderComponent()
+	{
+		await InvokeAsync(StateHasChanged);
+	}
+}

@@ -1,0 +1,50 @@
+﻿::deep .docs-copy-btn {
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.08);
+    color: #111;
+}
+
+::deep .dark .docs-copy-btn {
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+::deep pre {
+    background-color: var(--color-slate-200);
+}
+
+::deep .dark pre {
+    background-color: var(--color-slate-700);
+}
+
+@media (prefers-color-scheme: dark) {
+    ::deep pre {
+        background-color: var(--color-slate-700);
+    }
+
+    ::deep .docs-copy-btn {
+        background: rgba(0,0,0,0.6);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+}
+
+::deep .code-block {
+    position: relative;
+}
+
+    ::deep .code-block pre {
+        overflow: auto;
+    }
+
+    ::deep .code-block .docs-copy-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        padding: 4px 8px;
+        font-size: 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        z-index: 10;
+    }
