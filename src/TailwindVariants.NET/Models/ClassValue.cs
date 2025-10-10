@@ -45,7 +45,7 @@ public class ClassValue : IEnumerable<string>
             return string.Join(" ", @class._values);
         }
 
-        throw new InvalidOperationException($"{nameof(ClassValue)} does not contain any class data (neither a single value nor a collection).");
+        return string.Empty;
     }
 
     /// <summary>
