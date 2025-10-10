@@ -12,17 +12,14 @@ public class SlotsMap<TSlots>
     private readonly Dictionary<string, string?> _map = new(StringComparer.Ordinal);
 
     /// <summary>
-    /// Gets a read-only dictionary containing key-value pairs mapped by string identifiers.
-    /// </summary>
-    public IReadOnlyDictionary<string, string?> Map => _map;
-
-    /// <summary>
     /// Indexer that accepts a slot accessor expression and returns the computed class string or null.
     /// </summary>
-    public string? this[Expression<SlotAccessor<TSlots>> key]
-    {
-        get => Map.TryGetValue(GetSlot(key), out var value) ? value : null;
-    }
+    public string? this[Expression<SlotAccessor<TSlots>> key] => this[GetSlot(key)];
+
+    /// <summary>
+    /// Indexer that accepts a slot name and returns the computed class string or null.
+    /// </summary>
+    public string? this[string key] => _map.TryGetValue(key, out string? value) ? value : null;
 
     /// <summary>
     /// Create a SlotsMap from a prefilled dictionary.
