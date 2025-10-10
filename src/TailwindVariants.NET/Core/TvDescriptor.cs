@@ -75,10 +75,7 @@ public sealed class TvDescriptor<TOwner, TSlots>
         {
             foreach (var (key, value) in Slots)
             {
-                if (value is not null)
-                {
-                    map[GetSlot(key)] = (string)value;
-                }
+                map[GetSlot(key)] = (string)value;
             }
         }
 
