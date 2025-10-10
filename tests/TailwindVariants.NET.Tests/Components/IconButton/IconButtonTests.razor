@@ -3,7 +3,7 @@
 
 @code
 {
-    public ButtonTests()
+    public IconButtonTests()
     {
         Services.AddTailwindVariants();
     }
@@ -12,7 +12,7 @@
     public void Renders_BaseClass_ByDefault()
     {
         // Arrange
-        var cut = RenderComponent<Button>();
+        var cut = RenderComponent<IconButton>();
 
         // Act
         var button = cut.Find("button");
@@ -26,7 +26,7 @@
     {
         // Arrange
         var cut = Render(
-            @<Button Variant="@Button.Variants.Solid" />
+            @<IconButton Variant="@Button.Variants.Solid" />
         );
 
         // Act
@@ -41,7 +41,7 @@
     public void Applies_Variant_Secondary()
     {
         var cut = Render(
-            @<Button Variant="@Button.Variants.Outline" />
+            @<IconButton Variant="@Button.Variants.Outline" />
         );
 
         var button = cut.Find("button");
@@ -54,7 +54,7 @@
     public void Applies_Size_Small()
     {
         var cut = Render(
-            @<Button Size="@Button.Sizes.Small" />
+            @<IconButton Size="@Button.Sizes.Small" />
         );
 
         var button = cut.Find("button");
@@ -67,7 +67,7 @@
     public void Applies_Size_Large()
     {
         var cut = Render(
-            @<Button Size="@Button.Sizes.Large" />
+            @<IconButton Size="@Button.Sizes.Large" />
         );
 
         var button = cut.Find("button");
@@ -81,7 +81,7 @@
     {
         // Arrange
         var cut = Render(
-            @<Button Variant="@Button.Variants.Ghost" Size="@Button.Sizes.Small" />
+            @<IconButton Variant="@Button.Variants.Ghost" Size="@Button.Sizes.Small" />
         );
 
         // Act
@@ -95,7 +95,7 @@
     public void PerInstance_Classes_AreApplied()
     {
         var cut = Render(
-            @<Button Classes="@(new() { Base = "rounded-full" })" />
+            @<IconButton Classes="@(new() { Base = "rounded-full" })" />
         );
 
         var button = cut.Find("button");
@@ -105,8 +105,8 @@
     [Fact]
     public void PerInstance_ClassProperty_IsApplied()
     {
-        var cut =  Render(
-            @<Button Class="m-2" />
+        var cut = Render(
+            @<IconButton Class="m-2" />
         );
 
         var button = cut.Find("button");
@@ -117,9 +117,9 @@
     [Fact]
     public void EnumerateOverrides_Yields_PerInstanceClasses()
     {
-        var instance = new Button
+        var instance = new IconButton
         {
-            Classes = new Button.Slots { Base = "rounded-xl" }
+            Classes = new IconButton.Slots { Base = "rounded-xl" }
         };
 
         var overrides = instance.Classes!.EnumerateOverrides().ToList();

@@ -98,13 +98,40 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
     #region Helpers
 
-    private static ImmutableArray<string> CollectPublicProperties(INamedTypeSymbol type) =>
-        [.. type.GetMembers()
-            .OfType<IPropertySymbol>()
-            .Where(p => !p.IsStatic && p.DeclaredAccessibility == Accessibility.Public && p.Type.SpecialType == SpecialType.System_String)
+    private static ImmutableArray<string> CollectPublicProperties(INamedTypeSymbol type)
+    {
+        var collected = new List<IPropertySymbol>();
+        var seenNames = new HashSet<string>(StringComparer.Ordinal);
+
+        // Walk from the current type up the base types so derived declarations win
+        var current = type;
+        while (current != null)
+        {
+            foreach (var p in current.GetMembers().OfType<IPropertySymbol>())
+            {
+                if (p.IsStatic) continue;
+                if (p.DeclaredAccessibility != Accessibility.Public) continue;
+                if (p.Type.SpecialType != SpecialType.System_String) continue;
+
+                // keep the first (most-derived) occurrence of a property name
+                if (seenNames.Add(p.Name))
+                {
+                    collected.Add(p);
+                }
+            }
+
+            current = current.BaseType;
+        }
+
+        // Order like you did before: by source location if present, then by name
+        var ordered = collected
             .OrderBy(p => p.Locations.FirstOrDefault()?.SourceSpan.Start ?? int.MaxValue)
             .ThenBy(p => p.Name, StringComparer.Ordinal)
-            .Select(x => x.Name)];
+            .Select(p => p.Name)
+            .ToImmutableArray();
+
+        return ordered;
+    }
 
     private static ImmutableArray<string> GetSlotsHierarchy(INamedTypeSymbol slotsType)
     {

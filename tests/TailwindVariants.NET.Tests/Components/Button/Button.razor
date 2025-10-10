@@ -1,17 +1,14 @@
 ﻿@namespace TailwindVariants.NET.Tests.Components
-@inherits TwComponentBase
+@inherits TwComponentBase<Button, Button.Slots>
 
 <button class="@_slots.GetBase()" type="@Type" @attributes="AdditionalAttributes">
-	@RenderInnerContent()
+	@ChildContent
 </button>
 
 @code 
 {
 	[Parameter] 
 	public RenderFragment? ChildContent { get; set; }
-	
-	[Parameter] 
-	public RenderFragment? IconContent { get; set; }
 	
 	[Parameter] 
 	public Variants Variant { get; set; }
@@ -26,27 +23,5 @@
 	public bool FullWidth { get; set; }
 	
 	[Parameter] 
-	public bool IconOnly { get; set; }
-	
-	[Parameter] 
-	public bool Loading { get; set; }
-	
-	[Parameter] 
 	public Slots? Classes { get; set; }
-
-	private RenderFragment RenderInnerContent() => __builder =>
-	{
-		@if (Loading)
-		{
-			<span class="@_slots.GetSpinner()"></span>
-		}
-		else if (IconContent is not null)
-		{
-			<div class="@_slots.GetIcon()">
-				@IconContent
-			</div>
-		}
-
-		@ChildContent
-	};
 }

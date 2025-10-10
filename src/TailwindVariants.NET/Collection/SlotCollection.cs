@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Linq.Expressions;
+using static TailwindVariants.NET.TvHelpers;
 
 namespace TailwindVariants.NET;
 
@@ -80,4 +81,6 @@ public class SlotCollection<TSlots>()
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     IEnumerator<string> IEnumerable<string>.GetEnumerator() => _slots[s => s.Base].GetEnumerator();
+
+    internal Dictionary<string, string?> ToDictionary() => _slots.ToDictionary(kvp => GetSlot(kvp.Key), kvp => kvp.Value.ToString());
 }

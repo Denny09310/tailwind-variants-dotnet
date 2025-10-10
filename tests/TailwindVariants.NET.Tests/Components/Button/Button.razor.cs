@@ -2,14 +2,9 @@ namespace TailwindVariants.NET.Tests.Components;
 
 public partial class Button : ISlotted<Button.Slots>
 {
-    private static readonly TvDescriptor<Button, Slots> _button = new
+    public static readonly TvDescriptor<Button, Slots> _button = new
     (
         @base: "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none dark:focus:ring-slate-400 dark:focus:ring-offset-slate-900",
-        slots: new()
-        {
-            [b => b.Icon] = "mr-2 -ml-1",
-            [b => b.Spinner] = "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 animate-spin",
-        },
         variants: new()
         {
             [b => b.Variant] = new Variant<Variants, Slots>()
@@ -29,18 +24,6 @@ public partial class Button : ISlotted<Button.Slots>
             {
                 [true] = "w-full",
             },
-            [b => b.Loading] = new Variant<bool, Slots>()
-            {
-                [true] = "relative text-transparent hover:text-transparent disabled:pointer-events-none",
-            },
-            [b => b.IconOnly] = new Variant<bool, Slots>()
-            {
-                [true] = new()
-                {
-                    [s => s.Base] = "aspect-square p-0",
-                    [s => s.Icon] = "m-0"
-                }
-            }
         },
         compoundVariants:
         [
@@ -51,23 +34,21 @@ public partial class Button : ISlotted<Button.Slots>
         ]
     );
 
-    private SlotsMap<Slots> _slots = new();
-
     public enum Sizes
     { Small, Medium, Large, }
 
     public enum Variants
     { Solid, Outline, Ghost, Link, }
 
+    protected override TvDescriptor<Button, Slots> GetDescriptor() => _button;
+
     protected override void OnParametersSet()
     {
         _slots = Tv.Invoke(this, _button);
     }
 
-    public sealed partial class Slots : ISlots
+    public partial class Slots : ISlots
     {
         public string? Base { get; set; }
-        public string? Icon { get; set; }
-        public string? Spinner { get; set; }
     }
 }
