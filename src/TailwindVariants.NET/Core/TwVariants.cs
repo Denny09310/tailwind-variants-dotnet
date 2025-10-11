@@ -102,19 +102,17 @@ public class TwVariants(Tw merge)
                 {
                     AddSlotClass<TSlots>(builders, s => s.Base, cv.Class);
                 }
-                else
+
+                foreach (var pairs in cv)
                 {
-                    foreach (var pairs in cv)
+                    var slot = pairs.Key;
+
+                    if (slot is null)
                     {
-                        var slot = pairs.Key;
-
-                        if (slot is null)
-                        {
-                            continue;
-                        }
-
-                        AddSlotClass(builders, slot, pairs.Value.ToString());
+                        continue;
                     }
+
+                    AddSlotClass(builders, slot, pairs.Value.ToString());
                 }
             }
             catch (Exception ex)
