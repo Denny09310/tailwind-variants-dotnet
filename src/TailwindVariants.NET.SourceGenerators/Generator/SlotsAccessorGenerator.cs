@@ -293,7 +293,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine("#nullable enable");
         sb.AppendLine();
-        if (!string.IsNullOrEmpty(namespaceName))
+        if (!string.IsNullOrEmpty(namespaceName) && namespaceName != "<global namespace>")
         {
             sb.AppendLine($"namespace {namespaceName};");
             sb.AppendLine();
