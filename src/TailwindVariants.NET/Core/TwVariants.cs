@@ -114,7 +114,7 @@ public class TwVariants(Tw merge)
 
                     foreach (var slotKv in slots)
                     {
-                        AddSlotClass(builders, slotKv.Key, (string)slotKv.Value);
+                        AddSlotClass(builders, slotKv.Key, slotKv.Value.ToString());
                     }
                 }
             }
@@ -146,7 +146,7 @@ public class TwVariants(Tw merge)
                 {
                     foreach (var kv in slots)
                     {
-                        AddSlotClass(builders, kv.Key, (string)kv.Value);
+                        AddSlotClass(builders, kv.Key, kv.Value.ToString());
                     }
                 }
             }

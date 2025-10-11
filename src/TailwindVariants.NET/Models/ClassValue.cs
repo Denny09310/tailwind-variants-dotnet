@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Security.Claims;
 
 namespace TailwindVariants.NET;
 
@@ -29,26 +30,6 @@ public class ClassValue : IEnumerable<string>
     public static implicit operator ClassValue(string value) => new(value);
 
     /// <summary>
-    /// Implicit conversion from ClassValue to string.
-    /// Will return the underlying string or the joined values.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Throws an informative if empty.</exception>
-    public static implicit operator string(ClassValue @class)
-    {
-        if (!string.IsNullOrEmpty(@class._value))
-        {
-            return @class._value!;
-        }
-
-        if (@class._values is not null && @class._values.Count > 0)
-        {
-            return string.Join(" ", @class._values);
-        }
-
-        return string.Empty;
-    }
-
-    /// <summary>
     /// Add a single class fragment to the collection.
     /// </summary>
     /// <param name="value">A single class fragment.</param>
@@ -68,6 +49,25 @@ public class ClassValue : IEnumerable<string>
         }
 
         throw new InvalidOperationException($"Cannot enumerate {nameof(ClassValue)} because it contains no values.");
+    }
+
+    /// <summary>
+    /// Conversion from ClassValue to string.
+    /// Will return the underlying string or the joined values.
+    /// </summary>
+    public override string ToString()
+    {
+        if (!string.IsNullOrEmpty(_value))
+        {
+            return _value!;
+        }
+
+        if (_values is not null && _values.Count > 0)
+        {
+            return string.Join(" ", _values);
+        }
+
+        return string.Empty;
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

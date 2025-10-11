@@ -68,14 +68,14 @@ public sealed class TvDescriptor<TOwner, TSlots>
 
         if (Base is not null)
         {
-            map[GetSlot<TSlots>(s => s.Base)] = (string)Base;
+            map[GetSlot<TSlots>(s => s.Base)] = Base.ToString();
         }
 
         if (Slots is not null)
         {
             foreach (var (key, value) in Slots)
             {
-                map[GetSlot(key)] = (string)value;
+                map[GetSlot(key)] = value.ToString();
             }
         }
 
