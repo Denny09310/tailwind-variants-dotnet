@@ -1,8 +1,25 @@
+## [0.0.5] - 2025-10-11
+
+### 🐛 Bug Fixes
+
+- Wrong typing of compound variants causing classes to be applied only to Base slot
+- Gracefully handle nullable ClassValue, SlotCollection and Variant as either empty or empty string
+
+### ⚙️ Miscellaneous Tasks
+
+- Added "#pragma" warnings disable for common roslyn warnings
+- Removed implicit conversion to string in favor of "ToString" override
+- Avoid writing namespace in top-level contexts
+- Added some tests, code organization
 ## [0.0.4] - 2025-10-10
 
 ### 🐛 Bug Fixes
 
 - Now slots can be unset, accessing them returns a null string
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, update CHANGELOG.md
 ## [0.0.3] - 2025-10-10
 
 ### 🚀 Features
