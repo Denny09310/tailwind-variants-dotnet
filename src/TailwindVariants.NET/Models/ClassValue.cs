@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Security.Claims;
 
 namespace TailwindVariants.NET;
 
@@ -22,12 +21,12 @@ public class ClassValue : IEnumerable<string>
     /// Create a ClassValue from a single string.
     /// </summary>
     /// <param name="value">The class string.</param>
-    public ClassValue(string value) => _value = value;
+    public ClassValue(string? value) => _value = value;
 
     /// <summary>
     /// Implicit conversion from string to ClassValue.
     /// </summary>
-    public static implicit operator ClassValue(string value) => new(value);
+    public static implicit operator ClassValue(string? value) => new(value);
 
     /// <summary>
     /// Add a single class fragment to the collection.
@@ -48,7 +47,7 @@ public class ClassValue : IEnumerable<string>
             return new List<string> { _value }.GetEnumerator();
         }
 
-        throw new InvalidOperationException($"Cannot enumerate {nameof(ClassValue)} because it contains no values.");
+        return Enumerable.Empty<string>().GetEnumerator();
     }
 
     /// <summary>
