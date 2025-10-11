@@ -90,7 +90,7 @@ public sealed class TvDescriptor<TOwner, TSlots>
         {
             foreach (var (key, value) in Variants)
             {
-                var id = key.ToString() ?? Guid.NewGuid().ToString();
+                var id = GetVariant(key);
                 var accessor = key.Compile();
                 variants[id] = new CompiledVariant<TOwner, TSlots>(key, value, accessor);
             }
