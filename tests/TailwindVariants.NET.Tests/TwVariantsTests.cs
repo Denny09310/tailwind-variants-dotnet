@@ -50,12 +50,12 @@ public class TwVariantsTests
     }
 
     [Fact]
-    public void Invoke_AccessingNonInitializedSlot_ReturnsEmptyString()
+    public void Invoke_AccessingNonInitializedSlot_ReturnsNull()
     {
         // Arrange
         var descriptor = new TvDescriptor<TestComponent, TestSlots>(
             @base: "container"
-            // Container and Title slots are not initialized
+        // Container and Title slots are not initialized
         );
         var component = new TestComponent();
 
@@ -183,7 +183,7 @@ public class TwVariantsTests
         // Arrange
         var descriptor = new TvDescriptor<TestComponent, TestSlots>(
             @base: "component",
-            slots: new SlotCollection<TestSlots>
+            slots: new()
             {
                 [s => s.Title] = "text-lg"
             }
@@ -212,7 +212,7 @@ public class TwVariantsTests
         // Arrange
         var descriptor = new TvDescriptor<TestComponent, TestSlots>(
             @base: "component",
-            slots: new SlotCollection<TestSlots>
+            slots: new()
             {
                 [s => s.Title] = "text-lg",
                 [s => s.Description] = "text-sm"
@@ -287,12 +287,12 @@ public class TwVariantsTests
             compoundVariants:
             [
                 new(c => c.IsDisabled)
-            {
-                Class = null,
-                [s => s.Title] = "text-gray-400"
-            }
+                {
+                    Class = null,
+                    [s => s.Title] = "text-gray-400"
+                }
             ],
-            slots: new SlotCollection<TestSlots>
+            slots: new()
             {
                 [s => s.Title] = "text-lg"
             }
@@ -503,7 +503,7 @@ public class TwVariantsTests
         // Arrange
         var descriptor = new TvDescriptor<TestComponent, TestSlots>(
             @base: "component",
-            slots: new SlotCollection<TestSlots>
+            slots: new()
             {
                 [s => s.Title] = "text-lg"
             }
@@ -540,7 +540,7 @@ public class TwVariantsTests
         // Arrange
         var descriptor = new TvDescriptor<TestComponent, TestSlots>(
             @base: "container",
-            slots: new SlotCollection<TestSlots>
+            slots: new()
             {
                 [s => s.Title] = null,
                 [s => s.Description] = "text-sm"
@@ -592,7 +592,7 @@ public class TwVariantsTests
         // Arrange
         var descriptor = new TvDescriptor<TestComponent, TestSlots>(
             @base: "container",
-            slots: new SlotCollection<TestSlots>
+            slots: new()
             {
                 [s => s.Title] = "text-xl font-bold",
                 [s => s.Description] = "text-sm text-gray-600"
