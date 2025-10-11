@@ -18,10 +18,10 @@ public class Variant<TVariant, TSlots> : IVariant<TSlots>,
     /// </summary>
     /// <param name="key">The variant key.</param>
     /// <returns>The slot collection for the given key.</returns>
-    public SlotCollection<TSlots> this[TVariant key]
+    public SlotCollection<TSlots>? this[TVariant key]
     {
         get => _variants[key];
-        set => _variants[key] = value;
+        set => _variants[key] = value ?? [];
     }
 
     /// <summary>
@@ -36,8 +36,6 @@ public class Variant<TVariant, TSlots> : IVariant<TSlots>,
     /// </summary>
     /// <returns>An enumerator for the variant-slot pairs.</returns>
     public IEnumerator<KeyValuePair<TVariant, SlotCollection<TSlots>>> GetEnumerator() => _variants.GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
     /// Attempts to get the slot collection for the specified key.
@@ -56,4 +54,6 @@ public class Variant<TVariant, TSlots> : IVariant<TSlots>,
         slots = null;
         return false;
     }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

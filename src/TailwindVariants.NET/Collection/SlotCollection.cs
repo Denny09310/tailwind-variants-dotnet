@@ -15,18 +15,15 @@ public class SlotCollection<TSlots>()
     /// <summary>
     /// Create a slot collection whose base slot contains the provided classes.
     /// </summary>
-    internal SlotCollection(string classes) : this()
-    {
-        _slots[s => s.Base] = classes;
-    }
+    internal SlotCollection(string? classes) : this() => _slots[s => s.Base] = classes;
 
     /// <summary>
     /// Indexer (slot accessor) => class value.
     /// </summary>
-    public ClassValue this[Expression<SlotAccessor<TSlots>> key]
+    public ClassValue? this[Expression<SlotAccessor<TSlots>> key]
     {
         get => _slots[key];
-        set => _slots[key] = value;
+        set => _slots[key] = value ?? "";
     }
 
     /// <summary>
