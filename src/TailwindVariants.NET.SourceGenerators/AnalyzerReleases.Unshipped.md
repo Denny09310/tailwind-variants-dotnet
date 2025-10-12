@@ -4,7 +4,7 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-TVSG001 | TailwindVariants.SourceGenerator | Info | Descriptors
+TVSG001 | TailwindVariants.SourceGenerators | Info | Descriptors
 
 
 ## Release 0.0.1-preview.11
@@ -13,4 +13,4 @@ TVSG001 | TailwindVariants.SourceGenerator | Info | Descriptors
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-TVSG002 | TailwindVariants.NET.SourceGenerator | Error | Descriptors
+TVSG002 | TailwindVariants.NET.SourceGenerators | Error | Descriptors

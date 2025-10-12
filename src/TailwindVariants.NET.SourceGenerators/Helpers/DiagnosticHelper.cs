@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace TailwindVariants.NET.SourceGenerator;
+namespace TailwindVariants.NET.SourceGenerators;
 
 internal class DiagnosticHelper
 {
@@ -8,7 +8,7 @@ internal class DiagnosticHelper
         id: "TVSG001",
         title: "Slots type contains no public instance properties",
         messageFormat: "The slots type '{0}' contains no public instance properties",
-        category: "TailwindVariants.SourceGenerator",
+        category: "TailwindVariants.SourceGenerators",
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
 
