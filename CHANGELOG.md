@@ -1,3 +1,29 @@
+## [0.1.0] - 2025-10-12
+
+### 🚀 Features
+
+- Added source generated SlotAttribute
+- Added slot names const helpers
+- Centralized slot name retrieval
+- Added utility extension method to get name of slot
+
+### 🐛 Bug Fixes
+
+- Wrong source generator namespace
+
+### ⚙️ Miscellaneous Tasks
+
+- Merged source generator test project with main
+- Added slots attribute to test it
+## [0.0.6] - 2025-10-11
+
+### 🐛 Bug Fixes
+
+- Apply compound variants slots even if class is set
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, update CHANGELOG.md
 ## [0.0.5] - 2025-10-11
 
 ### 🐛 Bug Fixes
@@ -11,6 +37,7 @@
 - Removed implicit conversion to string in favor of "ToString" override
 - Avoid writing namespace in top-level contexts
 - Added some tests, code organization
+- Bump version, update CHANGELOG.md
 ## [0.0.4] - 2025-10-10
 
 ### 🐛 Bug Fixes
