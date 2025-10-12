@@ -2,6 +2,8 @@
 
 namespace TailwindVariants.NET.Tests;
 
+#pragma warning disable CS0436
+
 #region Test Models
 
 public partial class ButtonComponent : ISlotted<ButtonSlots>
@@ -16,8 +18,11 @@ public partial class ButtonComponent : ISlotted<ButtonSlots>
 
 public partial class ButtonSlots : ISlots
 {
+    [Slot("root")]
     public string? Base { get; set; }
+    
     public string? Icon { get; set; }
+    
     public string? Label { get; set; }
 }
 
@@ -33,8 +38,12 @@ public class TestComponent : ISlotted<TestSlots>
 public partial class TestSlots : ISlots
 {
     public string? Base { get; set; }
+    
     public string? Container { get; set; }
+
+    [Slot("descr")]
     public string? Description { get; set; }
+    
     public string? Title { get; set; }
 }
 
@@ -687,3 +696,5 @@ public class TwVariantsTests
         Assert.Contains("px-6", baseClasses);
     }
 }
+
+#pragma warning restore CS0436
