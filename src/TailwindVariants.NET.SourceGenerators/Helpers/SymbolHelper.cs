@@ -4,6 +4,8 @@ namespace TailwindVariants.NET.SourceGenerators;
 
 internal static class SymbolHelper
 {
+    public const string SlotsMapTypeName = "TailwindVariants.NET.SlotsMap`1";
+
     public static string MakeSafeFileName(string input)
     {
         var sb = new StringBuilder(input.Length);
@@ -14,8 +16,6 @@ internal static class SymbolHelper
         }
         return sb.ToString();
     }
-
-    public const string SlotsMapTypeName = "TailwindVariants.NET.SlotsMap`1";
 
     public static string MakeSafeIdentifier(string name)
     {
@@ -35,4 +35,6 @@ internal static class SymbolHelper
         }
         return sb.ToString();
     }
+
+    public static string QuoteLiteral(string value) => $"\"{value.Replace("\"", "\\\"")}\"";
 }
