@@ -68,11 +68,11 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         WritePreamble(sb, accessor.NamespaceName);
 
         WriteNestedOpenings(sb, accessor.Hierarchy);
-        WriteISlotsClass(sb, accessor.Name, accessor.Modifiers, accessor.Properties);
+        WriteISlotsClass(sb, accessor.Name, accessor.Modifiers, accessor.Properties, accessor.Slots);
         WriteNestedClosings(sb, accessor.Hierarchy);
 
         WriteEnum(sb, enumName, accessor.Properties);
-        WriteNamesHelper(sb, namesClass, enumName, accessor.Properties, accessor.SlotNames);
+        WriteNamesHelper(sb, namesClass, enumName, accessor.Properties, accessor.Slots);
         WriteExtensions(sb, extClassName, slotsMapName, enumName, namesClass, accessor.Properties);
         WritePragmaClosing(sb);
 
@@ -100,7 +100,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
                            tds.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword))),
             Hierarchy: GetSlotsHierarchy(symbol),
             Properties: properties,
-            SlotNames: slotNames)
+            Slots: slotNames)
         {
             Location = symbol.Locations.FirstOrDefault()
         };
@@ -250,7 +250,12 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
     }
 
 
-    private static void WriteISlotsClass(Indenter sb, string typeName, string mods, ImmutableArray<string> properties)
+    private static void WriteISlotsClass(
+        Indenter sb,
+        string typeName,
+        string mods,
+        ImmutableArray<string> properties,
+        ImmutableArray<string> slots)
     {
         sb.AppendLine($"{mods} {typeName}");
         sb.AppendLine("{");
@@ -264,10 +269,27 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         {
             sb.AppendLine($"if (!string.IsNullOrWhiteSpace({property}))");
             sb.Indent();
-            sb.AppendLine($"yield return (nameof({property}), {property}!);");
+            sb.AppendLine($"yield return (GetName(nameof({property})), {property}!);");
             sb.Dedent();
         }
 
+        sb.Dedent();
+        sb.AppendLine("}");
+
+        sb.AppendLine();
+        sb.AppendLine($"public static string GetName(string propertyName)");
+        sb.AppendLine("{");
+        sb.Indent();
+        sb.AppendLine("return propertyName switch");
+        sb.AppendLine("{");
+        sb.Indent();
+        foreach (var (property, slot) in properties.Zip(slots, (x, y) => (x, y)))
+        {
+            sb.AppendLine($"nameof({property}) => {SymbolHelper.QuoteLiteral(slot)},");
+        }
+        sb.AppendLine("_ => propertyName");
+        sb.Dedent();
+        sb.AppendLine("};");
         sb.Dedent();
         sb.AppendLine("}");
 
@@ -382,7 +404,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         bool IsPartial,
         EquatableArray<string> Hierarchy,
         EquatableArray<string> Properties,
-        EquatableArray<string> SlotNames)
+        EquatableArray<string> Slots)
     {
         public Location? Location { get; init; }
     };
