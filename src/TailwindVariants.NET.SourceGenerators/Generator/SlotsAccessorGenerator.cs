@@ -234,6 +234,21 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
         sb.AppendMultiline($$"""
             /// <summary>
+            /// Gets the name of the slot identified by the specified <see cref="{{accessor.NamesClass}}"/> constant.
+            /// </summary>
+            /// <param name="slots">The <see cref="SlotsMap{T}"/> instance containing slot values.</param>
+            /// <param name="key">The constant key representing the slot to retrieve.</param>
+            /// <returns>The name of the slot.</returns>
+            """);
+
+        sb.AppendLine($"public static string GetName(this {accessor.SlotsMapName} slots, string key)");
+        sb.Indent();
+        sb.AppendLine($"=> {accessor.FullName}.GetName(key);");
+        sb.Dedent();
+        sb.AppendLine();
+
+        sb.AppendMultiline($$"""
+            /// <summary>
             /// Gets the name of the slot identified by the specified <see cref="{{accessor.EnumName}}"/> key.
             /// </summary>
             /// <param name="slots">The <see cref="SlotsMap{T}"/> instance containing slot values.</param>

@@ -88,7 +88,7 @@ public class TwVariantsTests
     }
 
     [Fact]
-    public void Invoke_GetName_ReturnsCorrectSlot()
+    public void Invoke_GetName_ReturnsCorrectSlot_WithEnum()
     {
         // Arrange
         var descriptor = new TvDescriptor<TestComponent, TestSlots>(
@@ -101,6 +101,22 @@ public class TwVariantsTests
 
         // Assert
         Assert.Equal("descr", result.GetName(TestSlotsTypes.Description));
+    }
+
+    [Fact]
+    public void Invoke_GetName_ReturnsCorrectSlot_WithString()
+    {
+        // Arrange
+        var descriptor = new TvDescriptor<TestComponent, TestSlots>(
+            @base: "container"
+        );
+        var component = new TestComponent();
+
+        // Act
+        var result = _tv.Invoke(component, descriptor);
+
+        // Assert
+        Assert.Equal("descr", result.GetName(TestSlotsNames.Description));
     }
 
     [Fact]
