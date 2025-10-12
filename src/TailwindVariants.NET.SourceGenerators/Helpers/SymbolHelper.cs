@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace TailwindVariants.NET.SourceGenerator;
+namespace TailwindVariants.NET.SourceGenerators;
 
 internal static class SymbolHelper
 {

@@ -4,8 +4,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using System.Text;
+using TailwindVariants.NET.SourceGenerators.Helpers;
 
-namespace TailwindVariants.NET.SourceGenerator;
+namespace TailwindVariants.NET.SourceGenerators;
 
 /// <summary>
 /// Generates source code to provide strongly-typed accessors and extension methods for slot-based mapping types at

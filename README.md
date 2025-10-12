@@ -14,7 +14,7 @@
 * Simple API builder (`Variants<TOwner, TSlots>`).
 * Integration with `TailwindMerge.NET` to resolve conflicts between Tailwind classes.
 * Lightweight, no JS runtime dependencies (pure Blazor/C#).
-* **Incremental source generator** (`TailwindVariants.SourceGenerator`) for generating strongly typed slot accessors.
+* **Incremental source generator** (`TailwindVariants.SourceGenerators`) for generating strongly typed slot accessors.
 * Supports .NET 8, .NET 9, and .NET Standard 2.0 (source generator only).
 * Works seamlessly in Blazor projects (Server, WebAssembly, Hybrid).
 
@@ -31,7 +31,7 @@ dotnet add package TailwindVariants.NET
 To enable automatic generation of slot accessors, it's included an analyzer with the main package:
 
 ```bash
-TailwindVariants.NET.SourceGenerator
+TailwindVariants.NET.SourceGenerators
 ```
 
 Both packages support:
@@ -127,7 +127,7 @@ You can use strongly typed properties:
 <p class="@_slots.GetDescription()">Description text</p>
 ```
 
-This is enabled by the **incremental source generator** (`TailwindVariants.SourceGenerator`), which automatically generates accessors for each component that implements `ISlots`.
+This is enabled by the **incremental source generator** (`TailwindVariants.SourceGenerators`), which automatically generates accessors for each component that implements `ISlots`.
 
 ---
 

@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.Text;
 using Shouldly;
 using System.Collections.Immutable;
 using System.Text;
-using TailwindVariants.NET.SourceGenerator;
+using TailwindVariants.NET.SourceGenerators;
 
 namespace TailwindVariants.NET.SourceGenerators.Tests;
 
