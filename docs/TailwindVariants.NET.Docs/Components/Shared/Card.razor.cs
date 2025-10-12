@@ -18,8 +18,8 @@ public partial class Card : ISlotted<Card.Slots>
     public sealed partial class Slots : ISlots
     {
         public string? Base { get; set; }
-        public string? Header { get; set; }
         public string? Body { get; set; }
         public string? Footer { get; set; }
+        public string? Header { get; set; }
     }
 }
