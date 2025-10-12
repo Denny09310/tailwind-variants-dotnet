@@ -23,6 +23,10 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
     /// <inheritdoc />
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
+            "SlotAttribute.g.cs",
+            SourceText.From(SourceGenerationHelper.Attribute, Encoding.UTF8)));
+
         var candidates = context.SyntaxProvider
             .CreateSyntaxProvider(
                 static (node, _) => node is TypeDeclarationSyntax,
