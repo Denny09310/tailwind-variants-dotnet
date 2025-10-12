@@ -73,7 +73,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
         WriteEnum(sb, enumName, accessor.Properties);
         WriteNamesHelper(sb, namesClass, enumName, accessor.Properties, accessor.Slots);
-        WriteExtensions(sb, extClassName, slotsMapName, enumName, namesClass, accessor.Properties);
+        WriteExtensions(sb, extClassName, enumName, namesClass, slotsMapName, accessor.FullName, accessor.Properties);
         WritePragmaClosing(sb);
 
         spc.AddSource(filename, SourceText.From(sb.ToString(), Encoding.UTF8));
@@ -208,7 +208,10 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
     #region Code Writing
 
-    private static void WriteEnum(Indenter sb, string enumName, ImmutableArray<string> properties)
+    private static void WriteEnum(
+        Indenter sb,
+        string enumName,
+        ImmutableArray<string> properties)
     {
         sb.AppendLine($"public enum {enumName}");
         sb.AppendLine("{");
@@ -226,26 +229,70 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
     private static void WriteExtensions(
         Indenter sb,
         string extClassName,
-        string slotsMapName,
         string enumName,
         string namesClass,
+        string slotsMapName,
+        string slotsName,
         ImmutableArray<string> properties)
     {
+        sb.AppendMultiline($$"""
+            /// <summary>
+            /// Provides extension methods for strongly-typed access to <see cref="{{slotsName}}"/> 
+            /// via a <see cref="SlotsMap{T}"/>.
+            /// </summary>
+            """);
+
         sb.AppendLine($"public static class {extClassName}");
         sb.AppendLine("{");
         sb.Indent();
-        sb.AppendLine($"public static string? Get(this {slotsMapName} slots, {enumName} key) => slots[{namesClass}.NameOf(key)];");
+
+        sb.AppendMultiline($$"""
+            /// <summary>
+            /// Gets the name of the slot identified by the specified <see cref="{{enumName}}"/> key.
+            /// </summary>
+            /// <param name="slots">The <see cref="SlotsMap{T}"/> instance containing slot values.</param>
+            /// <param name="key">The enum key representing the slot to retrieve.</param>
+            /// <returns>The name of the slot.</returns>
+            """);
+
+        sb.AppendLine($"public static string GetName(this {slotsMapName} slots, {enumName} key)");
+        sb.Indent();
+        sb.AppendLine($"=> {slotsName}.GetName({namesClass}.NameOf(key));");
+        sb.Dedent();
+        sb.AppendLine();
+
+        sb.AppendMultiline($$"""
+            /// <summary>
+            /// Gets the value of the slot identified by the specified <see cref="{{enumName}}"/> key.
+            /// </summary>
+            /// <param name="slots">The <see cref="SlotsMap{T}"/> instance containing slot values.</param>
+            /// <param name="key">The enum key representing the slot to retrieve.</param>
+            /// <returns>The value of the slot, or <c>null</c> if not set.</returns>
+            """);
+
+        sb.AppendLine($"public static string? Get(this {slotsMapName} slots, {enumName} key)");
+        sb.Indent();
+        sb.AppendLine($" => slots[{namesClass}.NameOf(key)];");
         sb.Dedent();
 
-        sb.Indent();
         foreach (var property in properties)
         {
             var safe = SymbolHelper.MakeSafeIdentifier(property);
             sb.AppendLine();
-            sb.AppendLine($"public static string? Get{safe}(this {slotsMapName} slots) => slots.Get({enumName}.{safe});");
+            sb.AppendMultiline($$"""
+            /// <summary>
+            /// Gets the value of the <c>{{property}}</c> slot.
+            /// </summary>
+            /// <param name="slots">The <see cref="SlotsMap{T}"/> instance containing slot values.</param>
+            /// <returns>The value of the <c>{{property}}</c> slot, or <c>null</c> if not set.</returns>
+            """);
+            sb.AppendLine($"public static string? Get{safe}(this {slotsMapName} slots)");
+            sb.Indent();
+            sb.AppendLine($" => slots.Get({enumName}.{safe});");
+            sb.Dedent();
         }
-        sb.Dedent();
 
+        sb.Dedent();
         sb.AppendLine("}");
     }
 
@@ -346,7 +393,9 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
     }
 
 
-    private static void WriteNestedClosings(Indenter sb, ImmutableArray<string> hierarchy)
+    private static void WriteNestedClosings(
+        Indenter sb,
+        ImmutableArray<string> hierarchy)
     {
         foreach (var _ in hierarchy.Take(hierarchy.Length - 1))
         {
@@ -357,7 +406,9 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.AppendLine();
     }
 
-    private static void WriteNestedOpenings(Indenter sb, ImmutableArray<string> hierarchy)
+    private static void WriteNestedOpenings(
+        Indenter sb,
+        ImmutableArray<string> hierarchy)
     {
         foreach (var container in hierarchy.Take(hierarchy.Length - 1))
         {
@@ -373,7 +424,10 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.AppendLine("#pragma warning restore CS1591");
         sb.AppendLine("#pragma warning restore CS8618");
     }
-    private static void WritePreamble(Indenter sb, string namespaceName)
+
+    private static void WritePreamble(
+        Indenter sb,
+        string namespaceName)
     {
         sb.AppendLine("// <auto-generated />");
         sb.AppendLine();

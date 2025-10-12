@@ -12,6 +12,14 @@ internal class Indenter
 
     public void AppendLine() => _sb.AppendLine();
 
+    public void AppendMultiline(string text)
+    {
+        foreach (var line in text.Split('\n'))
+        {
+            _sb.AppendLine(GetIndentation() + line.TrimEnd());
+        }
+    }
+
     public void Dedent() => _level = Math.Max(0, _level - 1);
 
     public void Indent() => _level++;

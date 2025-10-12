@@ -79,6 +79,22 @@ public class TwVariantsTests
     }
 
     [Fact]
+    public void Invoke_GetName_ReturnsCorrectSlot()
+    {
+        // Arrange
+        var descriptor = new TvDescriptor<TestComponent, TestSlots>(
+            @base: "container"
+        );
+        var component = new TestComponent();
+
+        // Act
+        var result = _tv.Invoke(component, descriptor);
+
+        // Assert
+        Assert.Equal("descr", result.GetName(TestSlotsTypes.Description));
+    }
+
+    [Fact]
     public void Invoke_ComplexButtonExample_ProducesCorrectOutput()
     {
         // Arrange
@@ -695,6 +711,7 @@ public class TwVariantsTests
         Assert.Contains("py-3", baseClasses);
         Assert.Contains("px-6", baseClasses);
     }
+
 }
 
 #pragma warning restore CS0436
