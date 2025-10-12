@@ -15,11 +15,15 @@
 
 	<ItemGroup>
 		<PackageReference Include="bunit" Version="1.40.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
 		<PackageReference Include="coverlet.collector" Version="6.0.4" PrivateAssets="all" />
 		<PackageReference Include="Shouldly" Version="4.3.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+	</ItemGroup>
+	
 	<ItemGroup>
 		<PackageReference Include="xunit" Version="2.9.3" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" PrivateAssets="all" />
@@ -27,7 +31,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\TailwindVariants.NET\TailwindVariants.NET.csproj" />
-		<ProjectReference Include="..\..\src\TailwindVariants.NET.SourceGenerators\TailwindVariants.NET.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\src\TailwindVariants.NET.SourceGenerators\TailwindVariants.NET.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
 	</ItemGroup>
 
 </Project>

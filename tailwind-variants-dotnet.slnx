@@ -7,7 +7,6 @@
     <Project Path="src/TailwindVariants.NET/TailwindVariants.NET.csproj" />
   </Folder>
   <Folder Name="/test/">
-    <Project Path="tests/TailwindVariants.NET.SourceGenerators.Tests/TailwindVariants.NET.SourceGenerators.Tests.csproj" />
     <Project Path="tests/TailwindVariants.NET.Tests/TailwindVariants.NET.Tests.csproj" />
   </Folder>
 </Solution>
