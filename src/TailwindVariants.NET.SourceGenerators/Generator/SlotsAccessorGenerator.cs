@@ -390,6 +390,11 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
             sb.Dedent();
             sb.AppendLine("}");
         }
+
+		if (accessor.IsNested)
+		{
+			sb.AppendLine();
+		}
     }
 
     private static void WriteNestedOpenings(Indenter sb, SlotsAccessorToGenerate accessor)
