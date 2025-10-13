@@ -1,3 +1,4 @@
+using TailwindVariants.NET.Docs.Components;
 using TailwindVariants.NET.Docs.Services;
 
 var builder = WebApplication.CreateBuilder(args);
