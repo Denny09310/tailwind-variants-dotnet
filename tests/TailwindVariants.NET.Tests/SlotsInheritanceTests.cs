@@ -26,7 +26,7 @@ public class SlotsInheritanceTests
         var enumValues = Enum.GetValues<GhostButtonSlotsTypes>();
 
         Assert.Contains(GhostButtonSlotsTypes.Overlay, enumValues);
-        Assert.Single(enumValues);
+        Assert.Equal(4, enumValues.Length);
     }
 
     [Fact]

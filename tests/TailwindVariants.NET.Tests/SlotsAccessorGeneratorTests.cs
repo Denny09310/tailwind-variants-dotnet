@@ -1,7 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
-using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -42,15 +41,15 @@ public class SlotsAccessorGeneratorTests
 
         var (generated, diags) = RunGenerator(input);
 
-        diags.ShouldNotContain(d => d.Severity == DiagnosticSeverity.Error);
-        generated.Length.ShouldBeGreaterThan(0);
+        Assert.DoesNotContain(diags, d => d.Severity == DiagnosticSeverity.Error);
+        Assert.NotEmpty(generated);
 
         var combined = string.Join("\n---GEN---\n", generated.Select(gs => gs.SourceText.ToString()));
 
-        combined.ShouldContain("EnumerateOverrides()");
-        combined.ShouldContain("public enum MyComponentSlotsTypes");
-        combined.ShouldContain("public static class MyComponentSlotsNames");
-        combined.ShouldContain("public static string? GetHeader");
+        Assert.Contains("EnumerateOverrides()", combined);
+        Assert.Contains("public enum MyComponentSlotsTypes", combined);
+        Assert.Contains("public static class MyComponentSlotsNames", combined);
+        Assert.Contains("public static string? GetHeader", combined);
     }
 
     [Fact]
@@ -75,13 +74,13 @@ public class SlotsAccessorGeneratorTests
 
         var (generated, diags) = RunGenerator(input);
 
-        diags.ShouldNotContain(d => d.Severity == DiagnosticSeverity.Error);
-        generated.Length.ShouldBeGreaterThan(0);
+        Assert.DoesNotContain(diags, d => d.Severity == DiagnosticSeverity.Error);
+        Assert.NotEmpty(generated);
 
         var combined = string.Join("\n---GEN---\n", generated.Select(gs => gs.SourceText.ToString()));
-        combined.ShouldContain("partial class Outer");
-        combined.ShouldContain("partial class Inner");
-        combined.ShouldContain("GetFooter");
+        Assert.Contains("partial class Outer", combined);
+        Assert.Contains("partial class Inner", combined);
+        Assert.Contains("GetFooter", combined);
     }
 
     [Fact]
@@ -103,15 +102,15 @@ public class SlotsAccessorGeneratorTests
 
         var (generated, diags) = RunGenerator(input);
 
-        generated.Length.ShouldBeGreaterThan(0);
+        Assert.NotEmpty(generated);
         var combined = string.Join("\n---GEN---\n", generated.Select(gs => gs.SourceText.ToString()));
 
-        combined.ShouldContain("GetBase");
-        combined.ShouldNotContain("GetCount");
+        Assert.Contains("GetBase", combined);
+        Assert.DoesNotContain("GetCount", combined);
     }
 
     [Fact]
-    public void Reports_Diagnostic_When_No_Public_Properties()
+    public void ShouldNot_Generate_When_No_Public_Properties()
     {
         var input = """
             namespace Demo.Components
@@ -125,14 +124,13 @@ public class SlotsAccessorGeneratorTests
             }
             """;
 
-        var (generated, diags) = RunGenerator(input);
+        var (generated, _) = RunGenerator(input);
 
-        generated.Length.ShouldBe(0);
-        diags.ShouldContain(d => d.Severity == DiagnosticSeverity.Info);
+        Assert.Empty(generated);
     }
 
     [Fact]
-    public void Reports_Diagnostic_When_Slots_Not_Partial()
+    public void ShouldNot_Generate_When_Slots_Not_Partial()
     {
         var input = """
             namespace Demo.Components
@@ -147,12 +145,9 @@ public class SlotsAccessorGeneratorTests
             }
             """;
 
-        var (generated, diags) = RunGenerator(input);
+        var (generated, _) = RunGenerator(input);
 
-        generated.Length.ShouldBe(0);
-        diags.Any(d => d.Severity == DiagnosticSeverity.Error &&
-            d.GetMessage().Contains("partial", StringComparison.OrdinalIgnoreCase))
-            .ShouldBeTrue("Expected diagnostic about missing 'partial' keyword");
+        Assert.Empty(generated);
     }
 
     private static (ImmutableArray<GeneratedSourceResult> Generated, ImmutableArray<Diagnostic> Diagnostics) RunGenerator(params string[] sources)

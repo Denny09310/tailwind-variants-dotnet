@@ -12,36 +12,61 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var candidates = context.SyntaxProvider
-           .CreateSyntaxProvider(
-               static (node, _) => node is TypeDeclarationSyntax,
-               static (ctx, _) => GetSemanticTargetForGeneration(ctx))
-           .Where(static s => s is not null)
-           .Select(static (symbol, _) => symbol!.Value);
+        var candidateTypes = context.SyntaxProvider.CreateSyntaxProvider(
+            predicate: static (node, _) => IsMaybeCandidateForGeneration(node),
+            transform: static (ctx, _) => GetTypeSymbol(ctx))
+            .Where(static symbol => symbol is not null);
 
-        context.RegisterSourceOutput(candidates, static (spc, accessor) => GenerateForSlotsType(spc, accessor));
+        var slotsTypes = candidateTypes
+            .Where(static symbol => ImplementsISlots(symbol!))
+            .Select(static (symbol, _) => BuildGenerationData(symbol!))
+            .Where(static data => data is not null)
+            .Select(static (data, _) => data!.Value);
+
+        context.RegisterSourceOutput(slotsTypes, static (spc, accessor) =>
+            GenerateForSlotsType(spc, accessor));
+    }
+
+    private static SlotsAccessorToGenerate? BuildGenerationData(INamedTypeSymbol symbol)
+    {
+        // Check inheritance structure
+        var inheritanceInfo = AnalyzeInheritance(symbol);
+
+        // Collect properties
+        var ownProperties = CollectPropertiesFromType(symbol);
+        var allProperties = CollectAllPropertiesInHierarchy(symbol);
+
+        // Build names
+        var fullName = symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+            .Replace("global::", string.Empty);
+
+        var typeName = symbol.ContainingType?.Name
+            ?? symbol.Name.Replace("Slots", string.Empty);
+
+        return new SlotsAccessorToGenerate(
+            Name: symbol.Name,
+            FullName: fullName,
+            TypeName: typeName,
+            NamespaceName: symbol.ContainingNamespace?.ToDisplayString() ?? string.Empty,
+            Modifiers: BuildModifiersString(symbol),
+            BaseClassName: inheritanceInfo.BaseClassName,
+            IsPartial: true, // Already filtered in predicate
+            IsDirectImplementation: inheritanceInfo.IsDirectImplementation,
+            Hierarchy: BuildTypeHierarchy(symbol),
+            Properties: ownProperties,
+            AllProperties: allProperties,
+            SlotsMapName: $"SlotsMap<{fullName}>",
+            EnumName: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotsTypes"),
+            ExtClassName: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotsExtensions"),
+            NamesClass: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotsNames"),
+            IsSealed: symbol.IsSealed)
+        {
+            Location = symbol.Locations.FirstOrDefault()
+        };
     }
 
     private static void GenerateForSlotsType(SourceProductionContext spc, SlotsAccessorToGenerate accessor)
     {
-        if (!accessor.IsPartial)
-        {
-            spc.ReportDiagnostic(Diagnostic.Create(
-                DiagnosticHelper.MustBePartial,
-                accessor.Location,
-                accessor.Name));
-            return;
-        }
-
-        if (accessor.Properties.IsEmpty)
-        {
-            spc.ReportDiagnostic(Diagnostic.Create(
-               DiagnosticHelper.NoPropertiesDescriptor,
-               accessor.Location,
-               accessor.Name));
-            return;
-        }
-
         var filename = SymbolHelper.MakeSafeFileName($"{accessor.FullName}.g.cs");
 
         var sb = new Indenter();
@@ -57,110 +82,121 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         spc.AddSource(filename, SourceText.From(sb.ToString(), Encoding.UTF8));
     }
 
-    private static SlotsAccessorToGenerate? GetSemanticTargetForGeneration(GeneratorSyntaxContext ctx)
-    {
-        if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not INamedTypeSymbol symbol || !ImplementsISlots(symbol))
-        {
-            return null;
-        }
+    private static INamedTypeSymbol? GetTypeSymbol(GeneratorSyntaxContext context)
+        => context.SemanticModel.GetDeclaredSymbol(context.Node) as INamedTypeSymbol;
 
-        // Check if this class directly implements ISlots or inherits it from a base class
-        bool directlyImplementsISlots = DirectlyImplementsISlots(symbol);
-
-        // Get the base class name if it implements ISlots
-        string? baseClassName = null;
-        if (!directlyImplementsISlots && symbol.BaseType != null)
-        {
-            baseClassName = symbol.BaseType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", "");
-        }
-
-        var fullName = symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", "");
-        var typeName = symbol.ContainingType?.Name ?? symbol.Name.Replace("Slots", string.Empty);
-
-        return new SlotsAccessorToGenerate(
-            Name: symbol.Name,
-            FullName: fullName,
-            TypeName: typeName,
-            NamespaceName: symbol.ContainingNamespace?.ToDisplayString() ?? string.Empty,
-            Modifiers: GetSlotsModifiers(symbol),
-            BaseClassName: baseClassName,
-            IsPartial: symbol.DeclaringSyntaxReferences
-                .Any(sr => sr.GetSyntax() is TypeDeclarationSyntax tds &&
-                           tds.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword))),
-            IsDirectImplementation: directlyImplementsISlots,
-            Hierarchy: GetSlotsHierarchy(symbol),
-            Properties: CollectProperties(symbol),
-            SlotsMapName: $"SlotsMap<{fullName}>",
-            EnumName: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotsTypes"),
-            ExtClassName: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotsExtensions"),
-            NamesClass: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotsNames"),
-            IsSealed: symbol.IsSealed)
-        {
-            Location = symbol.Locations.FirstOrDefault()
-        };
-    }
+    private static bool IsMaybeCandidateForGeneration(SyntaxNode node) =>
+        node is TypeDeclarationSyntax tds &&
+        tds.Modifiers.Any(SyntaxKind.PartialKeyword) &&
+        tds.BaseList is { Types.Count: > 0 } &&
+        tds.Members.OfType<PropertyDeclarationSyntax>().Any();
 
     #region Helpers
 
-    private static ImmutableArray<string> CollectProperties(INamedTypeSymbol type) =>
-      [.. type.GetMembers()
-            .OfType<IPropertySymbol>()
-            .Where(p => !p.IsStatic && p.DeclaredAccessibility == Accessibility.Public && p.Type.SpecialType == SpecialType.System_String)
-            .OrderBy(p => p.Locations.FirstOrDefault()?.SourceSpan.Start ?? int.MaxValue)
-            .ThenBy(p => p.Name, StringComparer.Ordinal)
-            .Select(x => x.Name)];
-
-    /// <summary>
-    /// Determines if the type directly implements ISlots (not inherited from base class).
-    /// </summary>
-    private static bool DirectlyImplementsISlots(INamedTypeSymbol type)
+    private static InheritanceInfo AnalyzeInheritance(INamedTypeSymbol symbol)
     {
-        // Check if ISlots is in the type's direct interfaces
-        bool hasDirectInterface = type.Interfaces.Any(i => i.ToDisplayString() == "TailwindVariants.NET.ISlots");
+        if (symbol.Interfaces.Any(IsISlotsInterface))
+            return new(true, null);
 
-        if (hasDirectInterface)
-            return true;
-
-        // If not directly on interfaces, check if base class implements ISlots
-        if (type.BaseType != null &&
-            type.BaseType.SpecialType != SpecialType.System_Object)
+        var baseType = symbol.BaseType;
+        if (baseType is { SpecialType: not SpecialType.System_Object } &&
+            ImplementsISlots(baseType))
         {
-            // Base class exists and implements ISlots, so this type doesn't directly implement it
-            return !ImplementsISlots(type.BaseType);
+            var baseClass = baseType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                                    .Replace("global::", string.Empty);
+            return new(false, baseClass);
         }
 
-        return false;
+        return new(true, null);
     }
 
-    private static ImmutableArray<string> GetSlotsHierarchy(INamedTypeSymbol slotsType)
+    private static string BuildModifiersString(INamedTypeSymbol type)
     {
-        var types = new Stack<string>();
-        var current = slotsType;
-        while (current != null)
-        {
-            types.Push(current.Name);
-            current = current.ContainingType;
-        }
-        return [.. types];
-    }
-
-    private static string GetSlotsModifiers(INamedTypeSymbol slotsType)
-    {
-        var mods = slotsType.DeclaredAccessibility switch
+        var acc = type.DeclaredAccessibility switch
         {
             Accessibility.Public => "public ",
             Accessibility.Internal => "internal ",
-            _ => ""
+            _ => string.Empty
         };
-        if (slotsType.IsSealed) mods += "sealed ";
-        else if (slotsType.IsAbstract) mods += "abstract ";
 
-        mods += "partial class";
-        return mods;
+        var modifier = type.IsSealed ? "sealed " :
+                       type.IsAbstract ? "abstract " : string.Empty;
+
+        return $"{acc}{modifier}partial class";
+    }
+
+
+    private static ImmutableArray<string> BuildTypeHierarchy(INamedTypeSymbol type)
+    {
+        var hierarchy = new Stack<string>();
+        var current = type;
+
+        while (current != null)
+        {
+            hierarchy.Push(current.Name);
+            current = current.ContainingType;
+        }
+
+        return [.. hierarchy];
+    }
+
+    private static ImmutableArray<string> CollectAllPropertiesInHierarchy(INamedTypeSymbol type)
+    {
+        var properties = new List<string>(8);
+        var stack = new Stack<INamedTypeSymbol>();
+
+        for (var current = type;
+             current is { SpecialType: not SpecialType.System_Object };
+             current = current.BaseType)
+        {
+            if (ImplementsISlots(current))
+                stack.Push(current);
+        }
+
+        while (stack.Count > 0)
+        {
+            var currentType = stack.Pop();
+            foreach (var prop in currentType.GetMembers().OfType<IPropertySymbol>())
+            {
+                if (IsPublicStringProperty(prop) &&
+                    SymbolEqualityComparer.Default.Equals(prop.ContainingType, currentType))
+                {
+                    properties.Add(prop.Name);
+                }
+            }
+        }
+
+        return [.. properties.OrderBy(name => name, StringComparer.Ordinal)];
+    }
+
+    private static ImmutableArray<string> CollectPropertiesFromType(INamedTypeSymbol type)
+    {
+        return [.. type.GetMembers()
+            .OfType<IPropertySymbol>()
+            .Where(IsPublicStringProperty)
+            .OrderBy(p => (p.Locations.FirstOrDefault()?.SourceSpan.Start ?? int.MaxValue, p.Name))
+            .Select(p => p.Name)];
     }
 
     private static bool ImplementsISlots(INamedTypeSymbol type)
-        => type.AllInterfaces.Any(i => i.ToDisplayString() == "TailwindVariants.NET.ISlots");
+    {
+        return type.AllInterfaces.Any(IsISlotsInterface);
+    }
+
+    private static bool IsISlotsInterface(INamedTypeSymbol interfaceSymbol)
+    {
+        return interfaceSymbol.ContainingNamespace?.ToDisplayString() == "TailwindVariants.NET" &&
+               interfaceSymbol.Name == "ISlots";
+    }
+
+
+    private static bool IsPublicStringProperty(IPropertySymbol property) => property switch
+    {
+        { IsStatic: true } => false,
+        { DeclaredAccessibility: not Accessibility.Public } => false,
+        { Type.SpecialType: not SpecialType.System_String } => false,
+        _ => true
+    };
 
     #endregion Helpers
 
@@ -171,10 +207,11 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.AppendLine($"public enum {accessor.EnumName}");
         sb.AppendLine("{");
         sb.Indent();
-        ImmutableArray<string> properties = accessor.Properties;
+        // Use AllProperties to include inherited properties
+        ImmutableArray<string> properties = accessor.AllProperties;
         for (int i = 0; i < properties.Length; i++)
         {
-            var nm = SymbolHelper.MakeSafeIdentifier(accessor.Properties[i]);
+            var nm = SymbolHelper.MakeSafeIdentifier(properties[i]);
             sb.AppendLine($"{nm} = {i},");
         }
         sb.Dedent();
@@ -209,7 +246,8 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.AppendLine($" => slots[{accessor.NamesClass}.NameOf(key)];");
         sb.Dedent();
 
-        foreach (var property in accessor.Properties)
+        // Use AllProperties to generate extension methods for all properties
+        foreach (var property in accessor.AllProperties)
         {
             var safe = SymbolHelper.MakeSafeIdentifier(property);
             sb.AppendLine();
@@ -256,6 +294,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
             sb.AppendLine();
         }
 
+        // Use Properties (own properties only) for EnumerateOverrides
         foreach (var property in accessor.Properties)
         {
             sb.AppendLine($"if (!string.IsNullOrWhiteSpace({property}))");
@@ -284,7 +323,8 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.AppendLine($"private static readonly string[] _names = new[]");
         sb.AppendLine("{");
         sb.Indent();
-        foreach (var property in accessor.Properties)
+        // Use AllProperties to include inherited properties
+        foreach (var property in accessor.AllProperties)
         {
             sb.AppendLine($"{SymbolHelper.QuoteLiteral(property)},");
         }
@@ -357,6 +397,10 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
     #endregion Code Writing
 
+    private readonly record struct InheritanceInfo(
+        bool IsDirectImplementation,
+        string? BaseClassName);
+
     private readonly record struct SlotsAccessorToGenerate(
         string Name,
         string FullName,
@@ -374,7 +418,8 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         bool IsSealed,
 
         EquatableArray<string> Hierarchy,
-        EquatableArray<string> Properties)
+        EquatableArray<string> Properties,
+        EquatableArray<string> AllProperties)
     {
         public Location? Location { get; init; }
     };

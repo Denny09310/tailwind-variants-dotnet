@@ -4,8 +4,6 @@ namespace TailwindVariants.NET.SourceGenerators;
 
 internal static class SymbolHelper
 {
-    public const string SlotsMapTypeName = "TailwindVariants.NET.SlotsMap`1";
-
     public static string MakeSafeFileName(string input)
     {
         var sb = new StringBuilder(input.Length);
