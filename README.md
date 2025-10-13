@@ -1,4 +1,4 @@
-﻿# TailwindVariants.NET
+# TailwindVariants.NET
 
 **TailwindVariants.NET** is a strongly typed Blazor library for managing **TailwindCSS variants** and slot-based styling.
 
@@ -28,28 +28,20 @@ Install from NuGet:
 dotnet add package TailwindVariants.NET
 ```
 
-To enable automatic generation of slot accessors, it's included an analyzer with the main package:
+To enable automatic generation of slot accessors, it's included an analyzer with the main package.
 
-```bash
-TailwindVariants.NET.SourceGenerators
-```
+The package supports:
 
-Both packages support:
-
-* .NET 8
-* .NET 9
-* .NET Standard 2.0 (generator only)
+* \>= .NET 8
 
 ---
 
-## Quick Examples
-
-### Button (without additional slots)
+## Quick Example
 
 ```csharp
 using TailwindVariants.NET;
 
-public partial class Button
+public partial class Button : ISlotted<Button.Slots>
 {
     private static readonly TvDescriptor<Button, Slots> _button = new
     (
@@ -76,12 +68,12 @@ public partial class Button
         ]
     );
 
-    private SlotsMap<Slots> _slots = new();
-
     protected override void OnParametersSet()
     {
         _slots = Tv.Invoke(this, _button);
     }
+
+    protected override TvDescriptor<Button, Slots> GetDescriptor() => _button;
 
     public sealed partial class Slots : ISlots
     {
@@ -95,7 +87,7 @@ public partial class Button
 In the component:
 
 ```razor
-@inherits TailwindComponentBase
+@inherits TwComponentBase<Button, Button.Slots>
 
 <button class="@_slots.GetBase()" disabled="@Disabled">
   @ChildContent
@@ -104,16 +96,19 @@ In the component:
 @code
 {
     [Parameter]
-    public Variants Variant { get; set; }
-
-    [Parameter]
-    public Sizes Size { get; set; }
-
-    [Parameter]
-    public bool Disabled { get; set; }
-
+    public RenderFragment? ChildContent { get; set; }
+    
     [Parameter]
     public Slots? Classes { get; set; }
+    
+    [Parameter]
+    public Variants Variant { get; set; }
+    
+    [Parameter]
+    public Sizes Size { get; set; }
+    
+    [Parameter]
+    public bool Disabled { get; set; }
 }
 ```
 
@@ -131,11 +126,9 @@ This is enabled by the **incremental source generator** (`TailwindVariants.Sourc
 
 ---
 
-## How to Use in Blazor
+## Documentation
 
-1. Reference `TailwindVariants.NET` in your Blazor project.
-3. Define your component's variants and slots using the provided API.
-4. Use the generated slot accessors in your Razor markup for type-safe Tailwind class management.
+Go to the [documentation](http://tailwindvariants-net-docs.denny093.dev/) for the full explanation of the example
 
 ---
 
