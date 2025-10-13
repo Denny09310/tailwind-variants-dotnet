@@ -1,6 +1,8 @@
 using System.Linq.Expressions;
 using System.Text;
 
+using TailwindVariants.NET.Models;
+
 using static TailwindVariants.NET.TvHelpers;
 
 using Tw = TailwindMerge.TwMerge;

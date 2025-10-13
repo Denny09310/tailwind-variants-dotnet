@@ -1,3 +1,5 @@
+using TailwindVariants.NET.Models;
+
 using static TailwindVariants.NET.TvHelpers;
 
 namespace TailwindVariants.NET;
@@ -7,6 +9,10 @@ namespace TailwindVariants.NET;
 /// </summary>
 public interface ITvDescriptor
 {
+	/// <summary>
+	/// Gets the collection of compiled compound variants that define
+	/// conditional style combinations based on multiple variant values.
+	/// </summary>
 	IReadOnlyCollection<ICompiledCompoundVariant>? CompoundVariants { get; }
 
 	/// <summary>
@@ -19,6 +25,9 @@ public interface ITvDescriptor
 	/// </summary>
 	IReadOnlyDictionary<string, string> Slots { get; }
 
+	/// <summary>
+	/// Gets the collection of compiled variants that define individual style variations.
+	/// </summary>
 	IReadOnlyCollection<ICompiledVariant>? Variants { get; }
 }
 
