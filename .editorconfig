@@ -1,0 +1,86 @@
+root = true
+
+# All files
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+tab_width = 4
+max_line_length = 100
+
+# C# files
+[*.{cs,csx}]
+# Organize usings and sort system directives first
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = true
+
+# "var" preferences — prefer var everywhere (warnings)
+csharp_style_var_for_built_in_types = true:warning
+csharp_style_var_when_type_is_apparent = true:warning
+csharp_style_var_elsewhere = true:warning
+
+# Namespace style (file-scoped)
+csharp_style_namespace_declarations = file_scoped:warning
+
+# New-line before open brace preferences (warnings)
+csharp_new_line_before_open_brace_types = true:warning
+csharp_new_line_before_open_brace_methods = true:warning
+csharp_new_line_before_open_brace_properties = true:warning
+csharp_new_line_before_open_brace_accessors = true:warning
+csharp_new_line_before_open_brace_anonymous_methods = false:warning
+csharp_new_line_before_open_brace_control_blocks = true:warning
+
+# Expression-bodied members (warnings)
+csharp_style_expression_bodied_methods = when_on_single_line:warning
+csharp_style_expression_bodied_properties = when_on_single_line:warning
+csharp_style_expression_bodied_operators = when_on_single_line:warning
+csharp_style_expression_bodied_constructors = when_on_single_line:warning
+csharp_style_expression_bodied_accessors = when_on_single_line:warning
+
+# Indentation
+csharp_indent_switch_labels = true:warning
+
+# Qualification preferences — prefer not using `this.` (warnings)
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_property = false:warning
+dotnet_style_qualification_for_method = false:warning
+dotnet_style_qualification_for_event = false:warning
+
+# Naming conventions
+# Interfaces: I{PascalCase}
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_symbols.interfaces.applicable_accessibilities = *
+
+dotnet_naming_style.interface_style.capitalization = pascal_case
+dotnet_naming_style.interface_style.required_prefix = I
+
+dotnet_naming_rule.interfaces_should_start_with_I.symbols = interfaces
+dotnet_naming_rule.interfaces_should_start_with_I.style = interface_style
+dotnet_naming_rule.interfaces_should_start_with_I.severity = warning
+
+# Private fields: _camelCase
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+dotnet_naming_style.camel_case_with_underscore.capitalization = camel_case
+dotnet_naming_style.camel_case_with_underscore.required_prefix = _
+
+dotnet_naming_rule.private_fields_should_be_camel_case.symbols = private_fields
+dotnet_naming_rule.private_fields_should_be_camel_case.style = camel_case_with_underscore
+dotnet_naming_rule.private_fields_should_be_camel_case.severity = warning
+
+# Constants: PascalCase
+dotnet_naming_symbols.constants.applicable_kinds = field
+dotnet_naming_symbols.constants.required_modifiers = const
+
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+dotnet_naming_rule.constants_should_be_pascal_case.symbols = constants
+dotnet_naming_rule.constants_should_be_pascal_case.style = pascal_case
+dotnet_naming_rule.constants_should_be_pascal_case.severity = warning
+
+# Require XML docs for publicly visible types/members
+# CS1591 is the compiler ID for missing XML comment for publicly visible types/members
+dotnet_diagnostic.CS1591.severity = warning

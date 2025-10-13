@@ -1,6 +1,6 @@
-﻿namespace TailwindVariants.NET.Tests;
+namespace TailwindVariants.NET.Tests;
 
 public partial class GhostButtonSlots : ButtonSlots
 {
-    public string? Overlay { get; set; }
+	public string? Overlay { get; set; }
 }
