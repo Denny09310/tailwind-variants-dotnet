@@ -137,11 +137,11 @@ public class TwVariants(Tw merge)
 	private static Dictionary<string, StringBuilder> ApplyVariants<TOwner, TSlots>(
 		TOwner owner,
 		Dictionary<string, StringBuilder> builders,
-		IReadOnlyDictionary<string, CompiledVariant<TOwner, TSlots>> baseVariants)
+		IReadOnlyCollection<CompiledVariant<TOwner, TSlots>> variants)
 		where TSlots : ISlots, new()
 		where TOwner : ISlotted<TSlots>
 	{
-		foreach (var compiled in baseVariants.Values)
+		foreach (var compiled in variants)
 		{
 			try
 			{

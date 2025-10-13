@@ -96,7 +96,7 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 	/// Gets the precomputed variant definitions with compiled accessors for runtime evaluation.
 	/// This dictionary is populated during initialization by compiling variant expressions and merging with extended variants.
 	/// </summary>
-	internal IReadOnlyDictionary<string, CompiledVariant<TOwner, TSlots>> ComputedVariants { get; private set; } = default!;
+	internal IReadOnlyCollection<CompiledVariant<TOwner, TSlots>> ComputedVariants { get; private set; } = default!;
 
 	/// <summary>
 	/// Recursively merges slot definitions from extended descriptors into the provided map.
@@ -138,7 +138,7 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 	/// <param name="variants">The dictionary to populate with variant definitions.</param>
 	/// <param name="extends">The parent descriptor to inherit variants from.</param>
 	private static void PrecomputeExtendsVariantDefinitions(
-		Dictionary<string, CompiledVariant<TOwner, TSlots>> variants,
+		List<CompiledVariant<TOwner, TSlots>> variants,
 		ITvDescriptor? extends = null)
 	{
 		if (extends is null)
@@ -201,17 +201,16 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 	/// Each variant is compiled into a delegate for efficient runtime evaluation.
 	/// </summary>
 	/// <returns>A dictionary mapping variant identifiers to their compiled variant definitions.</returns>
-	private Dictionary<string, CompiledVariant<TOwner, TSlots>> PrecomputeVariantDefinitions()
+	private List<CompiledVariant<TOwner, TSlots>> PrecomputeVariantDefinitions()
 	{
-		var variants = new Dictionary<string, CompiledVariant<TOwner, TSlots>>(StringComparer.Ordinal);
+		var variants = new List<CompiledVariant<TOwner, TSlots>>();
 
 		if (Variants is not null)
 		{
 			foreach (var (key, value) in Variants)
 			{
-				var id = GetVariant(key);
 				var accessor = key.Compile();
-				variants[id] = new CompiledVariant<TOwner, TSlots>(key, value, accessor);
+				variants.Add(new CompiledVariant<TOwner, TSlots>(key, value, accessor));
 			}
 		}
 

@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Text;
 
 namespace TailwindVariants.NET;
 
@@ -7,21 +6,15 @@ namespace TailwindVariants.NET;
 /// Represents a small wrapper over one or more CSS class fragments.
 /// Allows implicit conversion from/to string.
 /// </summary>
-public class ClassValue : IEnumerable<string>
+public class ClassValue() : IEnumerable<string>
 {
 	private List<string>? _values;
-
-	/// <summary>
-	/// Create an empty ClassValue.
-	/// </summary>
-	public ClassValue()
-	{ }
 
 	/// <summary>
 	/// Create a ClassValue from a single string.
 	/// </summary>
 	/// <param name="value">The class string.</param>
-	public ClassValue(string? value) => Add(value);
+	public ClassValue(string? value) : this() => Add(value);
 
 	/// <summary>
 	/// Implicit conversion from string to ClassValue.

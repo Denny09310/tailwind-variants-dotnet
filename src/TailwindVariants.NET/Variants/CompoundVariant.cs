@@ -38,9 +38,7 @@ public class CompoundVariant<TOwner, TSlots>(Predicate<TOwner> predicate) : IEnu
 	/// Add per-slot classes for this compound variant.
 	/// </summary>
 	public void Add(Expression<SlotAccessor<TSlots>> key, ClassValue value)
-	{
-		(_values ??= []).Add(key, value);
-	}
+		=> (_values ??= []).Add(key, value);
 
 	/// <inheritdoc/>
 	public IEnumerator<KeyValuePair<Expression<SlotAccessor<TSlots>>, ClassValue>> GetEnumerator()

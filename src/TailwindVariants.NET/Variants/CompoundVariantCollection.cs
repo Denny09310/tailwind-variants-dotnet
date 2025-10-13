@@ -14,10 +14,13 @@ public class CompoundVariantCollection<TOwner, TSlots> : IEnumerable<CompoundVar
 	/// <summary>
 	/// Add a new compound variant.
 	/// </summary>
-	public void Add(CompoundVariant<TOwner, TSlots> entry) => _variants.Add(entry);
+	public void Add(CompoundVariant<TOwner, TSlots> entry)
+		=> _variants.Add(entry);
 
 	/// <inheritdoc/>
-	public IEnumerator<CompoundVariant<TOwner, TSlots>> GetEnumerator() => _variants.GetEnumerator();
+	public IEnumerator<CompoundVariant<TOwner, TSlots>> GetEnumerator()
+		=> _variants.GetEnumerator();
 
-	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+	IEnumerator IEnumerable.GetEnumerator()
+		=> GetEnumerator();
 }
