@@ -48,8 +48,8 @@ public class SlotsAccessorGeneratorTests
 		var combined = string.Join("\n---GEN---\n", generated.Select(gs => gs.SourceText.ToString()));
 
 		Assert.Contains("EnumerateOverrides()", combined);
-		Assert.Contains("public enum MyComponentSlotsTypes", combined);
-		Assert.Contains("public static class MyComponentSlotsNames", combined);
+		Assert.Contains("public enum SlotTypes", combined);
+		Assert.Contains("public static class SlotNames", combined);
 		Assert.Contains("public static string? GetHeader", combined);
 	}
 
