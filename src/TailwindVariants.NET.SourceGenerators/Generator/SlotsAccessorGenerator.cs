@@ -75,7 +75,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 			AllProperties: allProperties,
 			SlotsMapName: $"SlotsMap<{fullName}>",
 			EnumName: enumName,
-			ExtClassName: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotsExtensions"),
+			ExtClassName: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotExtensions"),
 			NamesClass: namesClass,
 			IsSealed: symbol.IsSealed,
 			IsNested: isNested)
