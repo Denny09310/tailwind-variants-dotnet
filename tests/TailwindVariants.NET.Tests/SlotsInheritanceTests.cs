@@ -12,11 +12,11 @@ public class SlotsInheritanceTests
 	public void Enum_ForBaseClass_ContainsBaseProperties()
 	{
 		// Assert
-		var enumValues = Enum.GetValues<ButtonSlotTypes>();
+		var enumValues = Enum.GetValues<ButtonSlotsTypes>();
 
-		Assert.Contains(ButtonSlotTypes.Base, enumValues);
-		Assert.Contains(ButtonSlotTypes.Icon, enumValues);
-		Assert.Contains(ButtonSlotTypes.Label, enumValues);
+		Assert.Contains(ButtonSlotsTypes.Base, enumValues);
+		Assert.Contains(ButtonSlotsTypes.Icon, enumValues);
+		Assert.Contains(ButtonSlotsTypes.Label, enumValues);
 		Assert.Equal(3, enumValues.Length);
 	}
 
@@ -24,9 +24,9 @@ public class SlotsInheritanceTests
 	public void Enum_ForDerivedClass_ContainsOnlyDerivedProperties()
 	{
 		// Assert - derived enum should only have Overlay, not base properties
-		var enumValues = Enum.GetValues<GhostButtonSlotTypes>();
+		var enumValues = Enum.GetValues<GhostButtonSlotsTypes>();
 
-		Assert.Contains(GhostButtonSlotTypes.Overlay, enumValues);
+		Assert.Contains(GhostButtonSlotsTypes.Overlay, enumValues);
 		Assert.Equal(4, enumValues.Length);
 	}
 
