@@ -124,4 +124,123 @@ public class SlotsInheritanceTests
 		Assert.Contains("absolute", result[s => s.Overlay]);
 		Assert.Contains("bg-black/20", result[s => s.Overlay]);
 	}
+
+	[Fact]
+	public void Invoke_WithExtends_WithoutVariants()
+	{
+		var button = new TvDescriptor<ButtonComponent, ButtonSlots>(
+			@base:
+			[
+				"font-semibold",
+				"dark:text-white",
+				"py-1",
+				"px-3",
+				"rounded-full",
+				"active:opacity-80",
+				"bg-zinc-100",
+				"hover:bg-zinc-200",
+				"dark:bg-zinc-800",
+				"dark:hover:bg-zinc-800",
+			]
+		);
+
+		// Arrange
+		var descriptor = new TvDescriptor<GhostButtonComponent, GhostButtonSlots>(
+			extends: button,
+			@base:
+			[
+				"text-sm",
+				"text-white",
+				"rounded-lg",
+				"shadow-lg",
+				"uppercase",
+				"tracking-wider",
+				"bg-blue-500",
+				"hover:bg-blue-600",
+				"shadow-blue-500/50",
+				"dark:bg-blue-500",
+				"dark:hover:bg-blue-600",
+			]
+		);
+		var component = new GhostButtonComponent
+		{
+		};
+
+		// Act
+		var result = _tv.Invoke(component, descriptor);
+
+		// Assert
+		var baseClasses = result[s => s.Base];
+
+		Assert.Contains("font-semibold", baseClasses);
+		Assert.Contains("dark:text-white", baseClasses);
+		Assert.Contains("py-1", baseClasses);
+		Assert.Contains("px-3", baseClasses);
+		Assert.Contains("active:opacity-80", baseClasses);
+		Assert.Contains("shadow-lg", baseClasses);
+		Assert.Contains("shadow-blue-500/50", baseClasses);
+		Assert.Contains("uppercase", baseClasses);
+		Assert.Contains("tracking-wider", baseClasses);
+		Assert.Contains("bg-blue-500", baseClasses);
+		Assert.Contains("hover:bg-blue-600", baseClasses);
+		Assert.Contains("dark:bg-blue-500", baseClasses);
+		Assert.Contains("dark:hover:bg-blue-600", baseClasses);
+	}
+
+	[Fact]
+	public void Invoke_WithExtends_WithVariants()
+	{
+		var button = new TvDescriptor<ButtonComponent, ButtonSlots>(
+			@base: "font-semibold text-white rounded-full active:opacity-80",
+			variants: new()
+			{
+				[b => b.Variant] = new Variant<string, ButtonSlots>
+				{
+					["primary"] = "bg-blue-500 hover:bg-blue-700",
+					["secondary"] = "bg-purple-500 hover:bg-purple-700",
+					["success"] = "bg-green-500 hover:bg-green-700",
+				},
+				[b => b.Size] = new Variant<string, ButtonSlots>
+				{
+					["small"] = "py-0 px-2 text-xs",
+					["medium"] = "py-1 px-3 text-sm",
+					["large"] = "py-1.5 px-3 text-md",
+				}
+			}
+		);
+
+		// Arrange
+		var descriptor = new TvDescriptor<GhostButtonComponent, GhostButtonSlots>(
+			extends: button,
+			variants: new()
+			{
+				[b => b.IsSquared] = new Variant<bool, GhostButtonSlots>
+				{
+					[true] = "rounded-sm"
+				}
+			}
+		);
+
+		var component = new GhostButtonComponent
+		{
+			Variant = "success",
+			Size = "medium",
+			IsSquared = true,
+		};
+
+		// Act
+		var result = _tv.Invoke(component, descriptor);
+
+		// Assert
+		var baseClasses = result[s => s.Base];
+
+		Assert.Contains("font-semibold", baseClasses);
+		Assert.Contains("active:opacity-80", baseClasses);
+		Assert.Contains("rounded-sm", baseClasses);
+		Assert.Contains("bg-purple-500", baseClasses);
+		Assert.Contains("hover:bg-purple-700", baseClasses);
+		Assert.Contains("py-1", baseClasses);
+		Assert.Contains("px-3", baseClasses);
+		Assert.Contains("text-sm", baseClasses);
+	}
 }

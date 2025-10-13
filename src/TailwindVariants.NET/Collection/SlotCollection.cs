@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Linq.Expressions;
 
+using static TailwindVariants.NET.TvHelpers;
+
 namespace TailwindVariants.NET;
 
 /// <summary>
@@ -72,9 +74,12 @@ public class SlotCollection<TSlots>()
 	}
 
 	/// <inheritdoc/>
-	public IEnumerator<KeyValuePair<Expression<SlotAccessor<TSlots>>, ClassValue>> GetEnumerator() => _slots.GetEnumerator();
+	public IEnumerator<KeyValuePair<Expression<SlotAccessor<TSlots>>, ClassValue>> GetEnumerator()
+		=> _slots.GetEnumerator();
 
-	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+	IEnumerator IEnumerable.GetEnumerator()
+		=> GetEnumerator();
 
-	IEnumerator<string> IEnumerable<string>.GetEnumerator() => _slots[s => s.Base].GetEnumerator();
+	IEnumerator<string> IEnumerable<string>.GetEnumerator()
+		=> _slots[s => s.Base].GetEnumerator();
 }

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Text;
 
 namespace TailwindVariants.NET;
 
@@ -8,7 +9,6 @@ namespace TailwindVariants.NET;
 /// </summary>
 public class ClassValue : IEnumerable<string>
 {
-	private readonly string? _value;
 	private List<string>? _values;
 
 	/// <summary>
@@ -21,7 +21,7 @@ public class ClassValue : IEnumerable<string>
 	/// Create a ClassValue from a single string.
 	/// </summary>
 	/// <param name="value">The class string.</param>
-	public ClassValue(string? value) => _value = value;
+	public ClassValue(string? value) => Add(value);
 
 	/// <summary>
 	/// Implicit conversion from string to ClassValue.
@@ -32,22 +32,36 @@ public class ClassValue : IEnumerable<string>
 	/// Add a single class fragment to the collection.
 	/// </summary>
 	/// <param name="value">A single class fragment.</param>
-	public void Add(string value) => (_values ??= []).Add(value);
+	public void Add(string? value)
+	{
+		if (string.IsNullOrEmpty(value))
+		{
+			return;
+		}
+
+		(_values ??= []).Add(value);
+	}
 
 	/// <inheritdoc/>
 	public IEnumerator<string> GetEnumerator()
+		=> _values?.GetEnumerator() ?? Enumerable.Empty<string>().GetEnumerator();
+
+	IEnumerator IEnumerable.GetEnumerator()
+		=> GetEnumerator();
+
+	/// <summary>
+	/// Inserts a single class fragment to the collection at the specified index
+	/// </summary>
+	/// <param name="index">The index in which to inser the class.</param>
+	/// /// <param name="value">A single class fragment.</param>
+	public void Insert(int index, string? value)
 	{
-		if (_values is not null)
+		if (string.IsNullOrEmpty(value))
 		{
-			return _values.GetEnumerator();
+			return;
 		}
 
-		if (!string.IsNullOrEmpty(_value))
-		{
-			return new List<string> { _value }.GetEnumerator();
-		}
-
-		return Enumerable.Empty<string>().GetEnumerator();
+		(_values ??= []).Insert(index, value);
 	}
 
 	/// <summary>
@@ -55,19 +69,7 @@ public class ClassValue : IEnumerable<string>
 	/// Will return the underlying string or the joined values.
 	/// </summary>
 	public override string ToString()
-	{
-		if (!string.IsNullOrEmpty(_value))
-		{
-			return _value!;
-		}
-
-		if (_values is not null && _values.Count > 0)
-		{
-			return string.Join(" ", _values);
-		}
-
-		return string.Empty;
-	}
-
-	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+		=> _values is not null && _values.Count > 0
+			? string.Join(" ", _values.Where(v => !string.IsNullOrWhiteSpace(v)))
+			: string.Empty;
 }

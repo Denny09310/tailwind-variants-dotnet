@@ -31,32 +31,20 @@ public class TwVariants(Tw merge)
 		where TOwner : ISlotted<TSlots>
 	{
 		// 1. Start with base slots
-		var builders = definition.BaseSlots.ToDictionary(
+		var builders = definition.ComputedSlots.ToDictionary(
 			kv => kv.Key,
 			kv => new StringBuilder(kv.Value));
 
-		// 2. Apply variants
-		builders = ApplyVariants(owner, builders, definition.BaseVariants);
+		// 3. Apply variants
+		builders = ApplyVariants(owner, builders, definition.ComputedVariants);
 
-		// 3. Apply compound variants
+		// 4. Apply compound variants
 		builders = ApplyCompoundVariants(definition, owner, builders);
 
-		// 4. Apply per-instance slot overrides (Classes property)
-		if (owner.Classes is not null)
-		{
-			foreach (var (slot, value) in owner.Classes.EnumerateOverrides())
-			{
-				if (!builders.TryGetValue(slot, out var builder))
-				{
-					builder = new StringBuilder();
-					builders[slot] = builder;
-				}
-				builder.Append(' ');
-				builder.Append(value);
-			}
-		}
+		// 5. Apply per-instance slot overrides (Classes property)
+		ApplySlotsOverrides<TOwner, TSlots>(owner, builders);
 
-		// 5. Build final map
+		// 6. Build final map
 		return builders.ToDictionary(
 			kv => kv.Key,
 			kv => merge.Merge(kv.Value.ToString()));
@@ -125,6 +113,25 @@ public class TwVariants(Tw merge)
 		}
 
 		return builders;
+	}
+
+	private static void ApplySlotsOverrides<TOwner, TSlots>(TOwner owner, Dictionary<string, StringBuilder> builders)
+				where TOwner : ISlotted<TSlots>
+		where TSlots : ISlots, new()
+	{
+		if (owner.Classes is not null)
+		{
+			foreach (var (slot, value) in owner.Classes.EnumerateOverrides())
+			{
+				if (!builders.TryGetValue(slot, out var builder))
+				{
+					builder = new StringBuilder();
+					builders[slot] = builder;
+				}
+				builder.Append(' ');
+				builder.Append(value);
+			}
+		}
 	}
 
 	private static Dictionary<string, StringBuilder> ApplyVariants<TOwner, TSlots>(
