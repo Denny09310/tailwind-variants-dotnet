@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Linq.Expressions;
 
-using static TailwindVariants.NET.TvHelpers;
-
 namespace TailwindVariants.NET;
 
 /// <summary>

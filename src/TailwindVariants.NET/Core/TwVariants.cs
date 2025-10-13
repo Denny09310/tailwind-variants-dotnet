@@ -39,7 +39,7 @@ public class TwVariants(Tw merge)
 		builders = ApplyVariants(owner, builders, definition.ComputedVariants);
 
 		// 4. Apply compound variants
-		builders = ApplyCompoundVariants(definition, owner, builders);
+		builders = ApplyCompoundVariants(owner, builders, definition.ComputedCompoundVariants);
 
 		// 5. Apply per-instance slot overrides (Classes property)
 		ApplySlotsOverrides<TOwner, TSlots>(owner, builders);
@@ -68,18 +68,18 @@ public class TwVariants(Tw merge)
 	}
 
 	private static Dictionary<string, StringBuilder> ApplyCompoundVariants<TOwner, TSlots>(
-		TvDescriptor<TOwner, TSlots>? options,
 		TOwner owner,
-		Dictionary<string, StringBuilder> builders)
+		Dictionary<string, StringBuilder> builders,
+		IReadOnlyCollection<CompiledCompoundVariant<TOwner, TSlots>>? compoundVariants)
 		where TSlots : ISlots, new()
 		where TOwner : ISlotted<TSlots>
 	{
-		if (options?.CompoundVariants is null)
+		if (compoundVariants is null)
 		{
 			return builders;
 		}
 
-		foreach (var cv in options.CompoundVariants)
+		foreach (var cv in compoundVariants)
 		{
 			try
 			{
@@ -88,12 +88,7 @@ public class TwVariants(Tw merge)
 					continue;
 				}
 
-				if (!string.IsNullOrEmpty(cv.Class))
-				{
-					AddClass<TSlots>(builders, s => s.Base, cv.Class);
-				}
-
-				foreach (var (slot, value) in cv)
+				foreach (var (slot, value) in cv.Slots)
 				{
 					if (slot is null)
 					{

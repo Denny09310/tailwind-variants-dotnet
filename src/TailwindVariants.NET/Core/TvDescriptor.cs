@@ -87,6 +87,12 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 	#endregion Explicit Implementations
 
 	/// <summary>
+	/// Gets the precomputed compound variants definitions.
+	/// This collection is populated during initialization by compiling compound variant expressions and merging with extended variants.
+	/// </summary>
+	internal IReadOnlyCollection<CompiledCompoundVariant<TOwner, TSlots>> ComputedCompoundVariants { get; private set; } = default!;
+
+	/// <summary>
 	/// Gets the precomputed slot-to-CSS class mappings, including inherited slots from parent descriptors.
 	/// This dictionary is populated during initialization by merging base classes, top-level slots, and extended slots.
 	/// </summary>
@@ -94,7 +100,7 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 
 	/// <summary>
 	/// Gets the precomputed variant definitions with compiled accessors for runtime evaluation.
-	/// This dictionary is populated during initialization by compiling variant expressions and merging with extended variants.
+	/// This collection is populated during initialization by compiling variant expressions and merging with extended variants.
 	/// </summary>
 	internal IReadOnlyCollection<CompiledVariant<TOwner, TSlots>> ComputedVariants { get; private set; } = default!;
 
@@ -162,6 +168,7 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 	{
 		ComputedSlots = PrecomputeBaseAndTopLevelSlots();
 		ComputedVariants = PrecomputeVariantDefinitions();
+		ComputedCompoundVariants = PrecomputeCompoundVariants();
 	}
 
 	/// <summary>
@@ -194,6 +201,26 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 		return map.ToDictionary(
 			kvp => kvp.Key,
 			kvp => kvp.Value.ToString());
+	}
+
+	private IReadOnlyCollection<CompiledCompoundVariant<TOwner, TSlots>> PrecomputeCompoundVariants()
+	{
+		var compoundVariants = new List<CompiledCompoundVariant<TOwner, TSlots>>();
+
+		if (CompoundVariants is not null)
+		{
+			foreach (var cv in CompoundVariants)
+			{
+				if (!string.IsNullOrEmpty(cv.Class))
+				{
+					cv.Slots.Add(cv.Class);
+				}
+
+				compoundVariants.Add(new CompiledCompoundVariant<TOwner, TSlots>(cv.Predicate, cv.Slots));
+			}
+		}
+
+		return compoundVariants;
 	}
 
 	/// <summary>
