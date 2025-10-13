@@ -14,11 +14,17 @@ internal record struct CompiledVariant<TOwner, TSlots>(Expression<VariantAccesso
 	where TSlots : ISlots, new()
 	where TOwner : ISlotted<TSlots>
 {
-	public readonly void Apply(object owner, Action<string, string> aggregator)
+	public readonly void Apply(object obj, Action<string, string> aggregator)
 	{
 		try
 		{
-			var selected = Accessor((TOwner)owner);
+			// Should I throw error for mismatching component?
+			if (obj is not TOwner owner)
+			{
+				return;
+			}
+
+			var selected = Accessor(owner);
 			if (selected is null) return;
 
 			if (Entry.TryGetSlots(selected, out var slots) && slots is not null)

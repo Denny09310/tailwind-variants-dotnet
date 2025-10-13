@@ -14,11 +14,17 @@ internal record struct CompiledCompoundVariant<TOwner, TSlots>(Predicate<TOwner>
 	where TSlots : ISlots, new()
 	where TOwner : ISlotted<TSlots>
 {
-	public readonly void Apply(object owner, Action<string, string> aggregator)
+	public readonly void Apply(object obj, Action<string, string> aggregator)
 	{
 		try
 		{
-			if (!Predicate((TOwner)owner))
+			// Should I throw error for mismatching component?
+			if (obj is not TOwner owner)
+			{
+				return;
+			}
+
+			if (!Predicate(owner))
 			{
 				return;
 			}
