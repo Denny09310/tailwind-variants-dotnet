@@ -52,7 +52,7 @@ public class TwVariants(Tw merge)
 
 	#region Helpers
 
-	private static void AddSlotClass<TSlots>(
+	private static void AddClass<TSlots>(
 		Dictionary<string, StringBuilder> builders,
 		Expression<SlotAccessor<TSlots>> accessor,
 		string classes) where TSlots : ISlots, new()
@@ -90,19 +90,17 @@ public class TwVariants(Tw merge)
 
 				if (!string.IsNullOrEmpty(cv.Class))
 				{
-					AddSlotClass<TSlots>(builders, s => s.Base, cv.Class);
+					AddClass<TSlots>(builders, s => s.Base, cv.Class);
 				}
 
-				foreach (var pairs in cv)
+				foreach (var (slot, value) in cv)
 				{
-					var slot = pairs.Key;
-
 					if (slot is null)
 					{
 						continue;
 					}
 
-					AddSlotClass(builders, slot, pairs.Value.ToString());
+					AddClass(builders, slot, value.ToString());
 				}
 			}
 			catch (Exception ex)
@@ -150,9 +148,9 @@ public class TwVariants(Tw merge)
 
 				if (compiled.Entry.TryGetSlots(selected, out var slots) && slots is not null)
 				{
-					foreach (var kv in slots)
+					foreach (var (slot, value) in slots)
 					{
-						AddSlotClass(builders, kv.Key, kv.Value.ToString());
+						AddClass(builders, slot, value.ToString());
 					}
 				}
 			}
@@ -164,7 +162,7 @@ public class TwVariants(Tw merge)
 
 		if (!string.IsNullOrEmpty(owner.Class))
 		{
-			AddSlotClass<TSlots>(builders, s => s.Base, owner.Class);
+			AddClass<TSlots>(builders, s => s.Base, owner.Class);
 		}
 
 		return builders;
