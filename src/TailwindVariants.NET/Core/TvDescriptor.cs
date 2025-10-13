@@ -7,6 +7,8 @@ namespace TailwindVariants.NET;
 /// </summary>
 public interface ITvDescriptor
 {
+	IReadOnlyCollection<ICompiledCompoundVariant>? CompoundVariants { get; }
+
 	/// <summary>
 	/// Gets the parent descriptor from which this descriptor inherits configuration.
 	/// </summary>
@@ -16,6 +18,8 @@ public interface ITvDescriptor
 	/// Gets the computed slot-to-CSS class mappings, including inherited slots.
 	/// </summary>
 	IReadOnlyDictionary<string, string> Slots { get; }
+
+	IReadOnlyCollection<ICompiledVariant>? Variants { get; }
 }
 
 /// <summary>
@@ -27,6 +31,10 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 	where TSlots : ISlots, new()
 	where TOwner : ISlotted<TSlots>
 {
+	private IReadOnlyCollection<ICompiledCompoundVariant>? _compunds;
+	private IReadOnlyDictionary<string, string> _slots = default!;
+	private IReadOnlyCollection<ICompiledVariant>? _variants;
+
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TvDescriptor{TOwner, TSlots}"/> class.
 	/// </summary>
@@ -79,37 +87,26 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 	#region Explicit Implementations
 
 	/// <summary>
-	/// Gets the computed slot-to-CSS class mappings, including inherited slots.
-	/// </summary>
-	IReadOnlyDictionary<string, string> ITvDescriptor.Slots
-		=> ComputedSlots;
-
-	#endregion Explicit Implementations
-
-	/// <summary>
 	/// Gets the precomputed compound variants definitions.
 	/// This collection is populated during initialization by compiling compound variant expressions and merging with extended variants.
 	/// </summary>
-	internal IReadOnlyCollection<CompiledCompoundVariant<TOwner, TSlots>> ComputedCompoundVariants { get; private set; } = default!;
+
+	IReadOnlyCollection<ICompiledCompoundVariant>? ITvDescriptor.CompoundVariants => _compunds;
 
 	/// <summary>
 	/// Gets the precomputed slot-to-CSS class mappings, including inherited slots from parent descriptors.
 	/// This dictionary is populated during initialization by merging base classes, top-level slots, and extended slots.
 	/// </summary>
-	internal IReadOnlyDictionary<string, string> ComputedSlots { get; private set; } = default!;
+	IReadOnlyDictionary<string, string> ITvDescriptor.Slots => _slots;
 
 	/// <summary>
 	/// Gets the precomputed variant definitions with compiled accessors for runtime evaluation.
 	/// This collection is populated during initialization by compiling variant expressions and merging with extended variants.
 	/// </summary>
-	internal IReadOnlyCollection<CompiledVariant<TOwner, TSlots>> ComputedVariants { get; private set; } = default!;
+	IReadOnlyCollection<ICompiledVariant>? ITvDescriptor.Variants => _variants;
 
-	/// <summary>
-	/// Recursively merges slot definitions from extended descriptors into the provided map.
-	/// Slots from parent descriptors are inserted at the beginning to allow child descriptors to override them.
-	/// </summary>
-	/// <param name="map">The dictionary to populate with slot-to-CSS class mappings.</param>
-	/// <param name="extends">The parent descriptor to inherit slots from.</param>
+	#endregion Explicit Implementations
+
 	private static void PrecomputeExtendsBaseAndTopLevelSlots(Dictionary<string, ClassValue> map, ITvDescriptor? extends = null)
 	{
 		if (extends is null)
@@ -137,14 +134,31 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 		}
 	}
 
-	/// <summary>
-	/// Recursively merges variant definitions from extended descriptors into the provided dictionary.
-	/// This method is intended to inherit variants from parent descriptors.
-	/// </summary>
-	/// <param name="variants">The dictionary to populate with variant definitions.</param>
-	/// <param name="extends">The parent descriptor to inherit variants from.</param>
+	private static void PrecomputeExtendsCompoundVariants(List<ICompiledCompoundVariant>? compounds, ITvDescriptor extends)
+	{
+		if (extends is null)
+		{
+			return;
+		}
+
+		if (extends.CompoundVariants is not null)
+		{
+			compounds ??= [];
+
+			foreach (var cv in extends.CompoundVariants)
+			{
+				compounds.Add(cv);
+			}
+		}
+
+		if (extends.Extends is not null)
+		{
+			PrecomputeExtendsCompoundVariants(compounds, extends.Extends);
+		}
+	}
+
 	private static void PrecomputeExtendsVariantDefinitions(
-		List<CompiledVariant<TOwner, TSlots>> variants,
+		List<ICompiledVariant>? variants,
 		ITvDescriptor? extends = null)
 	{
 		if (extends is null)
@@ -152,7 +166,15 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 			return;
 		}
 
-		// TODO: Add variants inheritance
+		if (extends.Variants is not null)
+		{
+			variants ??= [];
+
+			foreach (var variant in extends.Variants)
+			{
+				variants.Add(variant);
+			}
+		}
 
 		if (extends.Extends is not null)
 		{
@@ -160,22 +182,13 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 		}
 	}
 
-	/// <summary>
-	/// Precomputes both slot and variant definitions during descriptor initialization.
-	/// This ensures that all inheritance is resolved upfront for optimal runtime performance.
-	/// </summary>
 	private void Precompute()
 	{
-		ComputedSlots = PrecomputeBaseAndTopLevelSlots();
-		ComputedVariants = PrecomputeVariantDefinitions();
-		ComputedCompoundVariants = PrecomputeCompoundVariants();
+		_slots = PrecomputeBaseAndTopLevelSlots();
+		_variants = PrecomputeVariantDefinitions();
+		_compunds = PrecomputeCompoundVariantsDefinitions();
 	}
 
-	/// <summary>
-	/// Computes the final slot-to-CSS class mappings by merging base classes, slots, and extended slots.
-	/// Child descriptor slots take precedence over parent slots when conflicts occur.
-	/// </summary>
-	/// <returns>A dictionary mapping slot names to their computed CSS class strings.</returns>
 	private Dictionary<string, string> PrecomputeBaseAndTopLevelSlots()
 	{
 		var map = new Dictionary<string, ClassValue>(StringComparer.Ordinal);
@@ -203,12 +216,14 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 			kvp => kvp.Value.ToString());
 	}
 
-	private IReadOnlyCollection<CompiledCompoundVariant<TOwner, TSlots>> PrecomputeCompoundVariants()
+	private List<ICompiledCompoundVariant>? PrecomputeCompoundVariantsDefinitions()
 	{
-		var compoundVariants = new List<CompiledCompoundVariant<TOwner, TSlots>>();
+		List<ICompiledCompoundVariant>? compounds = null;
 
 		if (CompoundVariants is not null)
 		{
+			compounds ??= [];
+
 			foreach (var cv in CompoundVariants)
 			{
 				if (!string.IsNullOrEmpty(cv.Class))
@@ -216,24 +231,26 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 					cv.Slots.Add(cv.Class);
 				}
 
-				compoundVariants.Add(new CompiledCompoundVariant<TOwner, TSlots>(cv.Predicate, cv.Slots));
+				compounds.Add(new CompiledCompoundVariant<TOwner, TSlots>(cv.Predicate, cv.Slots));
 			}
 		}
 
-		return compoundVariants;
+		if (Extends is not null)
+		{
+			PrecomputeExtendsCompoundVariants(compounds, Extends);
+		}
+
+		return compounds;
 	}
 
-	/// <summary>
-	/// Computes the final variant definitions by compiling variant accessors and merging with extended variants.
-	/// Each variant is compiled into a delegate for efficient runtime evaluation.
-	/// </summary>
-	/// <returns>A dictionary mapping variant identifiers to their compiled variant definitions.</returns>
-	private List<CompiledVariant<TOwner, TSlots>> PrecomputeVariantDefinitions()
+	private List<ICompiledVariant>? PrecomputeVariantDefinitions()
 	{
-		var variants = new List<CompiledVariant<TOwner, TSlots>>();
+		List<ICompiledVariant>? variants = null;
 
 		if (Variants is not null)
 		{
+			variants ??= [];
+
 			foreach (var (key, value) in Variants)
 			{
 				var accessor = key.Compile();
