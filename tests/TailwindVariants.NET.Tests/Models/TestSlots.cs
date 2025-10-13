@@ -8,7 +8,6 @@ public partial class TestSlots : ISlots
 
     public string? Container { get; set; }
 
-    [Slot("descr")]
     public string? Description { get; set; }
 
     public string? Title { get; set; }

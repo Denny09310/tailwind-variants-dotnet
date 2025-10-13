@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 using Tw = TailwindMerge.TwMerge;
 
 namespace TailwindVariants.NET.Tests;
@@ -7,83 +7,120 @@ public class SlotsInheritanceTests
 {
     private readonly TwVariants _tv = new(new Tw());
 
-    #region EnumerateOverrides Tests
+    [Fact]
+    public void Enum_ForBaseClass_ContainsBaseProperties()
+    {
+        // Assert
+        var enumValues = Enum.GetValues<ButtonSlotsTypes>();
+
+        Assert.Contains(ButtonSlotsTypes.Base, enumValues);
+        Assert.Contains(ButtonSlotsTypes.Icon, enumValues);
+        Assert.Contains(ButtonSlotsTypes.Label, enumValues);
+        Assert.Equal(3, enumValues.Length);
+    }
 
     [Fact]
-    public void EnumerateOverrides_WithBaseClass_OnlyIncludesBaseProperties()
+    public void Enum_ForDerivedClass_ContainsOnlyDerivedProperties()
+    {
+        // Assert - derived enum should only have Overlay, not base properties
+        var enumValues = Enum.GetValues<GhostButtonSlotsTypes>();
+
+        Assert.Contains(GhostButtonSlotsTypes.Overlay, enumValues);
+        Assert.Single(enumValues);
+    }
+
+    [Fact]
+    public void Invoke_WithDerivedSlots_AppliesAllSlots()
     {
         // Arrange
-        var slots = new ButtonSlots
+        var descriptor = new TvDescriptor<GhostButtonComponent, GhostButtonSlots>(
+            @base: "btn",
+            slots: new()
+            {
+                [s => s.Icon] = "w-4 h-4",
+                [s => s.Label] = "ml-2",
+                [s => s.Overlay] = "absolute inset-0 bg-black/10"
+            }
+        );
+        var component = new GhostButtonComponent();
+
+        // Act
+        var result = _tv.Invoke(component, descriptor);
+
+        // Assert
+        Assert.Equal("btn", result[s => s.Base]);
+        Assert.Equal("w-4 h-4", result[s => s.Icon]);
+        Assert.Equal("ml-2", result[s => s.Label]);
+        Assert.Equal("absolute inset-0 bg-black/10", result[s => s.Overlay]);
+    }
+
+    [Fact]
+    public void Invoke_WithDerivedSlotsAndVariants_CombinesCorrectly()
+    {
+        // Arrange
+        var descriptor = new TvDescriptor<GhostButtonComponent, GhostButtonSlots>(
+            @base: "btn",
+            slots: new()
+            {
+                [s => s.Overlay] = "absolute inset-0"
+            },
+            variants: new VariantCollection<GhostButtonComponent, GhostButtonSlots>
+            {
+                    {
+                        c => c.Variant,
+                        new Variant<string, GhostButtonSlots>
+                        {
+                            ["ghost"] = new()
+                            {
+                                [s => s.Base] = "bg-transparent",
+                                [s => s.Overlay] = "bg-black/5 hover:bg-black/10"
+                            }
+                        }
+                    }
+            }
+        );
+        var component = new GhostButtonComponent { Variant = "ghost" };
+
+        // Act
+        var result = _tv.Invoke(component, descriptor);
+
+        // Assert
+        Assert.Contains("bg-transparent", result[s => s.Base]);
+        Assert.Contains("absolute", result[s => s.Overlay]);
+        Assert.Contains("bg-black/5", result[s => s.Overlay]);
+        Assert.Contains("hover:bg-black/10", result[s => s.Overlay]);
+    }
+
+    [Fact]
+    public void Invoke_WithDerivedSlotsOverride_MergesAllSlots()
+    {
+        // Arrange
+        var descriptor = new TvDescriptor<GhostButtonComponent, GhostButtonSlots>(
+            @base: "btn",
+            slots: new()
+            {
+                [s => s.Icon] = "w-4 h-4",
+                [s => s.Overlay] = "absolute inset-0"
+            }
+        );
+        var component = new GhostButtonComponent
         {
-            Base = "root-class",
-            Icon = "icon-class",
-            Label = "label-class"
+            Classes = new GhostButtonSlots
+            {
+                Icon = "text-blue-500",
+                Label = "font-bold",
+                Overlay = "bg-black/20"
+            }
         };
 
         // Act
-        var overrides = slots.EnumerateOverrides().ToList();
+        var result = _tv.Invoke(component, descriptor);
 
         // Assert
-        Assert.Equal(3, overrides.Count);
-        Assert.Contains(overrides, o => o.Slot == "root" && o.Value == "root-class");
-        Assert.Contains(overrides, o => o.Slot == "Icon" && o.Value == "icon-class");
-        Assert.Contains(overrides, o => o.Slot == "Label" && o.Value == "label-class");
+        Assert.Contains("w-4", result[s => s.Icon]);
+        Assert.Contains("text-blue-500", result[s => s.Icon]);
+        Assert.Equal("font-bold", result[s => s.Label]);
+        Assert.Contains("absolute", result[s => s.Overlay]);
+        Assert.Contains("bg-black/20", result[s => s.Overlay]);
     }
-
-    [Fact]
-    public void EnumerateOverrides_WithDerivedClass_IncludesBaseProperties()
-    {
-        // Arrange
-        var slots = new GhostButtonSlots
-        {
-            Base = "root-class",
-            Icon = "icon-class",
-            Label = "label-class",
-            Overlay = "overlay-class"
-        };
-
-        // Act
-        var overrides = slots.EnumerateOverrides().ToList();
-
-        // Assert
-        Assert.Equal(4, overrides.Count);
-        Assert.Contains(overrides, o => o.Slot == "root" && o.Value == "root-class");
-        Assert.Contains(overrides, o => o.Slot == "Icon" && o.Value == "icon-class");
-        Assert.Contains(overrides, o => o.Slot == "Label" && o.Value == "label-class");
-        Assert.Contains(overrides, o => o.Slot == "Overlay" && o.Value == "overlay-class");
-    }
-
-    [Fact]
-    public void EnumerateOverrides_WithDerivedClassPartialProperties_OnlyIncludesNonNull()
-    {
-        // Arrange
-        var slots = new GhostButtonSlots
-        {
-            Base = "root-class",
-            Overlay = "overlay-class"
-        };
-
-        // Act
-        var overrides = slots.EnumerateOverrides().ToList();
-
-        // Assert
-        Assert.Equal(2, overrides.Count);
-        Assert.Contains(overrides, o => o.Slot == "root" && o.Value == "root-class");
-        Assert.Contains(overrides, o => o.Slot == "Overlay" && o.Value == "overlay-class");
-    }
-
-    #endregion EnumerateOverrides Tests
-
-    #region GetName Tests
-
-    [Fact]
-    public void GetName_WithBaseClassProperty_ReturnsCorrectSlotName()
-    {
-        // Act & Assert
-        Assert.Equal("root", ButtonSlots.GetName(nameof(ButtonSlots.Base)));
-        Assert.Equal("Icon", ButtonSlots.GetName(nameof(ButtonSlots.Icon)));
-        Assert.Equal("Label", ButtonSlots.GetName(nameof(ButtonSlots.Label)));
-    }
-
-    #endregion
 }

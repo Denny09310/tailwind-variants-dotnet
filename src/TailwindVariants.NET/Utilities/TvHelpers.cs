@@ -25,8 +25,7 @@ internal static class TvHelpers
     public static string GetSlot<TSlots>(Expression<SlotAccessor<TSlots>> accessor)
         where TSlots : ISlots, new()
     {
-        var memberName = ExtractMemberName(accessor, nameof(accessor), "slot");
-        return TSlots.GetName(memberName);
+        return ExtractMemberName(accessor, nameof(accessor), "slot");
     }
 
     /// <summary>

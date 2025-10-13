@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using System.Text;
-using TailwindVariants.NET.SourceGenerators.Helpers;
 
 namespace TailwindVariants.NET.SourceGenerators;
 
@@ -13,10 +12,6 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
-            "SlotAttribute.g.cs",
-            SourceText.From(SourceGenerationHelper.Attribute, Encoding.UTF8)));
-
         var candidates = context.SyntaxProvider
            .CreateSyntaxProvider(
                static (node, _) => node is TypeDeclarationSyntax,
@@ -79,9 +74,6 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
             baseClassName = symbol.BaseType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", "");
         }
 
-        // collect property identifiers and effective slot names (attribute or fallback).
-        var (properties, slotNames) = CollectSlotProperties(symbol);
-
         var fullName = symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", "");
         var typeName = symbol.ContainingType?.Name ?? symbol.Name.Replace("Slots", string.Empty);
 
@@ -95,10 +87,9 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
             IsPartial: symbol.DeclaringSyntaxReferences
                 .Any(sr => sr.GetSyntax() is TypeDeclarationSyntax tds &&
                            tds.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword))),
-            DirectlyImplementsISlots: directlyImplementsISlots,
+            IsDirectImplementation: directlyImplementsISlots,
             Hierarchy: GetSlotsHierarchy(symbol),
-            Properties: properties,
-            Slots: slotNames,
+            Properties: CollectProperties(symbol),
             SlotsMapName: $"SlotsMap<{fullName}>",
             EnumName: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotsTypes"),
             ExtClassName: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotsExtensions"),
@@ -111,41 +102,13 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
     #region Helpers
 
-    private static (ImmutableArray<string> properties, ImmutableArray<string> slotNames) CollectSlotProperties(INamedTypeSymbol type)
-    {
-        var properties = type.GetMembers()
+    private static ImmutableArray<string> CollectProperties(INamedTypeSymbol type) =>
+      [.. type.GetMembers()
             .OfType<IPropertySymbol>()
             .Where(p => !p.IsStatic && p.DeclaredAccessibility == Accessibility.Public && p.Type.SpecialType == SpecialType.System_String)
             .OrderBy(p => p.Locations.FirstOrDefault()?.SourceSpan.Start ?? int.MaxValue)
             .ThenBy(p => p.Name, StringComparer.Ordinal)
-            .ToList();
-
-        var propertyNamesBuilder = ImmutableArray.CreateBuilder<string>(properties.Count);
-        var slotNamesBuilder = ImmutableArray.CreateBuilder<string>(properties.Count);
-
-        foreach (var p in properties)
-        {
-            propertyNamesBuilder.Add(p.Name);
-
-            string slotName = p.Name;
-            var attr = p.GetAttributes()
-                .FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == "TailwindVariants.NET.SlotAttribute" ||
-                                     a.AttributeClass?.Name == "SlotAttribute");
-
-            if (attr != null && attr.ConstructorArguments.Length > 0)
-            {
-                var arg = attr.ConstructorArguments[0];
-                if (arg.Value is string s && !string.IsNullOrEmpty(s))
-                {
-                    slotName = s;
-                }
-            }
-
-            slotNamesBuilder.Add(slotName);
-        }
-
-        return (propertyNamesBuilder.ToImmutable(), slotNamesBuilder.ToImmutable());
-    }
+            .Select(x => x.Name)];
 
     /// <summary>
     /// Determines if the type directly implements ISlots (not inherited from base class).
@@ -198,7 +161,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
     private static bool ImplementsISlots(INamedTypeSymbol type)
         => type.AllInterfaces.Any(i => i.ToDisplayString() == "TailwindVariants.NET.ISlots");
-    
+
     #endregion Helpers
 
     #region Code Writing
@@ -231,36 +194,6 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.AppendLine($"public static class {accessor.ExtClassName}");
         sb.AppendLine("{");
         sb.Indent();
-
-        sb.AppendMultiline($$"""
-            /// <summary>
-            /// Gets the name of the slot identified by the specified <see cref="{{accessor.NamesClass}}"/> constant.
-            /// </summary>
-            /// <param name="slots">The <see cref="SlotsMap{T}"/> instance containing slot values.</param>
-            /// <param name="key">The constant key representing the slot to retrieve.</param>
-            /// <returns>The name of the slot.</returns>
-            """);
-
-        sb.AppendLine($"public static string GetName(this {accessor.SlotsMapName} slots, string key)");
-        sb.Indent();
-        sb.AppendLine($"=> {accessor.FullName}.GetName(key);");
-        sb.Dedent();
-        sb.AppendLine();
-
-        sb.AppendMultiline($$"""
-            /// <summary>
-            /// Gets the name of the slot identified by the specified <see cref="{{accessor.EnumName}}"/> key.
-            /// </summary>
-            /// <param name="slots">The <see cref="SlotsMap{T}"/> instance containing slot values.</param>
-            /// <param name="key">The enum key representing the slot to retrieve.</param>
-            /// <returns>The name of the slot.</returns>
-            """);
-
-        sb.AppendLine($"public static string GetName(this {accessor.SlotsMapName} slots, {accessor.EnumName} key)");
-        sb.Indent();
-        sb.AppendLine($"=> {accessor.FullName}.GetName({accessor.NamesClass}.NameOf(key));");
-        sb.Dedent();
-        sb.AppendLine();
 
         sb.AppendMultiline($$"""
             /// <summary>
@@ -305,7 +238,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
         // Determine if methods should be virtual or override
         // Sealed classes cannot have virtual methods
-        string methodModifier = accessor.DirectlyImplementsISlots
+        string methodModifier = accessor.IsDirectImplementation
             ? (accessor.IsSealed ? "public" : "public virtual")
             : "public override";
 
@@ -314,7 +247,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.Indent();
 
         // If overriding, call base implementation first
-        if (!accessor.DirectlyImplementsISlots)
+        if (!accessor.IsDirectImplementation)
         {
             sb.AppendLine("foreach (var item in base.EnumerateOverrides())");
             sb.Indent();
@@ -327,45 +260,8 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         {
             sb.AppendLine($"if (!string.IsNullOrWhiteSpace({property}))");
             sb.Indent();
-            sb.AppendLine($"yield return (GetName(nameof({property})), {property}!);");
+            sb.AppendLine($"yield return (nameof({property}), {property}!);");
             sb.Dedent();
-        }
-
-        sb.Dedent();
-        sb.AppendLine("}");
-
-        sb.AppendLine();
-        sb.AppendLine($"public static string GetName(string propertyName)");
-        sb.AppendLine("{");
-        sb.Indent();
-
-        if (accessor.DirectlyImplementsISlots)
-        {
-            // Direct implementation - use switch expression
-            sb.AppendLine("return propertyName switch");
-            sb.AppendLine("{");
-            sb.Indent();
-            foreach (var (property, slot) in accessor.Properties.Zip(accessor.Slots, (x, y) => (x, y)))
-            {
-                sb.AppendLine($"nameof({property}) => {SymbolHelper.QuoteLiteral(slot)},");
-            }
-            sb.AppendLine("_ => propertyName");
-            sb.Dedent();
-            sb.AppendLine("};");
-        }
-        else
-        {
-            // Inherited implementation - check this class first, then call base class
-            sb.AppendLine("return propertyName switch");
-            sb.AppendLine("{");
-            sb.Indent();
-            foreach (var (property, slot) in accessor.Properties.Zip(accessor.Slots, (x, y) => (x, y)))
-            {
-                sb.AppendLine($"nameof({property}) => {SymbolHelper.QuoteLiteral(slot)},");
-            }
-            sb.AppendLine($"_ => {accessor.BaseClassName}.GetName(propertyName)");
-            sb.Dedent();
-            sb.AppendLine("};");
         }
 
         sb.Dedent();
@@ -381,15 +277,6 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.AppendLine("{");
         sb.Indent();
 
-        foreach (var (property, slot) in accessor.Properties.Zip(accessor.Slots, (x, y) => (x, y)))
-        {
-            sb.AppendLine("/// <summary>");
-            sb.AppendLine($"/// The slot name for <c>{property}</c>.");
-            sb.AppendLine("/// </summary>");
-            sb.AppendLine($"public const string {SymbolHelper.MakeSafeIdentifier(property)} = {SymbolHelper.QuoteLiteral(slot)};");
-            sb.AppendLine();
-        }
-
         sb.AppendLine("/// <summary>");
         sb.AppendLine("/// Array of slot names in the same order as the generated enum.");
         sb.AppendLine("/// </summary>");
@@ -399,7 +286,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         sb.Indent();
         foreach (var property in accessor.Properties)
         {
-            sb.AppendLine($"nameof({property}),");
+            sb.AppendLine($"{SymbolHelper.QuoteLiteral(property)},");
         }
         sb.Dedent();
         sb.AppendLine("};");
@@ -483,12 +370,11 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         string? BaseClassName,
 
         bool IsPartial,
-        bool DirectlyImplementsISlots,
+        bool IsDirectImplementation,
         bool IsSealed,
 
         EquatableArray<string> Hierarchy,
-        EquatableArray<string> Properties,
-        EquatableArray<string> Slots)
+        EquatableArray<string> Properties)
     {
         public Location? Location { get; init; }
     };

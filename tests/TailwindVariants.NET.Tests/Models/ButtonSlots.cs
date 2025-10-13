@@ -4,7 +4,6 @@
 
 public partial class ButtonSlots : ISlots
 {
-    [Slot("root")]
     public string? Base { get; set; }
 
     public string? Icon { get; set; }
