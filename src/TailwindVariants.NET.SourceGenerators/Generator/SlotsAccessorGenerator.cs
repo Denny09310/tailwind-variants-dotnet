@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
@@ -178,12 +178,9 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
             .Select(p => p.Name)];
     }
 
-    private static bool ImplementsISlots(INamedTypeSymbol type)
-    {
-        return type.AllInterfaces.Any(IsISlotsInterface);
-    }
+	private static bool ImplementsISlots(INamedTypeSymbol type) => type.AllInterfaces.Any(IsISlotsInterface);
 
-    private static bool IsISlotsInterface(INamedTypeSymbol interfaceSymbol)
+	private static bool IsISlotsInterface(INamedTypeSymbol interfaceSymbol)
     {
         return interfaceSymbol.ContainingNamespace?.ToDisplayString() == "TailwindVariants.NET" &&
                interfaceSymbol.Name == "ISlots";
