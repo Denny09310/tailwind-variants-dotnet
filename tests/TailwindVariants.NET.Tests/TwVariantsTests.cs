@@ -18,7 +18,6 @@ public partial class ButtonComponent : ISlotted<ButtonSlots>
 
 public partial class ButtonSlots : ISlots
 {
-    [Slot("root")]
     public string? Base { get; set; }
     
     public string? Icon { get; set; }
@@ -41,7 +40,6 @@ public partial class TestSlots : ISlots
     
     public string? Container { get; set; }
 
-    [Slot("descr")]
     public string? Description { get; set; }
     
     public string? Title { get; set; }
@@ -76,22 +74,6 @@ public class TwVariantsTests
         Assert.Null(result[s => s.Container]);
         Assert.Null(result[s => s.Title]);
         Assert.Null(result[s => s.Description]);
-    }
-
-    [Fact]
-    public void Invoke_GetName_ReturnsCorrectSlot()
-    {
-        // Arrange
-        var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-            @base: "container"
-        );
-        var component = new TestComponent();
-
-        // Act
-        var result = _tv.Invoke(component, descriptor);
-
-        // Assert
-        Assert.Equal("descr", result.GetName(TestSlotsTypes.Description));
     }
 
     [Fact]

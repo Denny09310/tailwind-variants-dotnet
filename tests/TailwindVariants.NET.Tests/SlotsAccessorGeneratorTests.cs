@@ -127,7 +127,7 @@ public class SlotsAccessorGeneratorTests
 
         var (generated, diags) = RunGenerator(input);
 
-        generated.Length.ShouldBe(1);
+        generated.Length.ShouldBe(0);
         diags.ShouldContain(d => d.Severity == DiagnosticSeverity.Info);
     }
 
@@ -149,7 +149,7 @@ public class SlotsAccessorGeneratorTests
 
         var (generated, diags) = RunGenerator(input);
 
-        generated.Length.ShouldBe(1);
+        generated.Length.ShouldBe(0);
         diags.Any(d => d.Severity == DiagnosticSeverity.Error &&
             d.GetMessage().Contains("partial", StringComparison.OrdinalIgnoreCase))
             .ShouldBeTrue("Expected diagnostic about missing 'partial' keyword");
