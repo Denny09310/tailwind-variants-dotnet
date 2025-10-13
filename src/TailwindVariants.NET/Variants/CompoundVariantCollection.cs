@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 
 namespace TailwindVariants.NET;
 
@@ -6,18 +6,18 @@ namespace TailwindVariants.NET;
 /// Collection of compound variants.
 /// </summary>
 public class CompoundVariantCollection<TOwner, TSlots> : IEnumerable<CompoundVariant<TOwner, TSlots>>
-    where TSlots : ISlots, new()
-    where TOwner : ISlotted<TSlots>
+	where TSlots : ISlots, new()
+	where TOwner : ISlotted<TSlots>
 {
-    private readonly List<CompoundVariant<TOwner, TSlots>> _variants = [];
+	private readonly List<CompoundVariant<TOwner, TSlots>> _variants = [];
 
-    /// <summary>
-    /// Add a new compound variant.
-    /// </summary>
-    public void Add(CompoundVariant<TOwner, TSlots> entry) => _variants.Add(entry);
+	/// <summary>
+	/// Add a new compound variant.
+	/// </summary>
+	public void Add(CompoundVariant<TOwner, TSlots> entry) => _variants.Add(entry);
 
-    /// <inheritdoc/>
-    public IEnumerator<CompoundVariant<TOwner, TSlots>> GetEnumerator() => _variants.GetEnumerator();
+	/// <inheritdoc/>
+	public IEnumerator<CompoundVariant<TOwner, TSlots>> GetEnumerator() => _variants.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

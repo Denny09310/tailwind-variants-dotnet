@@ -1,4 +1,5 @@
-﻿using TailwindMerge.Extensions;
+using TailwindMerge.Extensions;
+
 using TailwindVariants.NET;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -8,15 +9,15 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class TvExtensions
 {
-    /// <summary>
-    /// Adds TailwindVariants and its dependencies to the specified <see cref="IServiceCollection"/>.
-    /// </summary>
-    /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
-    /// <returns>The updated <see cref="IServiceCollection"/> instance.</returns>
-    public static IServiceCollection AddTailwindVariants(this IServiceCollection services)
-    {
-        services.AddTailwindMerge();
-        services.AddSingleton<TwVariants>();
-        return services;
-    }
+	/// <summary>
+	/// Adds TailwindVariants and its dependencies to the specified <see cref="IServiceCollection"/>.
+	/// </summary>
+	/// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
+	/// <returns>The updated <see cref="IServiceCollection"/> instance.</returns>
+	public static IServiceCollection AddTailwindVariants(this IServiceCollection services)
+	{
+		services.AddTailwindMerge();
+		services.AddSingleton<TwVariants>();
+		return services;
+	}
 }

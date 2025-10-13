@@ -18,7 +18,7 @@
         var button = cut.Find("button");
 
         // Assert
-        button.ClassList.ShouldContain("px-3");
+        Assert.Contains("px-3", button.ClassList);
     }
 
     [Fact]
@@ -33,8 +33,8 @@
         var button = cut.Find("button");
 
         // Assert
-        button.ClassList.ShouldContain("bg-slate-900");
-        button.ClassList.ShouldContain("text-white");
+        Assert.Contains("bg-slate-900", button.ClassList);
+        Assert.Contains("text-white", button.ClassList);
     }
 
     [Fact]
@@ -46,8 +46,8 @@
 
         var button = cut.Find("button");
 
-        button.ClassList.ShouldContain("border");
-        button.ClassList.ShouldContain("border-slate-200");
+        Assert.Contains("border", button.ClassList);
+        Assert.Contains("border-slate-200", button.ClassList);
     }
 
     [Fact]
@@ -59,8 +59,8 @@
 
         var button = cut.Find("button");
 
-        button.ClassList.ShouldContain("h-9");
-        button.ClassList.ShouldContain("px-3");
+        Assert.Contains("h-9", button.ClassList);
+        Assert.Contains("px-3", button.ClassList);
     }
 
     [Fact]
@@ -72,8 +72,8 @@
 
         var button = cut.Find("button");
 
-        button.ClassList.ShouldContain("h-11");
-        button.ClassList.ShouldContain("px-6");
+        Assert.Contains("h-11", button.ClassList);
+        Assert.Contains("px-6", button.ClassList);
     }
 
     [Fact]
@@ -88,43 +88,53 @@
         var button = cut.Find("button");
 
         // Assert
-        button.ClassList.ShouldContain("px-2"); // Example compound
+        Assert.Contains("px-2", button.ClassList);
     }
 
     [Fact]
     public void PerInstance_Classes_AreApplied()
     {
+        // Arrange
         var cut = Render(
             @<Button Classes="@(new() { Base = "rounded-full" })" />
         );
 
+        // Act
         var button = cut.Find("button");
-        button.ClassList.ShouldContain("rounded-full");
+
+        // Assert
+        Assert.Contains("rounded-full", button.ClassList);
     }
 
     [Fact]
     public void PerInstance_ClassProperty_IsApplied()
     {
+        // Arrange
         var cut =  Render(
             @<Button Class="m-2" />
         );
 
+        // Act
         var button = cut.Find("button");
 
-        button.ClassList.ShouldContain("m-2");
+        // Assert
+        Assert.Contains("m-2", button.ClassList);
     }
 
     [Fact]
     public void EnumerateOverrides_Yields_PerInstanceClasses()
     {
+        // Arrange
         var instance = new Button
         {
             Classes = new Button.Slots { Base = "rounded-xl", Icon = "size-5" }
         };
 
+        // Act
         var overrides = instance.Classes!.EnumerateOverrides().ToList();
 
-        overrides.ShouldContain(t => t.Slot == nameof(Button.Slots.Base) && t.Value == "rounded-xl");
-        overrides.ShouldContain(t => t.Slot == nameof(Button.Slots.Icon) && t.Value == "size-5");
+        // Assert
+        Assert.Contains(overrides, t => t.Slot == nameof(Button.Slots.Base) && t.Value == "rounded-xl");
+        Assert.Contains(overrides, t => t.Slot == nameof(Button.Slots.Icon) && t.Value == "size-5");
     }
 }

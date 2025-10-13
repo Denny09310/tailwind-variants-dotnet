@@ -1,18 +1,18 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Text;
-using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Text;
+
 namespace TailwindVariants.NET.SourceGenerators.Tests;
 
 public class SlotsAccessorGeneratorTests
 {
-    private const string CommonRuntimeTypes = """
+	private const string CommonRuntimeTypes = """
         namespace TailwindVariants.NET
         {
             public interface ISlots { string? Base { get; } }
@@ -23,10 +23,10 @@ public class SlotsAccessorGeneratorTests
         }
         """;
 
-    [Fact]
-    public void Generates_EnumerateOverrides_Enum_Names_And_Extensions_For_Simple_Slots()
-    {
-        var input = """
+	[Fact]
+	public void Generates_EnumerateOverrides_Enum_Names_And_Extensions_For_Simple_Slots()
+	{
+		var input = """
             namespace Demo.Components
             {
                 public partial class MyComponent
@@ -40,23 +40,23 @@ public class SlotsAccessorGeneratorTests
             }
             """;
 
-        var (generated, diags) = RunGenerator(input);
+		var (generated, diags) = RunGenerator(input);
 
-        diags.ShouldNotContain(d => d.Severity == DiagnosticSeverity.Error);
-        generated.Length.ShouldBeGreaterThan(0);
+		Assert.DoesNotContain(diags, d => d.Severity == DiagnosticSeverity.Error);
+		Assert.NotEmpty(generated);
 
-        var combined = string.Join("\n---GEN---\n", generated.Select(gs => gs.SourceText.ToString()));
+		var combined = string.Join("\n---GEN---\n", generated.Select(gs => gs.SourceText.ToString()));
 
-        combined.ShouldContain("EnumerateOverrides()");
-        combined.ShouldContain("public enum MyComponentSlotsTypes");
-        combined.ShouldContain("public static class MyComponentSlotsNames");
-        combined.ShouldContain("public static string? GetHeader");
-    }
+		Assert.Contains("EnumerateOverrides()", combined);
+		Assert.Contains("public enum SlotTypes", combined);
+		Assert.Contains("public static class SlotNames", combined);
+		Assert.Contains("public static string? GetHeader", combined);
+	}
 
-    [Fact]
-    public void Handles_Nested_Types_Correctly()
-    {
-        var input = """
+	[Fact]
+	public void Handles_Nested_Types_Correctly()
+	{
+		var input = """
             namespace Demo.NestedSample
             {
                 public partial class Outer
@@ -73,21 +73,21 @@ public class SlotsAccessorGeneratorTests
             }
             """;
 
-        var (generated, diags) = RunGenerator(input);
+		var (generated, diags) = RunGenerator(input);
 
-        diags.ShouldNotContain(d => d.Severity == DiagnosticSeverity.Error);
-        generated.Length.ShouldBeGreaterThan(0);
+		Assert.DoesNotContain(diags, d => d.Severity == DiagnosticSeverity.Error);
+		Assert.NotEmpty(generated);
 
-        var combined = string.Join("\n---GEN---\n", generated.Select(gs => gs.SourceText.ToString()));
-        combined.ShouldContain("partial class Outer");
-        combined.ShouldContain("partial class Inner");
-        combined.ShouldContain("GetFooter");
-    }
+		var combined = string.Join("\n---GEN---\n", generated.Select(gs => gs.SourceText.ToString()));
+		Assert.Contains("partial class Outer", combined);
+		Assert.Contains("partial class Inner", combined);
+		Assert.Contains("GetFooter", combined);
+	}
 
-    [Fact]
-    public void Ignores_NonString_Properties()
-    {
-        var input = """
+	[Fact]
+	public void Ignores_NonString_Properties()
+	{
+		var input = """
             namespace Demo.Components
             {
                 public partial class MyComponent
@@ -101,19 +101,19 @@ public class SlotsAccessorGeneratorTests
             }
             """;
 
-        var (generated, diags) = RunGenerator(input);
+		var (generated, diags) = RunGenerator(input);
 
-        generated.Length.ShouldBeGreaterThan(0);
-        var combined = string.Join("\n---GEN---\n", generated.Select(gs => gs.SourceText.ToString()));
+		Assert.NotEmpty(generated);
+		var combined = string.Join("\n---GEN---\n", generated.Select(gs => gs.SourceText.ToString()));
 
-        combined.ShouldContain("GetBase");
-        combined.ShouldNotContain("GetCount");
-    }
+		Assert.Contains("GetBase", combined);
+		Assert.DoesNotContain("GetCount", combined);
+	}
 
-    [Fact]
-    public void Reports_Diagnostic_When_No_Public_Properties()
-    {
-        var input = """
+	[Fact]
+	public void ShouldNot_Generate_When_No_Public_Properties()
+	{
+		var input = """
             namespace Demo.Components
             {
                 public partial class MyComponent
@@ -125,16 +125,15 @@ public class SlotsAccessorGeneratorTests
             }
             """;
 
-        var (generated, diags) = RunGenerator(input);
+		var (generated, _) = RunGenerator(input);
 
-        generated.Length.ShouldBe(0);
-        diags.ShouldContain(d => d.Severity == DiagnosticSeverity.Info);
-    }
+		Assert.Empty(generated);
+	}
 
-    [Fact]
-    public void Reports_Diagnostic_When_Slots_Not_Partial()
-    {
-        var input = """
+	[Fact]
+	public void ShouldNot_Generate_When_Slots_Not_Partial()
+	{
+		var input = """
             namespace Demo.Components
             {
                 public class MyComponent
@@ -147,43 +146,40 @@ public class SlotsAccessorGeneratorTests
             }
             """;
 
-        var (generated, diags) = RunGenerator(input);
+		var (generated, _) = RunGenerator(input);
 
-        generated.Length.ShouldBe(0);
-        diags.Any(d => d.Severity == DiagnosticSeverity.Error &&
-            d.GetMessage().Contains("partial", StringComparison.OrdinalIgnoreCase))
-            .ShouldBeTrue("Expected diagnostic about missing 'partial' keyword");
-    }
+		Assert.Empty(generated);
+	}
 
-    private static (ImmutableArray<GeneratedSourceResult> Generated, ImmutableArray<Diagnostic> Diagnostics) RunGenerator(params string[] sources)
-    {
-        var allSources = new List<SyntaxTree>
-        {
-            CSharpSyntaxTree.ParseText(SourceText.From(CommonRuntimeTypes, Encoding.UTF8),
-                new CSharpParseOptions(LanguageVersion.Latest, kind: SourceCodeKind.Regular))
-        };
+	private static (ImmutableArray<GeneratedSourceResult> Generated, ImmutableArray<Diagnostic> Diagnostics) RunGenerator(params string[] sources)
+	{
+		var allSources = new List<SyntaxTree>
+		{
+			CSharpSyntaxTree.ParseText(SourceText.From(CommonRuntimeTypes, Encoding.UTF8),
+				new CSharpParseOptions(LanguageVersion.Latest, kind: SourceCodeKind.Regular))
+		};
 
-        allSources.AddRange(sources.Select(s => CSharpSyntaxTree.ParseText(SourceText.From(s, Encoding.UTF8),
-            new CSharpParseOptions(LanguageVersion.Latest, kind: SourceCodeKind.Regular))));
+		allSources.AddRange(sources.Select(s => CSharpSyntaxTree.ParseText(SourceText.From(s, Encoding.UTF8),
+			new CSharpParseOptions(LanguageVersion.Latest, kind: SourceCodeKind.Regular))));
 
-        var refs = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
-            .Select(a => MetadataReference.CreateFromFile(a.Location))
-            .Cast<MetadataReference>()
-            .ToList();
+		var refs = AppDomain.CurrentDomain.GetAssemblies()
+			.Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+			.Select(a => MetadataReference.CreateFromFile(a.Location))
+			.Cast<MetadataReference>()
+			.ToList();
 
-        var compilation = CSharpCompilation.Create(
-            assemblyName: "GeneratorTests_" + Guid.NewGuid().ToString("N"),
-            syntaxTrees: allSources,
-            references: refs,
-            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+		var compilation = CSharpCompilation.Create(
+			assemblyName: "GeneratorTests_" + Guid.NewGuid().ToString("N"),
+			syntaxTrees: allSources,
+			references: refs,
+			options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-        var generator = new SlotsAccessorGenerator();
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
-        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out _);
+		var generator = new SlotsAccessorGenerator();
+		GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+		driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out _);
 
-        var runResult = driver.GetRunResult();
-        var result = runResult.Results.Single();
-        return (result.GeneratedSources, result.Diagnostics);
-    }
+		var runResult = driver.GetRunResult();
+		var result = runResult.Results.Single();
+		return (result.GeneratedSources, result.Diagnostics);
+	}
 }

@@ -20,7 +20,7 @@
         var a = cut.Find("a");
 
         // Assert
-        a.ClassList.ShouldContain("inline-flex");
+        Assert.Contains("inline-flex", a.ClassList);
     }
 
     [Fact]
@@ -35,7 +35,7 @@
         var a = cut.Find("a");
 
         // Assert
-        a.ClassList.ShouldContain("underline");
+        Assert.Contains("underline", a.ClassList);
     }
 
     [Fact]
@@ -47,7 +47,7 @@
 
         var a = cut.Find("a");
 
-        a.ClassList.ShouldContain("text-sky-600");
+        Assert.Contains("text-sky-600", a.ClassList);
     }
 
     [Fact]
@@ -59,7 +59,7 @@
 
         var a = cut.Find("a");
 
-        a.ClassList.ShouldContain("text-sm");
+        Assert.Contains("text-sm", a.ClassList);
     }
 
     [Fact]
@@ -74,8 +74,8 @@
         var a = cut.Find("a");
 
         // Assert
-        a.ClassList.ShouldContain("after:content-['']");
-        a.ClassList.ShouldNotContain("hover:opacity-hover ");
+        Assert.Contains("after:content-['']", a.ClassList);
+        Assert.DoesNotContain("hover:opacity-hover", a.ClassList);
     }
 
     [Fact]
@@ -90,7 +90,7 @@
         var a = cut.Find("a");
 
         // Assert
-        a.ClassList.ShouldContain("opacity-disabled");
+        Assert.Contains("opacity-disabled", a.ClassList);
     }
 
     [Fact]
@@ -101,18 +101,19 @@
         );
 
         var a = cut.Find("a");
-        a.ClassList.ShouldContain("rounded-full");
+
+        Assert.Contains("rounded-full", a.ClassList);
     }
 
     [Fact]
     public void PerInstance_ClassProperty_IsApplied()
     {
-        var cut =  Render(
+        var cut = Render(
             @<Link Class="m-2" />
         );
 
         var a = cut.Find("a");
 
-        a.ClassList.ShouldContain("m-2");
+        Assert.Contains("m-2", a.ClassList);
     }
 }
