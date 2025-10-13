@@ -50,7 +50,6 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
             NamespaceName: symbol.ContainingNamespace?.ToDisplayString() ?? string.Empty,
             Modifiers: BuildModifiersString(symbol),
             BaseClassName: inheritanceInfo.BaseClassName,
-            IsPartial: true, // Already filtered in predicate
             IsDirectImplementation: inheritanceInfo.IsDirectImplementation,
             Hierarchy: BuildTypeHierarchy(symbol),
             Properties: ownProperties,
@@ -410,7 +409,6 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         string NamesClass,
         string? BaseClassName,
 
-        bool IsPartial,
         bool IsDirectImplementation,
         bool IsSealed,
 
