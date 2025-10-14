@@ -1,5 +1,6 @@
-using System.Diagnostics;
 using System.Linq.Expressions;
+
+using Microsoft.Extensions.Logging;
 
 using static TailwindVariants.NET.TvHelpers;
 
@@ -14,13 +15,16 @@ internal record struct CompiledVariant<TOwner, TSlots>(Expression<VariantAccesso
 	where TSlots : ISlots, new()
 	where TOwner : ISlotted<TSlots>
 {
-	public readonly void Apply(object obj, Action<string, string> aggregator)
+	public readonly void Apply(object obj, Action<string, string> aggregator, ILoggerFactory factory)
 	{
+		var logger = factory.CreateLogger<CompiledVariant<TOwner, TSlots>>();
+
 		try
 		{
 			// Should I throw error for mismatching component?
 			if (obj is not TOwner owner)
 			{
+				logger.LogWarning("");
 				return;
 			}
 
@@ -37,7 +41,7 @@ internal record struct CompiledVariant<TOwner, TSlots>(Expression<VariantAccesso
 		}
 		catch (Exception ex)
 		{
-			Debug.WriteLine($"Variant evaluation failed for '{Expr}': {ex.Message}");
+			logger.LogError(ex, "Variant evaluation failed for '{Expr}'", Expr);
 		}
 	}
 }

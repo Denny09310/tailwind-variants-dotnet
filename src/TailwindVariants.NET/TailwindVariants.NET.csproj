@@ -26,20 +26,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
 		<PackageReference Include="TailwindMerge.NET" Version="1.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\TailwindVariants.NET.SourceGenerators\bin\$(Configuration)\netstandard2.0\TailwindVariants.NET.SourceGenerators.dll"
-			  Pack="true"
-			  PackagePath="analyzers/dotnet/cs"
-			  Visible="false" />
+		<None Include="..\TailwindVariants.NET.SourceGenerators\bin\$(Configuration)\netstandard2.0\TailwindVariants.NET.SourceGenerators.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\TailwindVariants.NET.SourceGenerators\TailwindVariants.NET.SourceGenerators.csproj"
-						  OutputItemType="Analyzer"
-						  ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\TailwindVariants.NET.SourceGenerators\TailwindVariants.NET.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 

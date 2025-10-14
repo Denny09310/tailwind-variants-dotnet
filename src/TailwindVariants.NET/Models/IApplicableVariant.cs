@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace TailwindVariants.NET;
 
 /// <summary>
@@ -14,5 +16,6 @@ public interface IApplicableVariant
 	/// <param name="aggregator">
 	/// A callback that receives each slot name and its corresponding CSS class value.
 	/// </param>
-	void Apply(object obj, Action<string, string> aggregator);
+	/// <param name="factory">A factory to log out eventual warnings/errors.</param>
+	void Apply(object obj, Action<string, string> aggregator, ILoggerFactory factory);
 }

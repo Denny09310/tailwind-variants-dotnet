@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 using static TailwindVariants.NET.TvHelpers;
 
@@ -14,13 +14,16 @@ internal record struct CompiledCompoundVariant<TOwner, TSlots>(Predicate<TOwner>
 	where TSlots : ISlots, new()
 	where TOwner : ISlotted<TSlots>
 {
-	public readonly void Apply(object obj, Action<string, string> aggregator)
+	public readonly void Apply(object obj, Action<string, string> aggregator, ILoggerFactory factory)
 	{
+		var logger = factory.CreateLogger<CompiledVariant<TOwner, TSlots>>();
+
 		try
 		{
 			// Should I throw error for mismatching component?
 			if (obj is not TOwner owner)
 			{
+				logger.LogWarning("");
 				return;
 			}
 
@@ -41,8 +44,7 @@ internal record struct CompiledCompoundVariant<TOwner, TSlots>(Predicate<TOwner>
 		}
 		catch (Exception ex)
 		{
-			// keep robust but log for debugging
-			Debug.WriteLine($"Compound variant predicate or processing failed: {ex.Message}");
+			logger.LogError(ex, "Compound variant predicate or processing failed");
 		}
 	}
 }

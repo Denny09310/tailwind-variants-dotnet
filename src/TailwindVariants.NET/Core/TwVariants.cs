@@ -1,6 +1,8 @@
 using System.Linq.Expressions;
 using System.Text;
 
+using Microsoft.Extensions.Logging;
+
 using TailwindVariants.NET.Models;
 
 using static TailwindVariants.NET.TvHelpers;
@@ -12,7 +14,7 @@ namespace TailwindVariants.NET;
 /// <summary>
 /// Core function factory that builds a Tailwind-variants-like function.
 /// </summary>
-public class TwVariants(Tw merge)
+public class TwVariants(ILoggerFactory factory, Tw merge)
 {
 	/// <summary>
 	/// Creates a slot map containing the final computed CSS class strings for each slot, based on the provided owner and options.
@@ -56,18 +58,16 @@ public class TwVariants(Tw merge)
 	#region Helpers
 
 	private static void AddClass<TSlots>(
-		Dictionary<string, StringBuilder> builders,
-		Expression<SlotAccessor<TSlots>> accessor,
-		string classes) where TSlots : ISlots, new()
+		Dictionary<string, StringBuilder> builders, Expression<SlotAccessor<TSlots>> accessor, string classes)
+		where TSlots : ISlots, new()
 	{
 		var name = GetSlot(accessor);
 		AddClass<TSlots>(builders, name, classes);
 	}
 
 	private static void AddClass<TSlots>(
-		Dictionary<string, StringBuilder> builders,
-		string slot,
-		string classes) where TSlots : ISlots, new()
+		Dictionary<string, StringBuilder> builders, string slot, string classes)
+		where TSlots : ISlots, new()
 	{
 		if (!builders.TryGetValue(slot, out var builder))
 		{
@@ -78,25 +78,8 @@ public class TwVariants(Tw merge)
 		builder.Append(classes);
 	}
 
-	private static void ApplyCompoundVariants<TOwner, TSlots>(
-		TOwner owner,
-		Dictionary<string, StringBuilder> builders,
-		IReadOnlyCollection<ICompiledCompoundVariant>? compounds)
-		where TSlots : ISlots, new()
-		where TOwner : ISlotted<TSlots>
-	{
-		if (compounds is null)
-		{
-			return;
-		}
-
-		foreach (var cv in compounds)
-		{
-			cv.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value));
-		}
-	}
-
-	private static void ApplySlotsOverrides<TOwner, TSlots>(TOwner owner, Dictionary<string, StringBuilder> builders)
+	private static void ApplySlotsOverrides<TOwner, TSlots>(
+		TOwner owner, Dictionary<string, StringBuilder> builders)
 		where TOwner : ISlotted<TSlots>
 		where TSlots : ISlots, new()
 	{
@@ -117,10 +100,24 @@ public class TwVariants(Tw merge)
 		}
 	}
 
-	private static void ApplyVariants<TOwner, TSlots>(
-		TOwner owner,
-		Dictionary<string, StringBuilder> builders,
-		IReadOnlyCollection<ICompiledVariant>? variants)
+	private void ApplyCompoundVariants<TOwner, TSlots>(
+		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledCompoundVariant>? compounds)
+		where TSlots : ISlots, new()
+		where TOwner : ISlotted<TSlots>
+	{
+		if (compounds is null)
+		{
+			return;
+		}
+
+		foreach (var cv in compounds)
+		{
+			cv.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value), factory);
+		}
+	}
+
+	private void ApplyVariants<TOwner, TSlots>(
+		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledVariant>? variants)
 		where TSlots : ISlots, new()
 		where TOwner : ISlotted<TSlots>
 	{
@@ -128,7 +125,7 @@ public class TwVariants(Tw merge)
 		{
 			foreach (var variant in variants)
 			{
-				variant.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value));
+				variant.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value), factory);
 			}
 		}
 
