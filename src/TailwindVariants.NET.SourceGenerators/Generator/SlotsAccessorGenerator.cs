@@ -349,20 +349,23 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 		sb.AppendLine("}");
 	}
 
-
 	private static void WriteISlotsClass(Indenter sb, SlotsAccessorToGenerate accessor)
 	{
 		sb.AppendLine($"{accessor.Modifiers} {accessor.Name}");
 		sb.AppendLine("{");
 		sb.Indent();
 
+		string methodModifier;
+
 		if (!accessor.IsGetNameImplemented)
 		{
+			methodModifier = $"public static{(accessor.IsDirectImplementation ? "" : " new")}";
+
 			// generate the required static mapping method that implements ISlots.GetName
 			sb.AppendLine("/// <summary>");
 			sb.AppendLine("/// Returns the slot name associated with a property (generated mapping).");
 			sb.AppendLine("/// </summary>");
-			sb.AppendLine("public static string GetName(string slot)");
+			sb.AppendLine($"{methodModifier} string GetName(string slot)");
 			sb.AppendLine("{");
 			sb.Indent();
 			sb.AppendLine("return slot switch");
@@ -385,7 +388,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 		}
 
 		// Determine if methods should be virtual or override
-		string methodModifier = accessor.IsDirectImplementation
+		methodModifier = accessor.IsDirectImplementation
 			? (accessor.IsSealed ? "public" : "public virtual")
 			: "public override";
 
