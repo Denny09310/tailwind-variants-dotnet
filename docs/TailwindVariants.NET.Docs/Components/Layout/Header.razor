@@ -1,0 +1,18 @@
+@attribute [DiscoverCollocatedJS]
+@inject JSElementReferenceScope Refs
+
+<header class="fixed top-0 right-0 left-0 z-50 transition-colors duration-300 ease-out" data-ref="@Refs["header"]">
+	<div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+		<Anchor Href="" Class="gap-2">
+			<Logo />
+			<span class="hidden text-lg font-semibold md:block">TailwindVariants.NET</span>
+		</Anchor>
+		<nav class="space-x-4">
+			<Anchor Href="https://github.com/Denny09310/tailwind-variants-dotnet" Class="text-sm">
+				<IconGitHub Class="size-6 shrink-0 dark:invert" />
+			</Anchor>
+		</nav>
+	</div>
+</header>
+
+<JS For="this" Args="[Refs]" />

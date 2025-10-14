@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace TailwindVariants.NET.Docs.Components.Shared;
+namespace TailwindVariants.NET;
 
 /// <summary>
 /// Base component that integrates TailwindMerge and allows passing through additional HTML attributes.

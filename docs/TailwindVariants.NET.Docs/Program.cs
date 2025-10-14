@@ -7,6 +7,7 @@ builder.Services.AddRazorComponents()
 	.AddInteractiveServerComponents();
 
 builder.Services.AddTailwindVariants();
+builder.Services.AddJSComponents();
 
 var app = builder.Build();
 
