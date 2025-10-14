@@ -1,25 +1,25 @@
 @inherits TwComponentBase<Card, Card.Slots>
 
 <div class="@_slots.GetBase()"
-	 data-slot="@SlotsNames.NameOf(SlotsTypes.Base)"
+	 data-slot="@SlotNames.NameOf(SlotTypes.Base)"
 	 @attributes="AdditionalAttributes">
 	@if (HeaderContent is not null)
 	{
 		<div class="@_slots.GetHeader()"
-			 data-slot="@SlotsNames.NameOf(SlotsTypes.Header)">
+			 data-slot="@SlotNames.NameOf(SlotTypes.Header)">
 			@HeaderContent
 		</div>
 	}
 
 	<div class="@_slots.GetBody()"
-		 data-slot="@SlotsNames.NameOf(SlotsTypes.Body)">
+		 data-slot="@SlotNames.NameOf(SlotTypes.Body)">
 		@(BodyContent ?? ChildContent)
 	</div>
 
 	@if (FooterContent is not null)
 	{
 		<div class="@_slots.GetFooter()"
-			 data-slot="@SlotsNames.NameOf(SlotsTypes.Footer)">
+			 data-slot="@SlotNames.NameOf(SlotTypes.Footer)">
 			@FooterContent
 		</div>
 	}

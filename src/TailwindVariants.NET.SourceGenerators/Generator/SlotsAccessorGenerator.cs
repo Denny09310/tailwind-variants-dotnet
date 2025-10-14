@@ -59,12 +59,12 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 		// - if nested => short names that become nested (SlotTypes, SlotNames)
 		// - if not nested => keep previous top-level naming (e.g. ItemTitleSlotTypes)
 		var enumName = isNested
-			? SymbolHelper.MakeSafeIdentifier($"SlotsTypes")
-			: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotsTypes");
+			? SymbolHelper.MakeSafeIdentifier($"SlotTypes")
+			: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotTypes");
 
 		var namesClass = isNested
-			? SymbolHelper.MakeSafeIdentifier($"SlotsNames")
-			: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotsNames");
+			? SymbolHelper.MakeSafeIdentifier($"SlotNames")
+			: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotNames");
 
 		return new SlotsAccessorToGenerate(
 			Name: symbol.Name,
