@@ -59,12 +59,12 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 		// - if nested => short names that become nested (SlotTypes, SlotNames)
 		// - if not nested => keep previous top-level naming (e.g. ItemTitleSlotTypes)
 		var enumName = isNested
-			? SymbolHelper.MakeSafeIdentifier($"SlotsTypes")
-			: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotsTypes");
+			? SymbolHelper.MakeSafeIdentifier($"SlotTypes")
+			: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotTypes");
 
 		var namesClass = isNested
-			? SymbolHelper.MakeSafeIdentifier($"SlotsNames")
-			: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotsNames");
+			? SymbolHelper.MakeSafeIdentifier($"SlotNames")
+			: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotNames");
 
 		return new SlotsAccessorToGenerate(
 			Name: symbol.Name,
@@ -75,6 +75,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 			Modifiers: BuildModifiersString(symbol),
 			BaseClassName: inheritanceInfo.BaseClassName,
 			IsDirectImplementation: inheritanceInfo.IsDirectImplementation,
+			IsGetNameImplemented: HasStaticGetNameMethod(symbol),
 			Hierarchy: BuildTypeHierarchy(symbol),
 			Properties: ownProperties,
 			AllProperties: allProperties,
@@ -127,7 +128,6 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 		tds.Members.OfType<PropertyDeclarationSyntax>().Any();
 
 	#region Helpers
-
 	private static InheritanceInfo AnalyzeInheritance(INamedTypeSymbol symbol)
 	{
 		if (symbol.Interfaces.Any(IsISlotsInterface))
@@ -229,6 +229,23 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 		return null;
 	}
 
+	private static bool HasStaticGetNameMethod(INamedTypeSymbol type)
+	{
+		foreach (var m in type.GetMembers("GetName").OfType<IMethodSymbol>())
+		{
+			// public static string GetName(string)
+			if (m.IsStatic &&
+				m.DeclaredAccessibility == Accessibility.Public &&
+				m.Parameters.Length == 1 &&
+				m.Parameters[0].Type.SpecialType == SpecialType.System_String &&
+				m.ReturnType.SpecialType == SpecialType.System_String)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 	private static bool ImplementsISlots(INamedTypeSymbol type) => type.AllInterfaces.Any(IsISlotsInterface);
 
 	private static bool IsISlotsInterface(INamedTypeSymbol interfaceSymbol)
@@ -332,40 +349,46 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 		sb.AppendLine("}");
 	}
 
-
 	private static void WriteISlotsClass(Indenter sb, SlotsAccessorToGenerate accessor)
 	{
 		sb.AppendLine($"{accessor.Modifiers} {accessor.Name}");
 		sb.AppendLine("{");
 		sb.Indent();
 
-		// generate the required static mapping method that implements ISlots.GetName
-		sb.AppendLine("/// <summary>");
-		sb.AppendLine("/// Returns the slot name associated with a property (generated mapping).");
-		sb.AppendLine("/// </summary>");
-		sb.AppendLine("public static string GetName(string slot)");
-		sb.AppendLine("{");
-		sb.Indent();
-		sb.AppendLine("return slot switch");
-		sb.AppendLine("{");
-		sb.Indent();
+		string methodModifier;
 
-		// accessor.Properties is now tuples (PropertyName, SlotName)
-		foreach (var (propName, slotName) in accessor.Properties)
+		if (!accessor.IsGetNameImplemented)
 		{
-			// map nameof(Property) => "slot-name" (literal)
-			sb.AppendLine($"nameof({propName}) => {SymbolHelper.QuoteLiteral(slotName)},");
+			methodModifier = $"public static{(accessor.IsDirectImplementation ? "" : " new")}";
+
+			// generate the required static mapping method that implements ISlots.GetName
+			sb.AppendLine("/// <summary>");
+			sb.AppendLine("/// Returns the slot name associated with a property (generated mapping).");
+			sb.AppendLine("/// </summary>");
+			sb.AppendLine($"{methodModifier} string GetName(string slot)");
+			sb.AppendLine("{");
+			sb.Indent();
+			sb.AppendLine("return slot switch");
+			sb.AppendLine("{");
+			sb.Indent();
+
+			// accessor.Properties is now tuples (PropertyName, SlotName)
+			foreach (var (propName, slotName) in accessor.Properties)
+			{
+				// map nameof(Property) => "slot-name" (literal)
+				sb.AppendLine($"nameof({propName}) => {SymbolHelper.QuoteLiteral(slotName)},");
+			}
+
+			sb.AppendLine("_ => slot,"); // fallback to the provided value
+			sb.Dedent();
+			sb.AppendLine("};");
+			sb.Dedent();
+			sb.AppendLine("}");
+			sb.AppendLine();
 		}
 
-		sb.AppendLine("_ => slot,"); // fallback to the provided value
-		sb.Dedent();
-		sb.AppendLine("};");
-		sb.Dedent();
-		sb.AppendLine("}");
-		sb.AppendLine();
-
 		// Determine if methods should be virtual or override
-		string methodModifier = accessor.IsDirectImplementation
+		methodModifier = accessor.IsDirectImplementation
 			? (accessor.IsSealed ? "public" : "public virtual")
 			: "public override";
 
@@ -496,6 +519,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 		bool IsDirectImplementation,
 		bool IsSealed,
 		bool IsNested,
+		bool IsGetNameImplemented,
 		EquatableArray<string> Hierarchy,
 		EquatableArray<(string Name, string Slot)> Properties,
 		EquatableArray<string> AllProperties)
