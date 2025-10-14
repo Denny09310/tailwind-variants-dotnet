@@ -17,16 +17,16 @@ public partial class Card : ISlotted<Card.Slots>
 
 	public sealed partial class Slots : ISlots
 	{
-		[Slot("base")]
+		[Slot("card-base")]
 		public string? Base { get; set; }
 
-		[Slot("body")]
+		[Slot("card-body")]
 		public string? Body { get; set; }
 
-		[Slot("footer")]
+		[Slot("card-footer")]
 		public string? Footer { get; set; }
 
-		[Slot("header")]
+		[Slot("card-header")]
 		public string? Header { get; set; }
 	}
 }
