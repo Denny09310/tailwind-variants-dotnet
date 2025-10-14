@@ -7,8 +7,12 @@ namespace TailwindVariants.NET;
 /// <summary>
 /// Base component that integrates TailwindMerge and allows passing through additional HTML attributes.
 /// </summary>
-public partial class TwComponentBase : ComponentBase
+public abstract class TwComponentBase<TOwner, TSlots> : ComponentBase
+	where TSlots : ISlots, new()
+	where TOwner : ISlotted<TSlots>
 {
+	protected SlotsMap<TSlots> _slots = new();
+
 	/// <summary>
 	/// Additional HTML attributes that will be splatted onto the root element.
 	/// </summary>
@@ -26,4 +30,16 @@ public partial class TwComponentBase : ComponentBase
 	/// </summary>
 	[Inject]
 	protected TwVariants Tv { get; set; } = default!;
+
+	protected abstract TvDescriptor<TOwner, TSlots> GetDescriptor();
+
+	protected override void OnParametersSet()
+	{
+		if (this is TOwner owner)
+		{
+			_slots = Tv.Invoke(owner, GetDescriptor());
+		}
+
+		base.OnParametersSet();
+	}
 }
