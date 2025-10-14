@@ -127,7 +127,7 @@ public class SlotsAccessorGeneratorTests
 
 		var (generated, _) = RunGenerator(input);
 
-		Assert.Empty(generated);
+		Assert.Single(generated);
 	}
 
 	[Fact]
@@ -148,7 +148,7 @@ public class SlotsAccessorGeneratorTests
 
 		var (generated, _) = RunGenerator(input);
 
-		Assert.Empty(generated);
+		Assert.Single(generated);
 	}
 
 	private static (ImmutableArray<GeneratedSourceResult> Generated, ImmutableArray<Diagnostic> Diagnostics) RunGenerator(params string[] sources)

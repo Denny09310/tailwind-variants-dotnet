@@ -51,13 +51,13 @@ public partial class Button : ISlotted<Button.Slots>
 		]
 	);
 
-	private SlotsMap<Slots> _slots = new();
-
 	public enum Sizes
 	{ Small, Medium, Large, }
 
 	public enum Variants
 	{ Solid, Outline, Ghost, Link, }
+
+	protected override TvDescriptor<Button, Slots> GetDescriptor() => _button;
 
 	protected override void OnParametersSet()
 	{

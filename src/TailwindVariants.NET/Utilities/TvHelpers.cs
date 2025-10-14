@@ -23,7 +23,7 @@ internal static class TvHelpers
 	/// </code>
 	/// </example>
 	public static string GetSlot<TSlots>(Expression<SlotAccessor<TSlots>> accessor)
-		where TSlots : ISlots, new() => ExtractMemberName(accessor, nameof(accessor), "slot");
+		where TSlots : ISlots, new() => TSlots.GetName(ExtractMemberName(accessor, nameof(accessor), "slot"));
 
 	/// <summary>
 	/// Extracts the member name from a lambda expression that accesses a property or field.

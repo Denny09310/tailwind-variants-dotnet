@@ -1,9 +1,10 @@
+using System.Collections.Immutable;
+using System.Text;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using System.Collections.Immutable;
-using System.Text;
 
 namespace TailwindVariants.NET.SourceGenerators;
 
@@ -12,7 +13,11 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var candidateTypes = context.SyntaxProvider.CreateSyntaxProvider(
+		context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
+			"SlotAttribute.g.cs",
+			SourceText.From(SourceGenerationHelper.Attribute, Encoding.UTF8)));
+
+		var candidateTypes = context.SyntaxProvider.CreateSyntaxProvider(
             predicate: static (node, _) => IsMaybeCandidateForGeneration(node),
             transform: static (ctx, _) => GetTypeSymbol(ctx))
             .Where(static symbol => symbol is not null);
@@ -121,109 +126,132 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
         tds.BaseList is { Types.Count: > 0 } &&
         tds.Members.OfType<PropertyDeclarationSyntax>().Any();
 
-    #region Helpers
+	#region Helpers
 
-    private static InheritanceInfo AnalyzeInheritance(INamedTypeSymbol symbol)
-    {
-        if (symbol.Interfaces.Any(IsISlotsInterface))
-            return new(true, null);
+	private static InheritanceInfo AnalyzeInheritance(INamedTypeSymbol symbol)
+	{
+		if (symbol.Interfaces.Any(IsISlotsInterface))
+			return new(true, null);
 
-        var baseType = symbol.BaseType;
-        if (baseType is { SpecialType: not SpecialType.System_Object } &&
-            ImplementsISlots(baseType))
-        {
-            var baseClass = baseType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-                                    .Replace("global::", string.Empty);
-            return new(false, baseClass);
-        }
+		var baseType = symbol.BaseType;
+		if (baseType is { SpecialType: not SpecialType.System_Object } &&
+			ImplementsISlots(baseType))
+		{
+			var baseClass = baseType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+									.Replace("global::", string.Empty);
+			return new(false, baseClass);
+		}
 
-        return new(true, null);
-    }
+		return new(true, null);
+	}
 
-    private static string BuildModifiersString(INamedTypeSymbol type)
-    {
-        var acc = type.DeclaredAccessibility switch
-        {
-            Accessibility.Public => "public ",
-            Accessibility.Internal => "internal ",
-            _ => string.Empty
-        };
+	private static string BuildModifiersString(INamedTypeSymbol type)
+	{
+		var acc = type.DeclaredAccessibility switch
+		{
+			Accessibility.Public => "public ",
+			Accessibility.Internal => "internal ",
+			_ => string.Empty
+		};
 
-        var modifier = type.IsSealed ? "sealed " :
-                       type.IsAbstract ? "abstract " : string.Empty;
+		var modifier = type.IsSealed ? "sealed " :
+					   type.IsAbstract ? "abstract " : string.Empty;
 
-        return $"{acc}{modifier}partial class";
-    }
+		return $"{acc}{modifier}partial class";
+	}
 
+	private static ImmutableArray<string> BuildTypeHierarchy(INamedTypeSymbol type)
+	{
+		var hierarchy = new Stack<string>();
+		var current = type;
 
-    private static ImmutableArray<string> BuildTypeHierarchy(INamedTypeSymbol type)
-    {
-        var hierarchy = new Stack<string>();
-        var current = type;
+		while (current != null)
+		{
+			hierarchy.Push(current.Name);
+			current = current.ContainingType;
+		}
 
-        while (current != null)
-        {
-            hierarchy.Push(current.Name);
-            current = current.ContainingType;
-        }
+		return [.. hierarchy];
+	}
 
-        return [.. hierarchy];
-    }
+	private static ImmutableArray<string> CollectAllPropertiesInHierarchy(INamedTypeSymbol type)
+	{
+		var properties = new List<string>(8);
+		var stack = new Stack<INamedTypeSymbol>();
 
-    private static ImmutableArray<string> CollectAllPropertiesInHierarchy(INamedTypeSymbol type)
-    {
-        var properties = new List<string>(8);
-        var stack = new Stack<INamedTypeSymbol>();
+		for (var current = type;
+			 current is { SpecialType: not SpecialType.System_Object };
+			 current = current.BaseType)
+		{
+			if (ImplementsISlots(current))
+				stack.Push(current);
+		}
 
-        for (var current = type;
-             current is { SpecialType: not SpecialType.System_Object };
-             current = current.BaseType)
-        {
-            if (ImplementsISlots(current))
-                stack.Push(current);
-        }
-
-        while (stack.Count > 0)
-        {
-            var currentType = stack.Pop();
-            foreach (var prop in currentType.GetMembers().OfType<IPropertySymbol>())
-            {
-                if (IsPublicStringProperty(prop) &&
-                    SymbolEqualityComparer.Default.Equals(prop.ContainingType, currentType))
-                {
+		while (stack.Count > 0)
+		{
+			var currentType = stack.Pop();
+			foreach (var prop in currentType.GetMembers().OfType<IPropertySymbol>())
+			{
+				if (IsPublicStringProperty(prop) &&
+					SymbolEqualityComparer.Default.Equals(prop.ContainingType, currentType))
+				{
                     properties.Add(prop.Name);
-                }
-            }
-        }
+				}
+			}
+		}
 
-        return [.. properties.OrderBy(name => name, StringComparer.Ordinal)];
-    }
+		return [.. properties.OrderBy(name => name, StringComparer.Ordinal)];
+	}
 
-    private static ImmutableArray<string> CollectPropertiesFromType(INamedTypeSymbol type)
-    {
-        return [.. type.GetMembers()
-            .OfType<IPropertySymbol>()
-            .Where(IsPublicStringProperty)
-            .OrderBy(p => (p.Locations.FirstOrDefault()?.SourceSpan.Start ?? int.MaxValue, p.Name))
-            .Select(p => p.Name)];
-    }
+	private static ImmutableArray<(string Name, string Slot)> CollectPropertiesFromType(INamedTypeSymbol type)
+	{
+		return [.. type.GetMembers()
+		.OfType<IPropertySymbol>()
+		.Where(IsPublicStringProperty)
+		.OrderBy(p => (p.Locations.FirstOrDefault()?.SourceSpan.Start ?? int.MaxValue, p.Name))
+		.Select(p => (p.Name, GetSlotAttributeName(p) ?? p.Name))];
+	}
+
+	private static string? GetSlotAttributeName(IPropertySymbol prop)
+	{
+		var attr = prop.GetAttributes().FirstOrDefault(IsSlotAttribute);
+		if (attr is null) return null;
+
+		foreach (var kv in attr.NamedArguments)
+		{
+			if (kv.Key == "Name" && kv.Value.Value is string s)
+				return s;
+		}
+
+		if (attr.ConstructorArguments.Length > 0 && attr.ConstructorArguments[0].Value is string ctor)
+			return ctor;
+
+		return null;
+	}
 
 	private static bool ImplementsISlots(INamedTypeSymbol type) => type.AllInterfaces.Any(IsISlotsInterface);
 
 	private static bool IsISlotsInterface(INamedTypeSymbol interfaceSymbol)
-    {
-        return interfaceSymbol.ContainingNamespace?.ToDisplayString() == "TailwindVariants.NET" &&
-               interfaceSymbol.Name == "ISlots";
-    }
+	{
+		return interfaceSymbol.ContainingNamespace?.ToDisplayString() == "TailwindVariants.NET" &&
+			   interfaceSymbol.Name == "ISlots";
+	}
 
+	private static bool IsPublicStringProperty(IPropertySymbol property) => property switch
+	{
+		{ IsStatic: true } => false,
+		{ DeclaredAccessibility: not Accessibility.Public } => false,
+		{ Type.SpecialType: not SpecialType.System_String } => false,
+		_ => true
+	};
 
-    private static bool IsPublicStringProperty(IPropertySymbol property) => property switch
-    {
-        { IsStatic: true } => false,
-        { DeclaredAccessibility: not Accessibility.Public } => false,
-        { Type.SpecialType: not SpecialType.System_String } => false,
-        _ => true
-    };
+	private static bool IsSlotAttribute(AttributeData ad)
+	{
+		var cls = ad.AttributeClass;
+		if (cls == null) return false;
+		return cls.Name is "SlotAttribute" or "Slot"
+			|| cls.ToDisplayString() == "TailwindVariants.NET.SlotAttribute";
+	}
 
     #endregion Helpers
 
@@ -306,48 +334,72 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
 
 	private static void WriteISlotsClass(Indenter sb, SlotsAccessorToGenerate accessor)
-    {
-        sb.AppendLine($"{accessor.Modifiers} {accessor.Name}");
-        sb.AppendLine("{");
-        sb.Indent();
+	{
+		sb.AppendLine($"{accessor.Modifiers} {accessor.Name}");
+		sb.AppendLine("{");
+		sb.Indent();
 
-        // Determine if methods should be virtual or override
-        // Sealed classes cannot have virtual methods
-        string methodModifier = accessor.IsDirectImplementation
-            ? (accessor.IsSealed ? "public" : "public virtual")
-            : "public override";
+		// generate the required static mapping method that implements ISlots.GetName
+		sb.AppendLine("/// <summary>");
+		sb.AppendLine("/// Returns the slot name associated with a property (generated mapping).");
+		sb.AppendLine("/// </summary>");
+		sb.AppendLine("public static string GetName(string slot)");
+		sb.AppendLine("{");
+		sb.Indent();
+		sb.AppendLine("return slot switch");
+		sb.AppendLine("{");
+		sb.Indent();
 
-        sb.AppendLine($"{methodModifier} IEnumerable<(string Slot, string Value)> EnumerateOverrides()");
-        sb.AppendLine("{");
-        sb.Indent();
+		// accessor.Properties is now tuples (PropertyName, SlotName)
+		foreach (var (propName, slotName) in accessor.Properties)
+		{
+			// map nameof(Property) => "slot-name" (literal)
+			sb.AppendLine($"nameof({propName}) => {SymbolHelper.QuoteLiteral(slotName)},");
+		}
 
-        // If overriding, call base implementation first
-        if (!accessor.IsDirectImplementation)
-        {
-            sb.AppendLine("foreach (var item in base.EnumerateOverrides())");
-            sb.Indent();
-            sb.AppendLine("yield return item;");
-            sb.Dedent();
-            sb.AppendLine();
-        }
+		sb.AppendLine("_ => slot,"); // fallback to the provided value
+		sb.Dedent();
+		sb.AppendLine("};");
+		sb.Dedent();
+		sb.AppendLine("}");
+		sb.AppendLine();
 
-        // Use Properties (own properties only) for EnumerateOverrides
-        foreach (var property in accessor.Properties)
-        {
-            sb.AppendLine($"if (!string.IsNullOrWhiteSpace({property}))");
-            sb.Indent();
-            sb.AppendLine($"yield return (nameof({property}), {property}!);");
-            sb.Dedent();
-        }
+		// Determine if methods should be virtual or override
+		string methodModifier = accessor.IsDirectImplementation
+			? (accessor.IsSealed ? "public" : "public virtual")
+			: "public override";
 
-        sb.Dedent();
-        sb.AppendLine("}");
+		sb.AppendLine($"{methodModifier} IEnumerable<(string Slot, string Value)> EnumerateOverrides()");
+		sb.AppendLine("{");
+		sb.Indent();
 
-        sb.Dedent();
-        sb.AppendLine("}");
-    }
+		// If overriding, call base implementation first
+		if (!accessor.IsDirectImplementation)
+		{
+			sb.AppendLine("foreach (var item in base.EnumerateOverrides())");
+			sb.Indent();
+			sb.AppendLine("yield return item;");
+			sb.Dedent();
+			sb.AppendLine();
+		}
 
-    private static void WriteNamesHelper(Indenter sb, SlotsAccessorToGenerate accessor)
+		// Use Properties (own properties only) for EnumerateOverrides
+		foreach (var (propName, _) in accessor.Properties)
+		{
+			sb.AppendLine($"if (!string.IsNullOrWhiteSpace({propName}))");
+			sb.Indent();
+			sb.AppendLine($"yield return (GetName(nameof({propName})), {propName}!);");
+			sb.Dedent();
+		}
+
+		sb.Dedent();
+		sb.AppendLine("}");
+
+		sb.Dedent();
+		sb.AppendLine("}");
+	}
+
+	private static void WriteNamesHelper(Indenter sb, SlotsAccessorToGenerate accessor)
     {
         sb.AppendLine($"public static class {accessor.NamesClass}");
         sb.AppendLine("{");
@@ -457,7 +509,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 		bool IsSealed,
 		bool IsNested,              
 		EquatableArray<string> Hierarchy,
-		EquatableArray<string> Properties,
+		EquatableArray<(string Name, string Slot)> Properties,
 		EquatableArray<string> AllProperties)
 	{
 		public Location? Location { get; init; }
