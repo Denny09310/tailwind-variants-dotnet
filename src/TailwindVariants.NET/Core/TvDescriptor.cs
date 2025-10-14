@@ -221,7 +221,7 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 			}
 		}
 
-		// append inherited compiled compound variants in the same order as original
+		// Append inherited compiled compound variants in the same order as original
 		var inherited = InheritFromAncestors(Extends, d => d.CompoundVariants);
 		if (inherited != null)
 		{
@@ -246,7 +246,7 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 			}
 		}
 
-		// append inherited compiled variants in the same order as original
+		// Append inherited compiled variants in the same order as original
 		var inherited = InheritFromAncestors(Extends, d => d.Variants);
 		if (inherited != null)
 		{

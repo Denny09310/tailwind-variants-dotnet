@@ -41,10 +41,10 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 			kv => new StringBuilder(kv.Value));
 
 		// 3. Apply variants
-		ApplyVariants<TOwner, TSlots>(owner, builders, generic.Variants);
+		ApplyVariants<TOwner, TSlots>(owner, builders, generic.Variants, factory);
 
 		// 4. Apply compound variants
-		ApplyCompoundVariants<TOwner, TSlots>(owner, builders, generic.CompoundVariants);
+		ApplyCompoundVariants<TOwner, TSlots>(owner, builders, generic.CompoundVariants, factory);
 
 		// 5. Apply per-instance slot overrides (Classes property)
 		ApplySlotsOverrides<TOwner, TSlots>(owner, builders);
@@ -78,8 +78,24 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		builder.Append(classes);
 	}
 
+	private static void ApplyCompoundVariants<TOwner, TSlots>(
+		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledCompoundVariant>? compounds, ILoggerFactory factory)
+		where TSlots : ISlots, new()
+		where TOwner : ISlotted<TSlots>
+	{
+		if (compounds is null)
+		{
+			return;
+		}
+
+		foreach (var cv in compounds)
+		{
+			cv.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value), factory);
+		}
+	}
+
 	private static void ApplySlotsOverrides<TOwner, TSlots>(
-		TOwner owner, Dictionary<string, StringBuilder> builders)
+			TOwner owner, Dictionary<string, StringBuilder> builders)
 		where TOwner : ISlotted<TSlots>
 		where TSlots : ISlots, new()
 	{
@@ -100,24 +116,8 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		}
 	}
 
-	private void ApplyCompoundVariants<TOwner, TSlots>(
-		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledCompoundVariant>? compounds)
-		where TSlots : ISlots, new()
-		where TOwner : ISlotted<TSlots>
-	{
-		if (compounds is null)
-		{
-			return;
-		}
-
-		foreach (var cv in compounds)
-		{
-			cv.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value), factory);
-		}
-	}
-
-	private void ApplyVariants<TOwner, TSlots>(
-		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledVariant>? variants)
+	private static void ApplyVariants<TOwner, TSlots>(
+		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledVariant>? variants, ILoggerFactory factory)
 		where TSlots : ISlots, new()
 		where TOwner : ISlotted<TSlots>
 	{
