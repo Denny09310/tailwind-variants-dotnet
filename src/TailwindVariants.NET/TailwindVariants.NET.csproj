@@ -38,5 +38,4 @@
 		<ProjectReference Include="..\TailwindVariants.NET.SourceGenerators\TailwindVariants.NET.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
-
 </Project>

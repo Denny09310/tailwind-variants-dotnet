@@ -1,122 +1,68 @@
-using Tw = TailwindMerge.TwMerge;
-
 namespace TailwindVariants.NET.Tests;
 
 public class TwVariantsNullHandlingTests : TestContext
 {
 	public TwVariantsNullHandlingTests() => Services.AddTailwindVariants();
 
-	[Fact]
-	public void Invoke_WithNullBaseValue_ReturnsEmptyBaseSlot()
+	public static TheoryData<string?> NullOrEmptyBaseData { get; } = new()
 	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: null
-		);
+		{ null },
+		{ "" }
+	};
+
+	private TwVariants Tv => Services.GetRequiredService<TwVariants>();
+
+	[Theory]
+	[MemberData(nameof(NullOrEmptyBaseData))]
+	public void Base_NullOrEmpty_ReturnsNull(string? baseValue)
+	{
+		var descriptor = new TvDescriptor<TestComponent, TestSlots>(@base: baseValue);
 		var component = new TestComponent();
 
-		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
-		// Assert
 		Assert.Null(result[s => s.Base]);
 	}
 
-	[Fact]
-	public void Invoke_WithEmptyStringBase_ReturnsEmptyBaseSlot()
-	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: ""
-		);
-		var component = new TestComponent();
-
-		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
-
-		// Assert
-		Assert.Null(result[s => s.Base]);
-	}
-
-	[Fact]
-	public void Invoke_WithNullClassOverride_IgnoresOverride()
-	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "btn bg-blue-500"
-		);
-		var component = new TestComponent { Class = null };
-
-		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
-
-		// Assert
-		Assert.Equal("btn bg-blue-500", result[s => s.Base]);
-	}
-
-	[Fact]
-	public void Invoke_WithEmptyStringClassOverride_AppendsEmpty()
-	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "btn"
-		);
-		var component = new TestComponent { Class = "" };
-
-		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
-
-		// Assert
-		Assert.Equal("btn", result[s => s.Base]);
-	}
-
-	[Fact]
-	public void Invoke_WithNullClassesObject_HandlesGracefully()
+	[Theory]
+	[MemberData(nameof(NullOrEmptyBaseData))]
+	public void Invoke_WithNullOrEmptyClassesObject_HandlesGracefully(string? slotValue)
 	{
 		// Arrange
 		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
 			@base: "component",
 			slots: new()
 			{
-				[s => s.Title] = "text-lg"
+				[s => s.Title] = slotValue,
+				[s => s.Description] = "text-lg"
 			}
 		);
 		var component = new TestComponent { Classes = null };
 
 		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Equal("component", result[s => s.Base]);
-		Assert.Equal("text-lg", result[s => s.Title]);
+		result.ShouldEqual(s => s.Base, "component");
+		Assert.Null(result[s => s.Title]);
+		result.ShouldEqual(s => s.Description, "text-lg");
 	}
 
-	[Fact]
-	public void Invoke_WithNullSlotValue_ReturnsEmptySlot()
+	[Theory]
+	[MemberData(nameof(NullOrEmptyBaseData))]
+	public void Invoke_WithNullOrEmptyStringClassOverride_AppendsEmpty(string? classValue)
 	{
 		// Arrange
 		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "container",
-			slots: new()
-			{
-				[s => s.Title] = null,
-				[s => s.Description] = "text-sm"
-			}
+			@base: "btn"
 		);
-		var component = new TestComponent();
+		var component = new TestComponent { Class = classValue };
 
 		// Act
 		var tv = Services.GetRequiredService<TwVariants>();
 		var result = tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Equal("container", result[s => s.Base]);
-		Assert.Null(result[s => s.Title]);
-		Assert.Equal("text-sm", result[s => s.Description]);
+		result.ShouldEqual(s => s.Base, "btn");
 	}
 }

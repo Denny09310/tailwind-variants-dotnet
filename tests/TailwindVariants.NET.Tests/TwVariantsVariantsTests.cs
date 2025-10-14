@@ -5,6 +5,7 @@ namespace TailwindVariants.NET.Tests;
 public class TwVariantsVariantsTests : TestContext
 {
 	public TwVariantsVariantsTests() => Services.AddTailwindVariants();
+	private TwVariants Tv => Services.GetRequiredService<TwVariants>();
 
 	[Fact]
 	public void Invoke_WithMultipleVariants_CombinesClasses()
@@ -35,16 +36,15 @@ public class TwVariantsVariantsTests : TestContext
 		var component = new TestComponent { Size = "lg", Color = "primary" };
 
 		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		var baseClasses = result[s => s.Base];
-		Assert.Contains("btn", baseClasses);
-		Assert.Contains("text-lg", baseClasses);
-		Assert.Contains("py-3", baseClasses);
-		Assert.Contains("bg-blue-500", baseClasses);
-		Assert.Contains("text-white", baseClasses);
+		result.ContainsAll(b => b.Base,
+			"btn",
+			"text-lg",
+			"py-3",
+			"bg-blue-500",
+			"text-white");
 	}
 
 	[Fact]
@@ -68,13 +68,14 @@ public class TwVariantsVariantsTests : TestContext
 		var component = new TestComponent { Size = null };
 
 		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Equal("btn", result[s => s.Base]);
-		Assert.DoesNotContain("text-sm", result[s => s.Base]);
-		Assert.DoesNotContain("text-lg", result[s => s.Base]);
+		result.ShouldEqual(s => s.Base, "btn");
+
+		result.DoesNotContainAny(b => b.Base,
+			"text-sm",
+			"text-lg");
 	}
 
 	[Fact]
@@ -98,11 +99,10 @@ public class TwVariantsVariantsTests : TestContext
 		var component = new TestComponent { Size = "sm" };
 
 		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Equal("btn", result[s => s.Base]);
+		result.ShouldEqual(s => s.Base, "btn");
 	}
 
 	[Fact]
@@ -127,13 +127,12 @@ public class TwVariantsVariantsTests : TestContext
 		var component = new TestComponent { Size = "lg" };
 
 		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		var baseClasses = result[s => s.Base];
-		Assert.Contains("text-lg", baseClasses);
-		Assert.Contains("py-3", baseClasses);
-		Assert.Contains("px-6", baseClasses);
+		result.ContainsAll(b => b.Base,
+			"text-lg",
+			"py-3",
+			"px-6");
 	}
 }

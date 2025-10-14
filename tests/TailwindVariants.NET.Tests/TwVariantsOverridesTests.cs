@@ -6,6 +6,8 @@ public class TwVariantsOverridesTests : TestContext
 {
 	public TwVariantsOverridesTests() => Services.AddTailwindVariants();
 
+	private TwVariants Tv => Services.GetRequiredService<TwVariants>();
+
 	[Fact]
 	public void Invoke_WithClassesContainingNullSlot_SkipsNullSlots()
 	{
@@ -27,12 +29,13 @@ public class TwVariantsOverridesTests : TestContext
 		};
 
 		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Contains("text-lg", result[s => s.Title]);
-		Assert.Contains("font-bold", result[s => s.Title]);
+		result.ContainsAll(s => s.Title,
+			"text-lg",
+			"font-bold");
+
 		Assert.Null(result[s => s.Description]);
 	}
 
@@ -58,14 +61,16 @@ public class TwVariantsOverridesTests : TestContext
 		};
 
 		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Contains("text-lg", result[s => s.Title]);
-		Assert.Contains("font-extrabold", result[s => s.Title]);
-		Assert.Contains("text-sm", result[s => s.Description]);
-		Assert.Contains("italic", result[s => s.Description]);
+		result.ContainsAll(s => s.Title,
+			"text-lg",
+			"font-extrabold");
+
+		result.ContainsAll(s => s.Description,
+			"text-sm",
+			"italic");
 	}
 
 	[Fact]
@@ -78,13 +83,13 @@ public class TwVariantsOverridesTests : TestContext
 		var component = new TestComponent { Class = "hover:bg-blue-600" };
 
 		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Contains("btn", result[s => s.Base]);
-		Assert.Contains("bg-blue-500", result[s => s.Base]);
-		Assert.Contains("hover:bg-blue-600", result[s => s.Base]);
+		result.ContainsAll(s => s.Base,
+			"btn",
+			"bg-blue-500",
+			"hover:bg-blue-600");
 	}
 
 	[Fact]
@@ -97,13 +102,15 @@ public class TwVariantsOverridesTests : TestContext
 		var component = new TestComponent { Class = "p-8 bg-blue-500" };
 
 		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Contains("p-8", result[s => s.Base]);
-		Assert.Contains("bg-blue-500", result[s => s.Base]);
-		Assert.DoesNotContain("p-4", result[s => s.Base]);
-		Assert.DoesNotContain("bg-red-500", result[s => s.Base]);
+		result.ContainsAll(s => s.Base,
+			"p-8",
+			"bg-blue-500");
+
+		result.DoesNotContainAny(s => s.Base,
+			"p-4",
+			"bg-red-500");
 	}
 }
