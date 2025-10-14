@@ -29,15 +29,20 @@ public abstract class TwComponentBase<TOwner, TSlots> : ComponentBase
 	[Inject]
 	protected TwVariants Tv { get; set; } = default!;
 
-	protected abstract TvDescriptor<TOwner, TSlots> GetDescriptor();
-
-	protected override void OnParametersSet()
+	protected void ComputeStyles()
 	{
 		if (this is TOwner owner)
 		{
 			_slots = Tv.Invoke(owner, GetDescriptor());
+			InvokeAsync(StateHasChanged);
 		}
+	}
 
+	protected abstract TvDescriptor<TOwner, TSlots> GetDescriptor();
+
+	protected override void OnParametersSet()
+	{
+		ComputeStyles();
 		base.OnParametersSet();
 	}
 }

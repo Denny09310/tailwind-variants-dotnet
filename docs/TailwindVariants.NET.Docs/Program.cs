@@ -1,4 +1,3 @@
-using TailwindVariants.NET.Docs.Services;
 using TailwindVariants.NET.Docs.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,15 +7,6 @@ builder.Services.AddRazorComponents()
 	.AddInteractiveServerComponents();
 
 builder.Services.AddTailwindVariants();
-builder.Services.AddJSComponents();
-
-builder.Services.AddApplicationState();
-builder.Services.AddSingleton<MarkdownRenderer>();
-
-builder.Services.AddHttpClient<GitHubClient>(client =>
-{
-	client.DefaultRequestHeaders.UserAgent.ParseAdd("TailwindVariants.NET.Docs");
-});
 
 var app = builder.Build();
 
