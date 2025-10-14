@@ -116,79 +116,33 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 
 	#endregion Explicit Implementations
 
-	private static void PrecomputeExtendsBaseAndTopLevelSlots(Dictionary<string, ClassValue> map, ITvDescriptor? extends = null)
+	#region Precompute helpers
+
+	/// <summary>
+	/// Generic helper that walks the extends chain (immediate -> ancestor -> ancestor...) and
+	/// collects per-descriptor collections in the *same append order* as the original implementation.
+	/// </summary>
+	private static List<T>? InheritFromAncestors<T>(ITvDescriptor? extends, Func<ITvDescriptor, IReadOnlyCollection<T>?> selector)
 	{
-		if (extends is null)
-		{
-			return;
-		}
+		if (extends is null) return null;
 
-		if (extends.Slots is not null)
+		List<T>? result = null;
+		var current = extends;
+
+		// The original recursive implementation added immediate extends first,
+		// then their extends, etc. Appending in this loop reproduces that exact order.
+		while (current != null)
 		{
-			foreach (var (key, value) in extends.Slots)
+			var items = selector(current);
+			if (items != null)
 			{
-				if (!map.TryGetValue(key, out var @class))
-				{
-					@class = [];
-					map[key] = @class;
-				}
-
-				@class.Insert(0, value);
+				result ??= [];
+				foreach (var it in items) result.Add(it);
 			}
+			current = current.Extends;
 		}
 
-		if (extends.Extends is not null)
-		{
-			PrecomputeExtendsBaseAndTopLevelSlots(map, extends.Extends);
-		}
-	}
-
-	private static void PrecomputeExtendsCompoundVariants(List<ICompiledCompoundVariant>? compounds, ITvDescriptor? extends)
-	{
-		if (extends is null)
-		{
-			return;
-		}
-
-		if (extends.CompoundVariants is not null)
-		{
-			compounds ??= [];
-
-			foreach (var cv in extends.CompoundVariants)
-			{
-				compounds.Add(cv);
-			}
-		}
-
-		if (extends.Extends is not null)
-		{
-			PrecomputeExtendsCompoundVariants(compounds, extends.Extends);
-		}
-	}
-
-	private static void PrecomputeExtendsVariantDefinitions(
-		List<ICompiledVariant>? variants,
-		ITvDescriptor? extends = null)
-	{
-		if (extends is null)
-		{
-			return;
-		}
-
-		if (extends.Variants is not null)
-		{
-			variants ??= [];
-
-			foreach (var variant in extends.Variants)
-			{
-				variants.Add(variant);
-			}
-		}
-
-		if (extends.Extends is not null)
-		{
-			PrecomputeExtendsVariantDefinitions(variants, extends.Extends);
-		}
+		return result;
 	}
 
 	private void Precompute()
@@ -198,31 +152,56 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 		_compounds = PrecomputeCompoundVariantsDefinitions();
 	}
 
+	/// <summary>
+	/// Recreates the original "precompute base and top-level slots" semantics:
+	/// - current descriptor's Base and Slots are present (as before)
+	/// - then each extends' Slots are inserted so that farthest ancestor ends up first in the
+	///   final ordering (exactly the same ordering as original recursion that used Insert(0)).
+	/// </summary>
 	private Dictionary<string, string> PrecomputeBaseAndTopLevelSlots()
 	{
+		// same as original map type
 		var map = new Dictionary<string, ClassValue>(StringComparer.Ordinal);
 
-		if (Base is not null)
-		{
-			map[GetSlot<TSlots>(s => s.Base)] = Base.ToString();
-		}
-
+		// Add current descriptor's Slots and Base (same as original: current values are present)
 		if (Slots is not null)
 		{
 			foreach (var (key, value) in Slots)
 			{
-				map[GetSlot(key)] = value.ToString();
+				map[GetSlot(key)] = value;
 			}
 		}
 
-		if (Extends is not null)
+		if (Base is not null)
 		{
-			PrecomputeExtendsBaseAndTopLevelSlots(map, Extends);
+			map[GetSlot<TSlots>(s => s.Base)] = Base;
 		}
 
-		return map.ToDictionary(
-			kvp => kvp.Key,
-			kvp => kvp.Value.ToString());
+		// Merge extends chain: for each ancestor (immediate -> parent -> ...),
+		// insert ancestor values at the front of existing ClassValue (Insert(0, ...))
+		// to preserve the original ordering (farthest ancestor comes first).
+		var cur = Extends;
+		while (cur != null)
+		{
+			if (cur.Slots is not null)
+			{
+				foreach (var (key, value) in cur.Slots)
+				{
+					var name = key;
+					if (!map.TryGetValue(name, out var classValue))
+					{
+						classValue = [];
+						map[name] = classValue;
+					}
+					// Insert at 0 exactly as the original recursion did
+					classValue.Insert(0, value);
+				}
+			}
+			cur = cur.Extends;
+		}
+
+		// Convert to the same final dictionary shape (string values are ToString() of ClassValue)
+		return map.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
 	}
 
 	private List<ICompiledCompoundVariant>? PrecomputeCompoundVariantsDefinitions()
@@ -231,22 +210,23 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 
 		if (CompoundVariants is not null)
 		{
-			compounds ??= [];
-
+			compounds = [];
 			foreach (var cv in CompoundVariants)
 			{
 				if (!string.IsNullOrEmpty(cv.Class))
 				{
 					cv.Slots.Add(cv.Class);
 				}
-
 				compounds.Add(new CompiledCompoundVariant<TOwner, TSlots>(cv.Predicate, cv.Slots));
 			}
 		}
 
-		if (Extends is not null)
+		// append inherited compiled compound variants in the same order as original
+		var inherited = InheritFromAncestors(Extends, d => d.CompoundVariants);
+		if (inherited != null)
 		{
-			PrecomputeExtendsCompoundVariants(compounds, Extends);
+			compounds ??= [];
+			compounds.AddRange(inherited);
 		}
 
 		return compounds;
@@ -258,8 +238,7 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 
 		if (Variants is not null)
 		{
-			variants ??= [];
-
+			variants = [];
 			foreach (var (key, value) in Variants)
 			{
 				var accessor = key.Compile();
@@ -267,11 +246,16 @@ public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
 			}
 		}
 
-		if (Extends is not null)
+		// append inherited compiled variants in the same order as original
+		var inherited = InheritFromAncestors(Extends, d => d.Variants);
+		if (inherited != null)
 		{
-			PrecomputeExtendsVariantDefinitions(variants, Extends);
+			variants ??= [];
+			variants.AddRange(inherited);
 		}
 
 		return variants;
 	}
+
+	#endregion Precompute helpers
 }
