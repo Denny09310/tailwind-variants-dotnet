@@ -285,6 +285,10 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 			? $"{accessor.ComponentFullName}.{accessor.NamesClass}"
 			: accessor.NamesClass;
 
+		var slotsRef = accessor.IsNested
+			? $"{accessor.ComponentFullName}.{accessor.Name}"
+			: accessor.Name;
+
 		sb.AppendMultiline($$"""
         /// <summary>
         /// Provides extension methods for strongly-typed access to <see cref="{{accessor.FullName}}"/> 
@@ -307,7 +311,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
 		sb.AppendLine($"public static string? Get(this {accessor.SlotsMapName} slots, {enumRef} key)");
 		sb.Indent();
-		sb.AppendLine($" => slots[{namesRef}.NameOf(key)];");
+		sb.AppendLine($" => slots[{slotsRef}.GetName({namesRef}.NameOf(key))];");
 		sb.Dedent();
 
 		foreach (var property in accessor.AllProperties)
