@@ -3,7 +3,9 @@
 	<PropertyGroup>
 		<TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
 		<IsPackable>false</IsPackable>
+		<NoWarn>$(NoWarn);CS0436</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>

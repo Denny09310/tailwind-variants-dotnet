@@ -1,5 +1,3 @@
-using System;
-
 namespace TailwindVariants.NET.Tests;
 
 public class SlotsInheritanceTests : TestContext
