@@ -1,5 +1,5 @@
-using TailwindVariants.NET.Docs.Components;
 using TailwindVariants.NET.Docs.Services;
+using TailwindVariants.NET.Docs.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 

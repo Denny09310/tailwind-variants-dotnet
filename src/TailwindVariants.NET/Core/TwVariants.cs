@@ -1,6 +1,9 @@
-using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Text;
+
+using Microsoft.Extensions.Logging;
+
+using TailwindVariants.NET.Models;
 
 using static TailwindVariants.NET.TvHelpers;
 
@@ -11,7 +14,7 @@ namespace TailwindVariants.NET;
 /// <summary>
 /// Core function factory that builds a Tailwind-variants-like function.
 /// </summary>
-public class TwVariants(Tw merge)
+public class TwVariants(ILoggerFactory factory, Tw merge)
 {
 	/// <summary>
 	/// Creates a slot map containing the final computed CSS class strings for each slot, based on the provided owner and options.
@@ -19,44 +22,34 @@ public class TwVariants(Tw merge)
 	/// <typeparam name="TOwner">The type that owns the slots and variants.</typeparam>
 	/// <typeparam name="TSlots">The type representing the slots, which must implement <see cref="ISlots"/>.</typeparam>
 	/// <param name="owner">The instance providing slot and variant values.</param>
-	/// <param name="definition">The configuration options for base slots, variants, and compound variants.</param>
+	/// <param name="descriptor">The configuration options for base slots, variants, and compound variants.</param>
 	/// <returns>
 	/// A <see cref="SlotsMap{TSlots}"/> mapping slot names to their final computed CSS class strings.
 	/// </returns>
 	/// <remarks>
 	/// The returned function is safe to call multiple times; per-call overrides do not mutate precomputed definitions.
 	/// </remarks>
-	public SlotsMap<TSlots> Invoke<TOwner, TSlots>(TOwner owner, TvDescriptor<TOwner, TSlots> definition)
+	public SlotsMap<TSlots> Invoke<TOwner, TSlots>(TOwner owner, TvDescriptor<TOwner, TSlots> descriptor)
 		where TSlots : ISlots, new()
 		where TOwner : ISlotted<TSlots>
 	{
+		var generic = (ITvDescriptor)descriptor;
+
 		// 1. Start with base slots
-		var builders = definition.BaseSlots.ToDictionary(
+		var builders = generic.Slots.ToDictionary(
 			kv => kv.Key,
 			kv => new StringBuilder(kv.Value));
 
-		// 2. Apply variants
-		builders = ApplyVariants(owner, builders, definition.BaseVariants);
+		// 3. Apply variants
+		ApplyVariants<TOwner, TSlots>(owner, builders, generic.Variants, factory);
 
-		// 3. Apply compound variants
-		builders = ApplyCompoundVariants(definition, owner, builders);
+		// 4. Apply compound variants
+		ApplyCompoundVariants<TOwner, TSlots>(owner, builders, generic.CompoundVariants, factory);
 
-		// 4. Apply per-instance slot overrides (Classes property)
-		if (owner.Classes is not null)
-		{
-			foreach (var (slot, value) in owner.Classes.EnumerateOverrides())
-			{
-				if (!builders.TryGetValue(slot, out var builder))
-				{
-					builder = new StringBuilder();
-					builders[slot] = builder;
-				}
-				builder.Append(' ');
-				builder.Append(value);
-			}
-		}
+		// 5. Apply per-instance slot overrides (Classes property)
+		ApplySlotsOverrides<TOwner, TSlots>(owner, builders);
 
-		// 5. Build final map
+		// 6. Build final map
 		return builders.ToDictionary(
 			kv => kv.Key,
 			kv => merge.Merge(kv.Value.ToString()));
@@ -64,103 +57,82 @@ public class TwVariants(Tw merge)
 
 	#region Helpers
 
-	private static void AddSlotClass<TSlots>(
-		Dictionary<string, StringBuilder> builders,
-		Expression<SlotAccessor<TSlots>> accessor,
-		string classes) where TSlots : ISlots, new()
+	private static void AddClass<TSlots>(
+		Dictionary<string, StringBuilder> builders, Expression<SlotAccessor<TSlots>> accessor, string classes)
+		where TSlots : ISlots, new()
 	{
 		var name = GetSlot(accessor);
-		if (!builders.TryGetValue(name, out var builder))
+		AddClass<TSlots>(builders, name, classes);
+	}
+
+	private static void AddClass<TSlots>(
+		Dictionary<string, StringBuilder> builders, string slot, string classes)
+		where TSlots : ISlots, new()
+	{
+		if (!builders.TryGetValue(slot, out var builder))
 		{
 			builder = new StringBuilder();
-			builders[name] = builder;
+			builders[slot] = builder;
 		}
 		builder.Append(' ');
 		builder.Append(classes);
 	}
 
-	private static Dictionary<string, StringBuilder> ApplyCompoundVariants<TOwner, TSlots>(
-		TvDescriptor<TOwner, TSlots>? options,
-		TOwner owner,
-		Dictionary<string, StringBuilder> builders)
+	private static void ApplyCompoundVariants<TOwner, TSlots>(
+		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledCompoundVariant>? compounds, ILoggerFactory factory)
 		where TSlots : ISlots, new()
 		where TOwner : ISlotted<TSlots>
 	{
-		if (options?.CompoundVariants is null)
+		if (compounds is null)
 		{
-			return builders;
+			return;
 		}
 
-		foreach (var cv in options.CompoundVariants)
+		foreach (var cv in compounds)
 		{
-			try
-			{
-				if (!cv.Predicate(owner))
-				{
-					continue;
-				}
-
-				if (!string.IsNullOrEmpty(cv.Class))
-				{
-					AddSlotClass<TSlots>(builders, s => s.Base, cv.Class);
-				}
-
-				foreach (var pairs in cv)
-				{
-					var slot = pairs.Key;
-
-					if (slot is null)
-					{
-						continue;
-					}
-
-					AddSlotClass(builders, slot, pairs.Value.ToString());
-				}
-			}
-			catch (Exception ex)
-			{
-				// keep robust but log for debugging
-				Debug.WriteLine($"Compound variant predicate or processing failed: {ex.Message}");
-			}
+			cv.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value), factory);
 		}
-
-		return builders;
 	}
 
-	private static Dictionary<string, StringBuilder> ApplyVariants<TOwner, TSlots>(
-		TOwner owner,
-		Dictionary<string, StringBuilder> builders,
-		IReadOnlyDictionary<string, CompiledVariant<TOwner, TSlots>> baseVariants)
+	private static void ApplySlotsOverrides<TOwner, TSlots>(
+			TOwner owner, Dictionary<string, StringBuilder> builders)
+		where TOwner : ISlotted<TSlots>
+		where TSlots : ISlots, new()
+	{
+		if (owner.Classes is null)
+		{
+			return;
+		}
+
+		foreach (var (slot, value) in owner.Classes.EnumerateOverrides())
+		{
+			if (!builders.TryGetValue(slot, out var builder))
+			{
+				builder = new StringBuilder();
+				builders[slot] = builder;
+			}
+			builder.Append(' ');
+			builder.Append(value);
+		}
+	}
+
+	private static void ApplyVariants<TOwner, TSlots>(
+		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledVariant>? variants, ILoggerFactory factory)
 		where TSlots : ISlots, new()
 		where TOwner : ISlotted<TSlots>
 	{
-		foreach (var compiled in baseVariants.Values)
+		if (variants is not null)
 		{
-			try
+			foreach (var variant in variants)
 			{
-				var selected = compiled.Accessor(owner);
-				if (selected is null) continue;
-
-				if (compiled.Entry.TryGetSlots(selected, out var slots) && slots is not null)
-				{
-					foreach (var kv in slots)
-					{
-						AddSlotClass(builders, kv.Key, kv.Value.ToString());
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				Debug.WriteLine($"Variant evaluation failed for '{compiled.Expr}': {ex.Message}");
+				variant.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value), factory);
 			}
 		}
 
 		if (!string.IsNullOrEmpty(owner.Class))
 		{
-			AddSlotClass<TSlots>(builders, s => s.Base, owner.Class);
+			AddClass<TSlots>(builders, s => s.Base, owner.Class);
 		}
-
-		return builders;
 	}
 
 	#endregion Helpers

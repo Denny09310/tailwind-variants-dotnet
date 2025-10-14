@@ -89,8 +89,6 @@ public partial class Link : ISlotted<Link.Slots>
 		]
 	);
 
-	private SlotsMap<Slots> _slots = new();
-
 	public enum Colors
 	{
 		Foreground,
@@ -117,6 +115,8 @@ public partial class Link : ISlotted<Link.Slots>
 		Active,
 		Focus
 	}
+
+	protected override TvDescriptor<Link, Slots> GetDescriptor() => _link;
 
 	protected override void OnParametersSet()
 	{
