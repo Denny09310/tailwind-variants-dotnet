@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 using Microsoft.AspNetCore.Components;
 
 namespace TailwindVariants.NET;
