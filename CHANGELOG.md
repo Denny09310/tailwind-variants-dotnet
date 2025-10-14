@@ -1,8 +1,22 @@
+## [0.2.1] - 2025-10-14
+
+### 🐛 Bug Fixes
+
+- Changed naming convention from Slots* to Slot*
+- Added 'new' keyword to derived slots
+
+### ⚙️ Miscellaneous Tasks
+
+- Added conditional 'GetName' to customize naming even further
 ## [0.2.0] - 2025-10-14
 
 ### 🚀 Features
 
 - Added slot inheritance, making ISlots methods virtual/override based on the class modifiers
+- Added style slots inheritance
+- Added compiled compound variants
+- Added variants and compound variants inheritances
+- Added LoggerFactory on Apply
 
 ### 🐛 Bug Fixes
 
@@ -12,6 +26,8 @@
 - Naming and qualification was wrong when generating
 - Changed extensions class name
 - Added space after nested components
+- Missing usings in docs
+- Get slot method was getting incorrect slot name when using SlotAttribute
 
 ### ⚙️ Miscellaneous Tasks
 
@@ -24,6 +40,20 @@
 - Removed IsPartial from SlotsAccessorToGenerate
 - Revert to old naming convention
 - Fixed README.md to account for latest changes
+- Changed variants from IReadOnlyDictionary to IReadOnlyCollection
+- Syntax enhancement
+- Organized code
+- Minmal improvements
+- Updated tests to use DI container
+- Simplified recursion logic
+- Made Apply* methods static
+- Updated/simplified tests
+- Code formatting
+- Partially re-integrated SlotAttribute mechanics
+- Updated base component in tests
+- Moved Slots.GetName inside SlotsNames.NameOf
+- Added implicit usings
+- Bump version, update CHANGELOG.md
 ## [0.1.0] - 2025-10-12
 
 ### 🚀 Features
