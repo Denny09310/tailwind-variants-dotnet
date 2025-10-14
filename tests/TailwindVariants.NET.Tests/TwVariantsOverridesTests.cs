@@ -1,5 +1,3 @@
-using Tw = TailwindMerge.TwMerge;
-
 namespace TailwindVariants.NET.Tests;
 
 public class TwVariantsOverridesTests : TestContext

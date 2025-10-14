@@ -1,10 +1,9 @@
-using Tw = TailwindMerge.TwMerge;
-
 namespace TailwindVariants.NET.Tests;
 
 public class TwVariantsVariantsTests : TestContext
 {
 	public TwVariantsVariantsTests() => Services.AddTailwindVariants();
+
 	private TwVariants Tv => Services.GetRequiredService<TwVariants>();
 
 	[Fact]
