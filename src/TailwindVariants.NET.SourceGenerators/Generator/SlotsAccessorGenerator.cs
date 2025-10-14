@@ -11,25 +11,25 @@ namespace TailwindVariants.NET.SourceGenerators;
 [Generator]
 public class SlotsAccessorGenerator : IIncrementalGenerator
 {
-    public void Initialize(IncrementalGeneratorInitializationContext context)
-    {
+	public void Initialize(IncrementalGeneratorInitializationContext context)
+	{
 		context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
 			"SlotAttribute.g.cs",
 			SourceText.From(SourceGenerationHelper.Attribute, Encoding.UTF8)));
 
 		var candidateTypes = context.SyntaxProvider.CreateSyntaxProvider(
-            predicate: static (node, _) => IsMaybeCandidateForGeneration(node),
-            transform: static (ctx, _) => GetTypeSymbol(ctx))
-            .Where(static symbol => symbol is not null);
+			predicate: static (node, _) => IsMaybeCandidateForGeneration(node),
+			transform: static (ctx, _) => GetTypeSymbol(ctx))
+			.Where(static symbol => symbol is not null);
 
-        var slotsTypes = candidateTypes
-            .Where(static symbol => ImplementsISlots(symbol!))
-            .Select(static (symbol, _) => BuildGenerationData(symbol!))
-            .Where(static data => data is not null)
-            .Select(static (data, _) => data!.Value);
+		var slotsTypes = candidateTypes
+			.Where(static symbol => ImplementsISlots(symbol!))
+			.Select(static (symbol, _) => BuildGenerationData(symbol!))
+			.Where(static data => data is not null)
+			.Select(static (data, _) => data!.Value);
 
-        context.RegisterSourceOutput(slotsTypes, GenerateForSlotsType);
-    }
+		context.RegisterSourceOutput(slotsTypes, GenerateForSlotsType);
+	}
 
 	private static SlotsAccessorToGenerate? BuildGenerationData(INamedTypeSymbol symbol)
 	{
@@ -118,13 +118,13 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 	}
 
 	private static INamedTypeSymbol? GetTypeSymbol(GeneratorSyntaxContext context)
-        => context.SemanticModel.GetDeclaredSymbol(context.Node) as INamedTypeSymbol;
+		=> context.SemanticModel.GetDeclaredSymbol(context.Node) as INamedTypeSymbol;
 
-    private static bool IsMaybeCandidateForGeneration(SyntaxNode node) =>
-        node is TypeDeclarationSyntax tds &&
-        tds.Modifiers.Any(SyntaxKind.PartialKeyword) &&
-        tds.BaseList is { Types.Count: > 0 } &&
-        tds.Members.OfType<PropertyDeclarationSyntax>().Any();
+	private static bool IsMaybeCandidateForGeneration(SyntaxNode node) =>
+		node is TypeDeclarationSyntax tds &&
+		tds.Modifiers.Any(SyntaxKind.PartialKeyword) &&
+		tds.BaseList is { Types.Count: > 0 } &&
+		tds.Members.OfType<PropertyDeclarationSyntax>().Any();
 
 	#region Helpers
 
@@ -195,7 +195,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 				if (IsPublicStringProperty(prop) &&
 					SymbolEqualityComparer.Default.Equals(prop.ContainingType, currentType))
 				{
-                    properties.Add(prop.Name);
+					properties.Add(prop.Name);
 				}
 			}
 		}
@@ -253,27 +253,27 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 			|| cls.ToDisplayString() == "TailwindVariants.NET.SlotAttribute";
 	}
 
-    #endregion Helpers
+	#endregion Helpers
 
-    #region Code Writing
+	#region Code Writing
 
-    private static void WriteEnum(Indenter sb, SlotsAccessorToGenerate accessor)
-    {
-        sb.AppendLine();
-        sb.AppendLine($"public enum {accessor.EnumName}");
-        sb.AppendLine("{");
-        sb.Indent();
-        // Use AllProperties to include inherited properties
-        ImmutableArray<string> properties = accessor.AllProperties;
-        for (int i = 0; i < properties.Length; i++)
-        {
-            var nm = SymbolHelper.MakeSafeIdentifier(properties[i]);
-            sb.AppendLine($"{nm} = {i},");
-        }
-        sb.Dedent();
-        sb.AppendLine("}");
-        sb.AppendLine();
-    }
+	private static void WriteEnum(Indenter sb, SlotsAccessorToGenerate accessor)
+	{
+		sb.AppendLine();
+		sb.AppendLine($"public enum {accessor.EnumName}");
+		sb.AppendLine("{");
+		sb.Indent();
+		// Use AllProperties to include inherited properties
+		ImmutableArray<string> properties = accessor.AllProperties;
+		for (int i = 0; i < properties.Length; i++)
+		{
+			var nm = SymbolHelper.MakeSafeIdentifier(properties[i]);
+			sb.AppendLine($"{nm} = {i},");
+		}
+		sb.Dedent();
+		sb.AppendLine("}");
+		sb.AppendLine();
+	}
 
 	private static void WriteExtensions(Indenter sb, SlotsAccessorToGenerate accessor)
 	{
@@ -284,10 +284,6 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 		var namesRef = accessor.IsNested
 			? $"{accessor.ComponentFullName}.{accessor.NamesClass}"
 			: accessor.NamesClass;
-
-		var slotsRef = accessor.IsNested
-			? $"{accessor.ComponentFullName}.{accessor.Name}"
-			: accessor.Name;
 
 		sb.AppendMultiline($$"""
         /// <summary>
@@ -311,7 +307,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
 		sb.AppendLine($"public static string? Get(this {accessor.SlotsMapName} slots, {enumRef} key)");
 		sb.Indent();
-		sb.AppendLine($" => slots[{slotsRef}.GetName({namesRef}.NameOf(key))];");
+		sb.AppendLine($" => slots[{namesRef}.NameOf(key)];");
 		sb.Dedent();
 
 		foreach (var property in accessor.AllProperties)
@@ -404,98 +400,86 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 	}
 
 	private static void WriteNamesHelper(Indenter sb, SlotsAccessorToGenerate accessor)
-    {
-        sb.AppendLine($"public static class {accessor.NamesClass}");
-        sb.AppendLine("{");
-        sb.Indent();
+	{
+		sb.AppendLine($"public static class {accessor.NamesClass}");
+		sb.AppendLine("{");
+		sb.Indent();
 
-        sb.AppendLine("/// <summary>");
-        sb.AppendLine("/// Array of slot names in the same order as the generated enum.");
-        sb.AppendLine("/// </summary>");
+		sb.AppendLine("/// <summary>");
+		sb.AppendLine("/// All slot names (read-only).");
+		sb.AppendLine("/// </summary>");
+		sb.AppendLine($"public static IReadOnlyList<string> AllNames => Enum.GetNames<{accessor.EnumName}>();");
+		sb.AppendLine();
+		sb.AppendLine($"/// <summary>Returns the slot name for the given {accessor.EnumName} key.</summary>");
+		sb.AppendLine($"public static string NameOf({accessor.EnumName} key) => {accessor.Name}.GetName(key.ToString());");
 
-        sb.AppendLine($"private static readonly string[] _names = new[]");
-        sb.AppendLine("{");
-        sb.Indent();
-        // Use AllProperties to include inherited properties
-        foreach (var property in accessor.AllProperties)
-        {
-            sb.AppendLine($"{SymbolHelper.QuoteLiteral(property)},");
-        }
-        sb.Dedent();
-        sb.AppendLine("};");
+		sb.Dedent();
+		sb.AppendLine("}");
 
-        sb.AppendLine();
-        sb.AppendLine("/// <summary>");
-        sb.AppendLine("/// All slot names (read-only).");
-        sb.AppendLine("/// </summary>");
-        sb.AppendLine("public static IReadOnlyList<string> AllNames => _names;");
-        sb.AppendLine();
-        sb.AppendLine($"/// <summary>Returns the slot name for the given {accessor.EnumName} key.</summary>");
-        sb.AppendLine($"public static string NameOf({accessor.EnumName} key) => _names[(int)key];");
+		if (!accessor.IsNested)
+		{
+			sb.AppendLine();
+		}
+	}
 
-        sb.Dedent();
-        sb.AppendLine("}");
-        sb.AppendLine();
-    }
-
-    private static void WriteNestedClosings(Indenter sb, SlotsAccessorToGenerate accessor)
-    {
-        ImmutableArray<string> hierarchy = accessor.Hierarchy;
-        foreach (var _ in accessor.Hierarchy.Take(hierarchy.Length - 1))
-        {
-            sb.Dedent();
-            sb.AppendLine("}");
-        }
+	private static void WriteNestedClosings(Indenter sb, SlotsAccessorToGenerate accessor)
+	{
+		ImmutableArray<string> hierarchy = accessor.Hierarchy;
+		foreach (var _ in accessor.Hierarchy.Take(hierarchy.Length - 1))
+		{
+			sb.Dedent();
+			sb.AppendLine("}");
+		}
 
 		if (accessor.IsNested)
 		{
 			sb.AppendLine();
 		}
-    }
+	}
 
-    private static void WriteNestedOpenings(Indenter sb, SlotsAccessorToGenerate accessor)
-    {
-        ImmutableArray<string> hierarchy = accessor.Hierarchy;
-        foreach (var container in accessor.Hierarchy.Take(hierarchy.Length - 1))
-        {
-            sb.AppendLine($"partial class {container}");
-            sb.AppendLine("{");
-            sb.Indent();
-        }
-    }
+	private static void WriteNestedOpenings(Indenter sb, SlotsAccessorToGenerate accessor)
+	{
+		ImmutableArray<string> hierarchy = accessor.Hierarchy;
+		foreach (var container in accessor.Hierarchy.Take(hierarchy.Length - 1))
+		{
+			sb.AppendLine($"partial class {container}");
+			sb.AppendLine("{");
+			sb.Indent();
+		}
+	}
 
-    private static void WritePragmaClosing(Indenter sb)
-    {
-        sb.AppendLine();
-        sb.AppendLine("#pragma warning restore CS1591");
-        sb.AppendLine("#pragma warning restore CS8618");
-    }
+	private static void WritePragmaClosing(Indenter sb)
+	{
+		sb.AppendLine();
+		sb.AppendLine("#pragma warning restore CS1591");
+		sb.AppendLine("#pragma warning restore CS8618");
+	}
 
-    private static void WritePreamble(Indenter sb, SlotsAccessorToGenerate accessor)
-    {
-        sb.AppendLine("// <auto-generated />");
-        sb.AppendLine();
-        sb.AppendLine("#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member");
-        sb.AppendLine("#pragma warning disable CS8618 // Non-nullable field is uninitialized");
-        sb.AppendLine();
-        sb.AppendLine("using TailwindVariants.NET;");
-        sb.AppendLine("using System;");
-        sb.AppendLine("using System.Collections.Generic;");
-        sb.AppendLine();
-        sb.AppendLine("#nullable enable");
-        sb.AppendLine();
-        if (!string.IsNullOrEmpty(accessor.NamespaceName) && accessor.NamespaceName != "<global namespace>")
-        {
-            sb.AppendLine($"namespace {accessor.NamespaceName};");
-            sb.AppendLine();
-        }
-    }
+	private static void WritePreamble(Indenter sb, SlotsAccessorToGenerate accessor)
+	{
+		sb.AppendLine("// <auto-generated />");
+		sb.AppendLine();
+		sb.AppendLine("#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member");
+		sb.AppendLine("#pragma warning disable CS8618 // Non-nullable field is uninitialized");
+		sb.AppendLine();
+		sb.AppendLine("using TailwindVariants.NET;");
+		sb.AppendLine("using System;");
+		sb.AppendLine("using System.Collections.Generic;");
+		sb.AppendLine();
+		sb.AppendLine("#nullable enable");
+		sb.AppendLine();
+		if (!string.IsNullOrEmpty(accessor.NamespaceName) && accessor.NamespaceName != "<global namespace>")
+		{
+			sb.AppendLine($"namespace {accessor.NamespaceName};");
+			sb.AppendLine();
+		}
+	}
 
-    #endregion Code Writing
+	#endregion Code Writing
 
-    private readonly record struct InheritanceInfo(
-        bool IsDirectImplementation,
-        string? BaseClassName);
+	private readonly record struct InheritanceInfo(
+		bool IsDirectImplementation,
+		string? BaseClassName);
 
 	private readonly record struct SlotsAccessorToGenerate(
 		string Name,
@@ -511,7 +495,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 		string? BaseClassName,
 		bool IsDirectImplementation,
 		bool IsSealed,
-		bool IsNested,              
+		bool IsNested,
 		EquatableArray<string> Hierarchy,
 		EquatableArray<(string Name, string Slot)> Properties,
 		EquatableArray<string> AllProperties)
