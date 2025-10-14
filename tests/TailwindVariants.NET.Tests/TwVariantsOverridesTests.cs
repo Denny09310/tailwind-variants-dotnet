@@ -1,27 +1,40 @@
-using Tw = TailwindMerge.TwMerge;
-
 namespace TailwindVariants.NET.Tests;
 
-public class TwVariantsOverridesTests
+public class TwVariantsOverridesTests : TestContext
 {
-	private readonly TwVariants _tv = new(new Tw());
+	public TwVariantsOverridesTests() => Services.AddTailwindVariants();
+
+	private TwVariants Tv => Services.GetRequiredService<TwVariants>();
 
 	[Fact]
-	public void Invoke_WithClassOverride_AppendsToBaseSlot()
+	public void Invoke_WithClassesContainingNullSlot_SkipsNullSlots()
 	{
 		// Arrange
 		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "btn bg-blue-500"
+			@base: "component",
+			slots: new()
+			{
+				[s => s.Title] = "text-lg"
+			}
 		);
-		var component = new TestComponent { Class = "hover:bg-blue-600" };
+		var component = new TestComponent
+		{
+			Classes = new TestSlots
+			{
+				Title = "font-bold",
+				Description = null
+			}
+		};
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Contains("btn", result[s => s.Base]);
-		Assert.Contains("bg-blue-500", result[s => s.Base]);
-		Assert.Contains("hover:bg-blue-600", result[s => s.Base]);
+		result.ContainsAll(s => s.Title,
+			"text-lg",
+			"font-bold");
+
+		Assert.Null(result[s => s.Description]);
 	}
 
 	[Fact]
@@ -46,42 +59,35 @@ public class TwVariantsOverridesTests
 		};
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Contains("text-lg", result[s => s.Title]);
-		Assert.Contains("font-extrabold", result[s => s.Title]);
-		Assert.Contains("text-sm", result[s => s.Description]);
-		Assert.Contains("italic", result[s => s.Description]);
+		result.ContainsAll(s => s.Title,
+			"text-lg",
+			"font-extrabold");
+
+		result.ContainsAll(s => s.Description,
+			"text-sm",
+			"italic");
 	}
 
 	[Fact]
-	public void Invoke_WithClassesContainingNullSlot_SkipsNullSlots()
+	public void Invoke_WithClassOverride_AppendsToBaseSlot()
 	{
 		// Arrange
 		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "component",
-			slots: new()
-			{
-				[s => s.Title] = "text-lg"
-			}
+			@base: "btn bg-blue-500"
 		);
-		var component = new TestComponent
-		{
-			Classes = new TestSlots
-			{
-				Title = "font-bold",
-				Description = null
-			}
-		};
+		var component = new TestComponent { Class = "hover:bg-blue-600" };
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Contains("text-lg", result[s => s.Title]);
-		Assert.Contains("font-bold", result[s => s.Title]);
-		Assert.Null(result[s => s.Description]);
+		result.ContainsAll(s => s.Base,
+			"btn",
+			"bg-blue-500",
+			"hover:bg-blue-600");
 	}
 
 	[Fact]
@@ -94,12 +100,15 @@ public class TwVariantsOverridesTests
 		var component = new TestComponent { Class = "p-8 bg-blue-500" };
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Contains("p-8", result[s => s.Base]);
-		Assert.Contains("bg-blue-500", result[s => s.Base]);
-		Assert.DoesNotContain("p-4", result[s => s.Base]);
-		Assert.DoesNotContain("bg-red-500", result[s => s.Base]);
+		result.ContainsAll(s => s.Base,
+			"p-8",
+			"bg-blue-500");
+
+		result.DoesNotContainAny(s => s.Base,
+			"p-4",
+			"bg-red-500");
 	}
 }

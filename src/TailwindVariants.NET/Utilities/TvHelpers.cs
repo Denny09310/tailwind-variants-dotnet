@@ -23,30 +23,7 @@ internal static class TvHelpers
 	/// </code>
 	/// </example>
 	public static string GetSlot<TSlots>(Expression<SlotAccessor<TSlots>> accessor)
-		where TSlots : ISlots, new()
-	{
-		return ExtractMemberName(accessor, nameof(accessor), "slot");
-	}
-
-	/// <summary>
-	/// Extracts the variant property name from a variant accessor expression.
-	/// </summary>
-	/// <typeparam name="TOwner">The type that owns the variant property.</typeparam>
-	/// <param name="accessor">An expression selecting a variant property from the owner type (e.g. <c>c => c.Size</c>).</param>
-	/// <returns>The name of the variant property as a string (e.g. "Size").</returns>
-	/// <exception cref="ArgumentException">
-	/// Thrown if the expression is not a simple member access (e.g. <c>c => c.Size</c>).
-	/// </exception>
-	/// <example>
-	/// <code>
-	/// var variantName = GetVariant&lt;MyComponent&gt;(c => c.Size);
-	/// // Returns: "Size"
-	/// </code>
-	/// </example>
-	public static string GetVariant<TOwner>(Expression<VariantAccessor<TOwner>> accessor)
-	{
-		return ExtractMemberName(accessor, nameof(accessor), "variant");
-	}
+		where TSlots : ISlots, new() => TSlots.GetName(ExtractMemberName(accessor, nameof(accessor), "slot"));
 
 	/// <summary>
 	/// Extracts the member name from a lambda expression that accesses a property or field.

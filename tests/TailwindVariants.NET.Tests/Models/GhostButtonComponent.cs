@@ -1,8 +1,7 @@
 namespace TailwindVariants.NET.Tests;
 
-public partial class GhostButtonComponent : ISlotted<GhostButtonSlots>
+public partial class GhostButtonComponent : ButtonComponent, ISlotted<GhostButtonSlots>
 {
-	public string? Class { get; set; }
-	public GhostButtonSlots? Classes { get; set; }
-	public string? Variant { get; set; }
+	public new GhostButtonSlots? Classes { get; set; }
+	public bool IsSquared { get; set; }
 }

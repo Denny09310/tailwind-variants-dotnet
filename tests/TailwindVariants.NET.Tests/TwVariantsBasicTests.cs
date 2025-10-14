@@ -1,10 +1,10 @@
-using Tw = TailwindMerge.TwMerge;
-
 namespace TailwindVariants.NET.Tests;
 
-public class TwVariantsBasicTests
+public class TwVariantsBasicTests : TestContext
 {
-	private readonly TwVariants _tv = new(new Tw());
+	public TwVariantsBasicTests() => Services.AddTailwindVariants();
+
+	private TwVariants Tv => Services.GetRequiredService<TwVariants>();
 
 	[Fact]
 	public void Invoke_AccessingNonInitializedSlot_ReturnsNull()
@@ -16,97 +16,14 @@ public class TwVariantsBasicTests
 		var component = new TestComponent();
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var tv = Services.GetRequiredService<TwVariants>();
+		var result = tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Equal("container", result[s => s.Base]);
+		result.ShouldEqual(s => s.Base, "container");
 		Assert.Null(result[s => s.Container]);
 		Assert.Null(result[s => s.Title]);
 		Assert.Null(result[s => s.Description]);
-	}
-
-	[Fact]
-	public void Invoke_WithBaseClassOnly_ReturnsBaseSlot()
-	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "p-4 bg-white"
-		);
-		var component = new TestComponent();
-
-		// Act
-		var result = _tv.Invoke(component, descriptor);
-
-		// Assert
-		Assert.Equal("p-4 bg-white", result[s => s.Base]);
-	}
-
-	[Fact]
-	public void Invoke_WithSlots_ReturnsAllSlots()
-	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "container",
-			slots: new()
-			{
-				[s => s.Title] = "text-xl font-bold",
-				[s => s.Description] = "text-sm text-gray-600"
-			}
-		);
-		var component = new TestComponent();
-
-		// Act
-		var result = _tv.Invoke(component, descriptor);
-
-		// Assert
-		Assert.Equal("container", result[s => s.Base]);
-		Assert.Equal("text-xl font-bold", result[s => s.Title]);
-		Assert.Equal("text-sm text-gray-600", result[s => s.Description]);
-	}
-
-	[Fact]
-	public void Invoke_MultipleInvocations_DoesNotMutateDescriptor()
-	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "btn",
-			variants: new VariantCollection<TestComponent, TestSlots>
-			{
-				{
-					c => c.Size,
-					new Variant<string, TestSlots>
-					{
-						["sm"] = "text-sm",
-						["lg"] = "text-lg"
-					}
-				}
-			}
-		);
-
-		// Act
-		var result1 = _tv.Invoke(new TestComponent { Size = "sm" }, descriptor);
-		var result2 = _tv.Invoke(new TestComponent { Size = "lg" }, descriptor);
-
-		// Assert
-		Assert.Contains("text-sm", result1[s => s.Base]);
-		Assert.DoesNotContain("text-lg", result1[s => s.Base]);
-
-		Assert.Contains("text-lg", result2[s => s.Base]);
-		Assert.DoesNotContain("text-sm", result2[s => s.Base]);
-	}
-
-	[Fact]
-	public void Invoke_WithEmptyDescriptor_ReturnsEmptyBaseSlot()
-	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>();
-		var component = new TestComponent();
-
-		// Act
-		var result = _tv.Invoke(component, descriptor);
-
-		// Assert
-		Assert.Null(result[s => s.Base]);
 	}
 
 	[Fact]
@@ -158,15 +75,99 @@ public class TwVariantsBasicTests
 		};
 
 		// Act
-		var result = _tv.Invoke(button, descriptor);
+		var result = Tv.Invoke(button, descriptor);
 
 		// Assert
-		var baseClasses = result[s => s.Base];
-		Assert.Contains("inline-flex", baseClasses);
-		Assert.Contains("bg-destructive", baseClasses);
-		Assert.Contains("h-11", baseClasses);
-		Assert.Contains("px-8", baseClasses);
-		Assert.Contains("opacity-50", baseClasses);
-		Assert.Contains("pointer-events-none", baseClasses);
+		result.ContainsAll(s => s.Base,
+			"inline-flex",
+			"bg-destructive",
+			"h-11",
+			"px-8",
+			"opacity-50",
+			"pointer-events-none");
+	}
+
+	[Fact]
+	public void Invoke_MultipleInvocations_DoesNotMutateDescriptor()
+	{
+		// Arrange
+		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
+			@base: "btn",
+			variants: new VariantCollection<TestComponent, TestSlots>
+			{
+				{
+					c => c.Size,
+					new Variant<string, TestSlots>
+					{
+						["sm"] = "text-sm",
+						["lg"] = "text-lg"
+					}
+				}
+			}
+		);
+
+		// Act
+		var result1 = Tv.Invoke(new TestComponent { Size = "sm" }, descriptor);
+		var result2 = Tv.Invoke(new TestComponent { Size = "lg" }, descriptor);
+
+		// Assert
+		result1.ContainsAll(s => s.Base, "text-sm");
+		result1.DoesNotContainAny(s => s.Base, "text-lg");
+
+		result2.ContainsAll(s => s.Base, "text-lg");
+		result2.DoesNotContainAny(s => s.Base, "text-sm");
+	}
+
+	[Fact]
+	public void Invoke_WithBaseClassOnly_ReturnsBaseSlot()
+	{
+		// Arrange
+		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
+			@base: "p-4 bg-white"
+		);
+		var component = new TestComponent();
+
+		// Act
+		var result = Tv.Invoke(component, descriptor);
+
+		// Assert
+		result.ShouldEqual(s => s.Base, "p-4 bg-white");
+	}
+
+	[Fact]
+	public void Invoke_WithEmptyDescriptor_ReturnsEmptyBaseSlot()
+	{
+		// Arrange
+		var descriptor = new TvDescriptor<TestComponent, TestSlots>();
+		var component = new TestComponent();
+
+		// Act
+		var result = Tv.Invoke(component, descriptor);
+
+		// Assert
+		Assert.Null(result[s => s.Base]);
+	}
+
+	[Fact]
+	public void Invoke_WithSlots_ReturnsAllSlots()
+	{
+		// Arrange
+		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
+			@base: "container",
+			slots: new()
+			{
+				[s => s.Title] = "text-xl font-bold",
+				[s => s.Description] = "text-sm text-gray-600"
+			}
+		);
+		var component = new TestComponent();
+
+		// Act
+		var result = Tv.Invoke(component, descriptor);
+
+		// Assert
+		result.ShouldEqual(s => s.Base, "container");
+		result.ShouldEqual(s => s.Title, "text-xl font-bold");
+		result.ShouldEqual(s => s.Description, "text-sm text-gray-600");
 	}
 }
