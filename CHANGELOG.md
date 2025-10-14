@@ -1,3 +1,29 @@
+## [0.2.0] - 2025-10-14
+
+### 🚀 Features
+
+- Added slot inheritance, making ISlots methods virtual/override based on the class modifiers
+
+### 🐛 Bug Fixes
+
+- Adding GetName with string as key to use with *SlotsNames class constants
+- Merge conflicts
+- Docs not importing App.razor
+- Naming and qualification was wrong when generating
+- Changed extensions class name
+- Added space after nested components
+
+### ⚙️ Miscellaneous Tasks
+
+- Code formatting
+- Split tests in multiple files
+- Revert changes "SlotAttribute"
+- Updated generator pipeline to filter out empty classes and not partial classes, removed diagnostics
+- Code formatting, added .editorconfig
+- Modified editorconfig
+- Removed IsPartial from SlotsAccessorToGenerate
+- Revert to old naming convention
+- Fixed README.md to account for latest changes
 ## [0.1.0] - 2025-10-12
 
 ### 🚀 Features
@@ -15,6 +41,7 @@
 
 - Merged source generator test project with main
 - Added slots attribute to test it
+- Bump version, update CHANGELOG.md
 ## [0.0.6] - 2025-10-11
 
 ### 🐛 Bug Fixes
