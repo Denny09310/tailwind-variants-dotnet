@@ -6,8 +6,8 @@ public class SlotsInheritanceTests : TestContext
 
 	public static TheoryData<Type, string[], int> EnumExpectations { get; } = new()
 	{
-		{ typeof(ButtonSlotsTypes), new[] { "Base", "Icon", "Label" }, 3 },
-		{ typeof(GhostButtonSlotsTypes), new[] { "Overlay" }, 4 }
+		{ typeof(ButtonSlotTypes), new[] { "Base", "Icon", "Label" }, 3 },
+		{ typeof(GhostButtonSlotTypes), new[] { "Overlay" }, 4 }
 	};
 
 	private TwVariants Tv => Services.GetRequiredService<TwVariants>();
