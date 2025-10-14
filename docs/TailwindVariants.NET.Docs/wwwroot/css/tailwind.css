@@ -1,29 +1,29 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 
 @plugin '@tailwindcss/typography';
 
 /* Adds pointer cursor to buttons */
 @layer base {
-    ::-webkit-scrollbar {
-        @apply w-2;
-    }
+	::-webkit-scrollbar {
+		@apply w-2;
+	}
 
-    ::-webkit-scrollbar-track {
-        @apply rounded bg-gray-100 dark:bg-neutral-700;
-    }
+	::-webkit-scrollbar-track {
+		@apply rounded bg-gray-100 dark:bg-neutral-700;
+	}
 
-    ::-webkit-scrollbar-thumb {
-        @apply rounded bg-gray-300 dark:bg-neutral-500;
-    }
+	::-webkit-scrollbar-thumb {
+		@apply rounded bg-gray-300 dark:bg-neutral-500;
+	}
 
-    body {
-        @apply bg-white text-gray-700 dark:bg-neutral-900 dark:text-white;
-    }
+	body {
+		@apply bg-white text-gray-700 dark:bg-neutral-900 dark:text-white;
+	}
 
-    button:not(:disabled),
-    [role="button"]:not(:disabled) {
-        cursor: pointer;
-    }
+	button:not(:disabled),
+	[role="button"]:not(:disabled) {
+		cursor: pointer;
+	}
 }
 
 /* Defaults hover styles on all devices */

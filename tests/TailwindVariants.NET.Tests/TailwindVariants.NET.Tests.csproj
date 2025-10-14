@@ -16,7 +16,6 @@
 	<ItemGroup>
 		<PackageReference Include="bunit" Version="1.40.0" />
 		<PackageReference Include="coverlet.collector" Version="6.0.4" PrivateAssets="all" />
-		<PackageReference Include="Shouldly" Version="4.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>
