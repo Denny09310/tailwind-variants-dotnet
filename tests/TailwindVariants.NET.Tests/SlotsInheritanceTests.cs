@@ -1,12 +1,10 @@
 using System;
 
-using Tw = TailwindMerge.TwMerge;
-
 namespace TailwindVariants.NET.Tests;
 
-public class SlotsInheritanceTests
+public class SlotsInheritanceTests : TestContext
 {
-	private readonly TwVariants _tv = new(new Tw());
+	public SlotsInheritanceTests() => Services.AddTailwindVariants();
 
 	[Fact]
 	public void Enum_ForBaseClass_ContainsBaseProperties()
@@ -46,7 +44,8 @@ public class SlotsInheritanceTests
 		var component = new GhostButtonComponent();
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var tv = Services.GetRequiredService<TwVariants>();
+		var result = tv.Invoke(component, descriptor);
 
 		// Assert
 		Assert.Equal("btn", result[s => s.Base]);
@@ -83,7 +82,8 @@ public class SlotsInheritanceTests
 		var component = new GhostButtonComponent { Variant = "ghost" };
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var tv = Services.GetRequiredService<TwVariants>();
+		var result = tv.Invoke(component, descriptor);
 
 		// Assert
 		Assert.Contains("bg-transparent", result[s => s.Base]);
@@ -115,7 +115,8 @@ public class SlotsInheritanceTests
 		};
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var tv = Services.GetRequiredService<TwVariants>();
+		var result = tv.Invoke(component, descriptor);
 
 		// Assert
 		Assert.Contains("w-4", result[s => s.Icon]);
@@ -168,7 +169,8 @@ public class SlotsInheritanceTests
 		};
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var tv = Services.GetRequiredService<TwVariants>();
+		var result = tv.Invoke(component, descriptor);
 
 		// Assert
 		var baseClasses = result[s => s.Base];
@@ -230,7 +232,8 @@ public class SlotsInheritanceTests
 		};
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var tv = Services.GetRequiredService<TwVariants>();
+		var result = tv.Invoke(component, descriptor);
 
 		// Assert
 		var baseClasses = result[s => s.Base];

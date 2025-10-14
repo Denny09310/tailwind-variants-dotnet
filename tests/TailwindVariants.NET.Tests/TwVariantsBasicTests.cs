@@ -1,10 +1,8 @@
-using Tw = TailwindMerge.TwMerge;
-
 namespace TailwindVariants.NET.Tests;
 
-public class TwVariantsBasicTests
+public class TwVariantsBasicTests : TestContext
 {
-	private readonly TwVariants _tv = new(new Tw());
+	public TwVariantsBasicTests() => Services.AddTailwindVariants();
 
 	[Fact]
 	public void Invoke_AccessingNonInitializedSlot_ReturnsNull()
@@ -16,7 +14,8 @@ public class TwVariantsBasicTests
 		var component = new TestComponent();
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var tv = Services.GetRequiredService<TwVariants>();
+		var result = tv.Invoke(component, descriptor);
 
 		// Assert
 		Assert.Equal("container", result[s => s.Base]);
@@ -35,7 +34,8 @@ public class TwVariantsBasicTests
 		var component = new TestComponent();
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var tv = Services.GetRequiredService<TwVariants>();
+		var result = tv.Invoke(component, descriptor);
 
 		// Assert
 		Assert.Equal("p-4 bg-white", result[s => s.Base]);
@@ -56,7 +56,8 @@ public class TwVariantsBasicTests
 		var component = new TestComponent();
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var tv = Services.GetRequiredService<TwVariants>();
+		var result = tv.Invoke(component, descriptor);
 
 		// Assert
 		Assert.Equal("container", result[s => s.Base]);
@@ -84,8 +85,9 @@ public class TwVariantsBasicTests
 		);
 
 		// Act
-		var result1 = _tv.Invoke(new TestComponent { Size = "sm" }, descriptor);
-		var result2 = _tv.Invoke(new TestComponent { Size = "lg" }, descriptor);
+		var tv = Services.GetRequiredService<TwVariants>();
+		var result1 = tv.Invoke(new TestComponent { Size = "sm" }, descriptor);
+		var result2 = tv.Invoke(new TestComponent { Size = "lg" }, descriptor);
 
 		// Assert
 		Assert.Contains("text-sm", result1[s => s.Base]);
@@ -103,7 +105,8 @@ public class TwVariantsBasicTests
 		var component = new TestComponent();
 
 		// Act
-		var result = _tv.Invoke(component, descriptor);
+		var tv = Services.GetRequiredService<TwVariants>();
+		var result = tv.Invoke(component, descriptor);
 
 		// Assert
 		Assert.Null(result[s => s.Base]);
@@ -158,7 +161,8 @@ public class TwVariantsBasicTests
 		};
 
 		// Act
-		var result = _tv.Invoke(button, descriptor);
+		var tv = Services.GetRequiredService<TwVariants>();
+		var result = tv.Invoke(button, descriptor);
 
 		// Assert
 		var baseClasses = result[s => s.Base];
