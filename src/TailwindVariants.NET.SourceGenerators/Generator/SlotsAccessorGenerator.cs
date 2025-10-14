@@ -285,10 +285,6 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 			? $"{accessor.ComponentFullName}.{accessor.NamesClass}"
 			: accessor.NamesClass;
 
-		var slotsRef = accessor.IsNested
-			? $"{accessor.ComponentFullName}.{accessor.Name}"
-			: accessor.Name;
-
 		sb.AppendMultiline($$"""
         /// <summary>
         /// Provides extension methods for strongly-typed access to <see cref="{{accessor.FullName}}"/> 
@@ -311,7 +307,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
 		sb.AppendLine($"public static string? Get(this {accessor.SlotsMapName} slots, {enumRef} key)");
 		sb.Indent();
-		sb.AppendLine($" => slots[{slotsRef}.GetName({namesRef}.NameOf(key))];");
+		sb.AppendLine($" => slots[{namesRef}.NameOf(key)];");
 		sb.Dedent();
 
 		foreach (var property in accessor.AllProperties)
@@ -405,37 +401,25 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
 	private static void WriteNamesHelper(Indenter sb, SlotsAccessorToGenerate accessor)
     {
-        sb.AppendLine($"public static class {accessor.NamesClass}");
+		sb.AppendLine($"public static class {accessor.NamesClass}");
         sb.AppendLine("{");
         sb.Indent();
 
-        sb.AppendLine("/// <summary>");
-        sb.AppendLine("/// Array of slot names in the same order as the generated enum.");
-        sb.AppendLine("/// </summary>");
-
-        sb.AppendLine($"private static readonly string[] _names = new[]");
-        sb.AppendLine("{");
-        sb.Indent();
-        // Use AllProperties to include inherited properties
-        foreach (var property in accessor.AllProperties)
-        {
-            sb.AppendLine($"{SymbolHelper.QuoteLiteral(property)},");
-        }
-        sb.Dedent();
-        sb.AppendLine("};");
-
-        sb.AppendLine();
         sb.AppendLine("/// <summary>");
         sb.AppendLine("/// All slot names (read-only).");
         sb.AppendLine("/// </summary>");
-        sb.AppendLine("public static IReadOnlyList<string> AllNames => _names;");
+        sb.AppendLine($"public static IReadOnlyList<string> AllNames => Enum.GetNames<{accessor.EnumName}>();");
         sb.AppendLine();
         sb.AppendLine($"/// <summary>Returns the slot name for the given {accessor.EnumName} key.</summary>");
-        sb.AppendLine($"public static string NameOf({accessor.EnumName} key) => _names[(int)key];");
+        sb.AppendLine($"public static string NameOf({accessor.EnumName} key) => {accessor.Name}.GetName(key.ToString());");
 
         sb.Dedent();
         sb.AppendLine("}");
-        sb.AppendLine();
+
+		if (!accessor.IsNested)
+		{
+			sb.AppendLine();
+		}
     }
 
     private static void WriteNestedClosings(Indenter sb, SlotsAccessorToGenerate accessor)
