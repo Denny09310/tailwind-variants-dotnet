@@ -1,8 +1,17 @@
+## [0.2.3] - 2025-10-16
+
+### 🐛 Bug Fixes
+
+- Added missing overload to pass TwMerge options
 ## [0.2.2] - 2025-10-15
 
 ### 🐛 Bug Fixes
 
 - Added EmbeddedAttribute attribute to avoid CSO436 warning
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, update CHANGELOG.md
 ## [0.2.1] - 2025-10-14
 
 ### 🐛 Bug Fixes
