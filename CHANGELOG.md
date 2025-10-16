@@ -1,8 +1,21 @@
+## [0.2.4] - 2025-10-16
+
+### 🐛 Bug Fixes
+
+- 'class' attribute should be applied as last
+
+### ⚙️ Miscellaneous Tasks
+
+- Updated test generation count
 ## [0.2.3] - 2025-10-16
 
 ### 🐛 Bug Fixes
 
 - Added missing overload to pass TwMerge options
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, update CHANGELOG.md
 ## [0.2.2] - 2025-10-15
 
 ### 🐛 Bug Fixes

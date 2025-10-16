@@ -49,7 +49,10 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		// 5. Apply per-instance slot overrides (Classes property)
 		ApplySlotsOverrides<TOwner, TSlots>(owner, builders);
 
-		// 6. Build final map
+		// 6. Apply 'class' attribute overrides
+		ApplyClassOverride<TOwner, TSlots>(owner, builders);
+
+		// 7. Build final map
 		return builders.ToDictionary(
 			kv => kv.Key,
 			kv => merge.Merge(kv.Value.ToString()));
@@ -76,6 +79,16 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		}
 		builder.Append(' ');
 		builder.Append(classes);
+	}
+
+	private static void ApplyClassOverride<TOwner, TSlots>(TOwner owner, Dictionary<string, StringBuilder> builders)
+		where TOwner : ISlotted<TSlots>
+		where TSlots : ISlots, new()
+	{
+		if (!string.IsNullOrEmpty(owner.Class))
+		{
+			AddClass<TSlots>(builders, s => s.Base, owner.Class);
+		}
 	}
 
 	private static void ApplyCompoundVariants<TOwner, TSlots>(
@@ -127,11 +140,6 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 			{
 				variant.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value), factory);
 			}
-		}
-
-		if (!string.IsNullOrEmpty(owner.Class))
-		{
-			AddClass<TSlots>(builders, s => s.Base, owner.Class);
 		}
 	}
 
