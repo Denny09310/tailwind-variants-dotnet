@@ -1,8 +1,17 @@
+## [0.2.6] - 2025-10-17
+
+### 🐛 Bug Fixes
+
+- Enforce modifiers on generated hierarchy, split generator in multiple files for better readability
 ## [0.2.5] - 2025-10-17
 
 ### 🐛 Bug Fixes
 
 - Slot enum types not fully qualified in XML doc
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, update CHANGELOG.md
 ## [0.2.4] - 2025-10-16
 
 ### 🐛 Bug Fixes
