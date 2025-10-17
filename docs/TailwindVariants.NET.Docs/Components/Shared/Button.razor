@@ -1,4 +1,4 @@
-﻿@inherits TwComponentBase<Button, Button.Slots>
+@inherits TwComponentBase<Button, Button.Slots>
 
 <button class="@_slots.GetBase()" type="@Type" @attributes="AdditionalAttributes">
 	@ChildContent
@@ -7,7 +7,6 @@
 @code
 {
 	[Parameter] public RenderFragment? ChildContent { get; set; }
-	[Parameter] public Slots? Classes { get; set; }
 
 	[Parameter] public Variants Variant { get; set; } = Variants.Primary;
 

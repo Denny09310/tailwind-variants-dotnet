@@ -11,4 +11,4 @@ public delegate string? SlotAccessor<TSlots>(TSlots slots)
 /// </summary>
 public delegate object? VariantAccessor<TOwner>(TOwner owner);
 
-public delegate string? SlotCombiner(string? classes);
+public delegate string? SlotAggregator(string? classes);

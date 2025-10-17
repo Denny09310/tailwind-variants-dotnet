@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Docs.Components.Shared;
 
-public partial class Button : ISlotted<Button.Slots>
+public partial class Button : IStyleable
 {
 	public static readonly TvDescriptor<Button, Slots> _button = new();
 
@@ -16,6 +16,5 @@ public partial class Button : ISlotted<Button.Slots>
 	public sealed partial class Slots : ISlots
 	{
 		public string? Base { get; set; }
-		public string? Icon { get; set; }
 	}
 }

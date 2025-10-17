@@ -17,22 +17,15 @@ public class TwVariantsOverridesTests : TestContext
 				[s => s.Title] = "text-lg"
 			}
 		);
-		var component = new TestComponent
-		{
-			Classes = new TestSlots
-			{
-				Title = "font-bold",
-				Description = null
-			}
-		};
+		var component = new TestComponent();
 
 		// Act
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		result.ContainsAll(s => s.Title,
+		result.ContainsAll(s => s.Title, classes: "font-bold", expectedTokens: [
 			"text-lg",
-			"font-bold");
+			"font-bold"]);
 
 		Assert.Null(result[s => s.Description](default));
 	}
@@ -49,26 +42,19 @@ public class TwVariantsOverridesTests : TestContext
 				[s => s.Description] = "text-sm"
 			}
 		);
-		var component = new TestComponent
-		{
-			Classes = new TestSlots
-			{
-				Title = "font-extrabold",
-				Description = "italic"
-			}
-		};
+		var component = new TestComponent();
 
 		// Act
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		result.ContainsAll(s => s.Title,
+		result.ContainsAll(s => s.Title, classes: "font-extrabold", expectedTokens: [
 			"text-lg",
-			"font-extrabold");
+			"font-extrabold"]);
 
-		result.ContainsAll(s => s.Description,
+		result.ContainsAll(s => s.Description, classes: "italic", expectedTokens: [
 			"text-sm",
-			"italic");
+			"italic"]);
 	}
 
 	[Fact]
@@ -84,10 +70,10 @@ public class TwVariantsOverridesTests : TestContext
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		result.ContainsAll(s => s.Base,
+		result.ContainsAll(s => s.Base, expectedTokens: [
 			"btn",
 			"bg-blue-500",
-			"hover:bg-blue-600");
+			"hover:bg-blue-600"]);
 	}
 
 	[Fact]
@@ -103,12 +89,12 @@ public class TwVariantsOverridesTests : TestContext
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		result.ContainsAll(s => s.Base,
+		result.ContainsAll(s => s.Base, expectedTokens: [
 			"p-8",
-			"bg-blue-500");
+			"bg-blue-500"]);
 
-		result.DoesNotContainAny(s => s.Base,
+		result.DoesNotContainAny(s => s.Base, expectedTokens: [
 			"p-4",
-			"bg-red-500");
+			"bg-red-500"]);
 	}
 }

@@ -89,9 +89,9 @@ public class TwVariantsCompoundVariantsTests : TestContext
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		result.ContainsAll(s => s.Base,
+		result.ContainsAll(s => s.Base, expectedTokens: [
 			"opacity-50",
-			"cursor-not-allowed");
+			"cursor-not-allowed"]);
 	}
 
 	[Fact]
@@ -115,7 +115,7 @@ public class TwVariantsCompoundVariantsTests : TestContext
 		var result = tv.Invoke(component, descriptor);
 
 		// Assert
-		result.DoesNotContainAny(s => s.Base, "opacity-50");
+		result.DoesNotContainAny(s => s.Base, expectedTokens: ["opacity-50"]);
 	}
 
 	[Fact]

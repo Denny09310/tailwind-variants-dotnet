@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Tests;
 
-public class ComponentWithThrowingPredicate : ISlotted<TestSlots>
+public class ComponentWithThrowingPredicate : IStyleable
 {
 	public string? Class { get; set; }
 

@@ -38,12 +38,12 @@ public class TwVariantsVariantsTests : TestContext
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		result.ContainsAll(b => b.Base,
+		result.ContainsAll(b => b.Base, expectedTokens: [
 			"btn",
 			"text-lg",
 			"py-3",
 			"bg-blue-500",
-			"text-white");
+			"text-white"]);
 	}
 
 	[Fact]
@@ -72,9 +72,9 @@ public class TwVariantsVariantsTests : TestContext
 		// Assert
 		result.ShouldEqual(s => s.Base, "btn");
 
-		result.DoesNotContainAny(b => b.Base,
+		result.DoesNotContainAny(b => b.Base, expectedTokens: [
 			"text-sm",
-			"text-lg");
+			"text-lg"]);
 	}
 
 	[Fact]
@@ -129,9 +129,9 @@ public class TwVariantsVariantsTests : TestContext
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		result.ContainsAll(b => b.Base,
+		result.ContainsAll(b => b.Base, expectedTokens: [
 			"text-lg",
 			"py-3",
-			"px-6");
+			"px-6"]);
 	}
 }

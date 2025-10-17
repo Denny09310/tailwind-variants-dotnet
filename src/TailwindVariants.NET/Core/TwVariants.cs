@@ -43,9 +43,6 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		// 4. Apply compound variants
 		ApplyCompoundVariants<TOwner, TSlots>(owner, builders, generic.CompoundVariants, factory);
 
-		// 5. Apply per-instance slot overrides (Classes property)
-		ApplySlotsOverrides<TOwner, TSlots>(owner, builders);
-
 		if (!string.IsNullOrEmpty(owner.Class))
 		{
 			AddClass<TSlots>(builders, nameof(ISlots.Base), owner.Class);
@@ -54,7 +51,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		// 6. Build final callbacks
 		return builders.ToDictionary(
 			kv => kv.Key,
-			kv => new SlotCombiner((classes) =>
+			kv => new SlotAggregator((classes) =>
 			{
 				AddClass<TSlots>(builders, kv.Key, classes);
 				return merge.Merge(kv.Value.ToString());
@@ -94,27 +91,6 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		foreach (var cv in compounds)
 		{
 			cv.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value), factory);
-		}
-	}
-
-	private static void ApplySlotsOverrides<TOwner, TSlots>(TOwner owner, Dictionary<string, StringBuilder> builders)
-		where TOwner : IStyleable
-		where TSlots : ISlots, new()
-	{
-		if (owner is not ISlotted<TSlots> slotted || slotted.Classes is null)
-		{
-			return;
-		}
-
-		foreach (var (slot, value) in slotted.Classes.EnumerateOverrides())
-		{
-			if (!builders.TryGetValue(slot, out var builder))
-			{
-				builder = new StringBuilder();
-				builders[slot] = builder;
-			}
-			builder.Append(' ');
-			builder.Append(value);
 		}
 	}
 

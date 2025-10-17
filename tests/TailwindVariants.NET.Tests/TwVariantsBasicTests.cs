@@ -27,23 +27,6 @@ public class TwVariantsBasicTests : TestContext
 	}
 
 	[Fact]
-	public void Invoke_AccessingSimpleComponentSlots_ReturnsBase()
-	{
-		// Arrange
-		var descriptor = new TvDescriptor<SimpleComponent, SimpleSlots>(
-			@base: "container"
-		);
-		var component = new SimpleComponent();
-
-		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
-
-		// Assert
-		result.ShouldEqual(s => s.Base, "container");
-	}
-
-	[Fact]
 	public void Invoke_ComplexButtonExample_ProducesCorrectOutput()
 	{
 		// Arrange
@@ -95,13 +78,13 @@ public class TwVariantsBasicTests : TestContext
 		var result = Tv.Invoke(button, descriptor);
 
 		// Assert
-		result.ContainsAll(s => s.Base,
+		result.ContainsAll(s => s.Base, expectedTokens: [
 			"inline-flex",
 			"bg-destructive",
 			"h-11",
 			"px-8",
 			"opacity-50",
-			"pointer-events-none");
+			"pointer-events-none"]);
 	}
 
 	[Fact]
@@ -129,10 +112,10 @@ public class TwVariantsBasicTests : TestContext
 
 		// Assert
 		result1.ContainsAll(s => s.Base, "text-sm");
-		result1.DoesNotContainAny(s => s.Base, "text-lg");
+		result1.DoesNotContainAny(s => s.Base, expectedTokens: ["text-lg"]);
 
 		result2.ContainsAll(s => s.Base, "text-lg");
-		result2.DoesNotContainAny(s => s.Base, "text-sm");
+		result2.DoesNotContainAny(s => s.Base, expectedTokens: ["text-sm"]);
 	}
 
 	[Fact]

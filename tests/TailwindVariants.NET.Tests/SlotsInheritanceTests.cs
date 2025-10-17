@@ -48,9 +48,9 @@ public class SlotsInheritanceTests : TestContext
 
 		// Assert - exact expectations for each slot
 		result.ShouldEqual(s => s.Base, "btn");
-		result.ContainsAll(s => s.Icon, "w-4", "h-4");
-		result.ContainsAll(s => s.Label, "ml-2");
-		result.ContainsAll(s => s.Overlay, "absolute", "inset-0", "bg-black/10");
+		result.ContainsAll(s => s.Icon, expectedTokens: ["w-4", "h-4"]);
+		result.ContainsAll(s => s.Label, expectedTokens: ["ml-2"]);
+		result.ContainsAll(s => s.Overlay, expectedTokens: ["absolute", "inset-0", "bg-black/10"]);
 	}
 
 	// --- Invocation tests -------------------------------------------------------
@@ -85,8 +85,8 @@ public class SlotsInheritanceTests : TestContext
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert that base and overlay got merged pieces from both base/slot and the variant
-		result.ContainsAll(s => s.Base, "bg-transparent");
-		result.ContainsAll(s => s.Overlay, "absolute", "inset-0", "bg-black/5", "hover:bg-black/10");
+		result.ContainsAll(s => s.Base, expectedTokens: ["bg-transparent"]);
+		result.ContainsAll(s => s.Overlay, expectedTokens: ["absolute", "inset-0", "bg-black/5", "hover:bg-black/10"]);
 	}
 
 	[Fact]
@@ -101,23 +101,15 @@ public class SlotsInheritanceTests : TestContext
 				[s => s.Overlay] = "absolute inset-0"
 			}
 		);
-		var component = new GhostButtonComponent
-		{
-			Classes = new GhostButtonSlots
-			{
-				Icon = "text-blue-500",
-				Label = "font-bold",
-				Overlay = "bg-black/20"
-			}
-		};
+		var component = new GhostButtonComponent();
 
 		// Act
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		result.ContainsAll(s => s.Icon, "w-4", "h-4", "text-blue-500");
-		result.ContainsAll(s => s.Label, "font-bold");
-		result.ContainsAll(s => s.Overlay, "absolute", "inset-0", "bg-black/20");
+		result.ContainsAll(s => s.Icon, classes: "text-blue-500", ["w-4", "h-4", "text-blue-500"]);
+		result.ContainsAll(s => s.Label, classes: "font-bold", ["font-bold"]);
+		result.ContainsAll(s => s.Overlay, classes: "bg-black/20",["absolute", "inset-0", "bg-black/20"]);
 	}
 
 	[Fact]
@@ -164,7 +156,7 @@ public class SlotsInheritanceTests : TestContext
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert compound variant effect applied
-		result.ContainsAll(s => s.Base,
+		result.ContainsAll(s => s.Base, expectedTokens: [
 			"font-semibold",
 			"text-white",
 			"active:opacity-80",
@@ -173,7 +165,7 @@ public class SlotsInheritanceTests : TestContext
 			"py-1",
 			"px-3",
 			"text-sm",
-			"rounded-sm");
+			"rounded-sm"]);
 	}
 
 	[Fact]
@@ -220,7 +212,7 @@ public class SlotsInheritanceTests : TestContext
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert presence of the merged tokens
-		result.ContainsAll(s => s.Base,
+		result.ContainsAll(s => s.Base, expectedTokens: [
 			"font-semibold",
 			"dark:text-white",
 			"py-1",
@@ -233,8 +225,7 @@ public class SlotsInheritanceTests : TestContext
 			"bg-blue-500",
 			"hover:bg-blue-600",
 			"dark:bg-blue-500",
-			"dark:hover:bg-blue-600"
-		);
+			"dark:hover:bg-blue-600"]);
 	}
 
 	[Fact]
@@ -282,7 +273,7 @@ public class SlotsInheritanceTests : TestContext
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert expected tokens from ancestor variants and child variants
-		result.ContainsAll(s => s.Base,
+		result.ContainsAll(s => s.Base, expectedTokens: [
 			"font-semibold",
 			"active:opacity-80",
 			"rounded-sm",
@@ -290,7 +281,6 @@ public class SlotsInheritanceTests : TestContext
 			"hover:bg-purple-700",
 			"py-1",
 			"px-3",
-			"text-sm"
-		);
+			"text-sm"]);
 	}
 }

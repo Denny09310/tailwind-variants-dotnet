@@ -4,17 +4,17 @@ namespace TailwindVariants.NET;
 
 internal static class TestHelpers
 {
-	public static void ContainsAll<TSlots>(this SlotsMap<TSlots> map, Expression<SlotAccessor<TSlots>> accessor, params string[] expectedTokens)
+	public static void ContainsAll<TSlots>(this SlotsMap<TSlots> map, Expression<SlotAccessor<TSlots>> accessor, string? classes = default, string[]? expectedTokens = null)
 		where TSlots : ISlots, new()
 	{
-		var tokens = GetTokenSet(map, accessor);
-		foreach (var t in expectedTokens)
+		var tokens = GetTokenSet(map, accessor, classes);
+		foreach (var t in expectedTokens ?? [])
 		{
 			Assert.Contains(t, tokens);
 		}
 	}
 
-	public static void DoesNotContainAny<TSlots>(this SlotsMap<TSlots> map, Expression<SlotAccessor<TSlots>> accessor, params string[] expectedTokens)
+	public static void DoesNotContainAny<TSlots>(this SlotsMap<TSlots> map, Expression<SlotAccessor<TSlots>> accessor, string[] expectedTokens)
 		where TSlots : ISlots, new()
 	{
 		var tokens = GetTokenSet(map, accessor);
@@ -32,12 +32,12 @@ internal static class TestHelpers
 		Assert.Equal(expected, value);
 	}
 
-	private static HashSet<string> GetTokenSet<TSlots>(SlotsMap<TSlots> map, Expression<SlotAccessor<TSlots>> accessor)
+	private static HashSet<string> GetTokenSet<TSlots>(SlotsMap<TSlots> map, Expression<SlotAccessor<TSlots>> accessor, string? classes = default)
 		where TSlots : ISlots, new()
 	{
-		var classes = map[accessor](default);
-		Assert.False(string.IsNullOrWhiteSpace(classes));
-		return Tokens(classes).ToHashSet(StringComparer.Ordinal);
+		var result = map[accessor](classes);
+		Assert.False(string.IsNullOrWhiteSpace(result));
+		return Tokens(result).ToHashSet(StringComparer.Ordinal);
 	}
 
 	private static IEnumerable<string> Tokens(string? classes)

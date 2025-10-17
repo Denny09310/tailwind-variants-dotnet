@@ -1,21 +1,12 @@
 namespace TailwindVariants.NET;
 
+/// <summary>
+/// Represents an element or component that exposes a CSS class string.
+/// </summary>
 public interface IStyleable
 {
-	public string? Class { get; set; }
-}
-
-/// <summary>
-/// Defines a contract for a type that provides slot-based CSS classes.
-/// </summary>
-/// <typeparam name="TSlots">
-/// The type representing the slots, which must implement <see cref="ISlots"/>.
-/// </typeparam>
-public interface ISlotted<TSlots> : IStyleable
-	where TSlots : ISlots, new()
-{
 	/// <summary>
-	/// Gets the slot-based CSS classes.
+	/// Gets or sets the CSS class string applied to the element or component.
 	/// </summary>
-	TSlots? Classes { get; }
+	string? Class { get; set; }
 }

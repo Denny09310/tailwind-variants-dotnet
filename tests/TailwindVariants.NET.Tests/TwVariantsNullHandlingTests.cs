@@ -37,7 +37,7 @@ public class TwVariantsNullHandlingTests : TestContext
 				[s => s.Description] = "text-lg"
 			}
 		);
-		var component = new TestComponent { Classes = null };
+		var component = new TestComponent();
 
 		// Act
 		var result = Tv.Invoke(component, descriptor);
