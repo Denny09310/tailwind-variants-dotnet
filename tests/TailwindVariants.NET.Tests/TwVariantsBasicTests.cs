@@ -21,9 +21,26 @@ public class TwVariantsBasicTests : TestContext
 
 		// Assert
 		result.ShouldEqual(s => s.Base, "container");
-		Assert.Null(result[s => s.Container]);
-		Assert.Null(result[s => s.Title]);
-		Assert.Null(result[s => s.Description]);
+		Assert.Null(result[s => s.Container](default));
+		Assert.Null(result[s => s.Title](default));
+		Assert.Null(result[s => s.Description](default));
+	}
+
+	[Fact]
+	public void Invoke_AccessingSimpleComponentSlots_ReturnsBase()
+	{
+		// Arrange
+		var descriptor = new TvDescriptor<SimpleComponent, SimpleSlots>(
+			@base: "container"
+		);
+		var component = new SimpleComponent();
+
+		// Act
+		var tv = Services.GetRequiredService<TwVariants>();
+		var result = tv.Invoke(component, descriptor);
+
+		// Assert
+		result.ShouldEqual(s => s.Base, "container");
 	}
 
 	[Fact]
@@ -145,7 +162,7 @@ public class TwVariantsBasicTests : TestContext
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		Assert.Null(result[s => s.Base]);
+		Assert.Null(result[s => s.Base](default));
 	}
 
 	[Fact]

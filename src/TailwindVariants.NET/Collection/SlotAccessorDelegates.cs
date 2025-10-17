@@ -10,3 +10,5 @@ public delegate string? SlotAccessor<TSlots>(TSlots slots)
 /// Variant accessor that given an owner returns an object (selected variant).
 /// </summary>
 public delegate object? VariantAccessor<TOwner>(TOwner owner);
+
+public delegate string? SlotCombiner(string? classes);

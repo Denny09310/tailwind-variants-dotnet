@@ -28,14 +28,14 @@ internal static class TestHelpers
 	public static void ShouldEqual<TSlots>(this SlotsMap<TSlots> map, Expression<SlotAccessor<TSlots>> accessor, string expected)
 		where TSlots : ISlots, new()
 	{
-		var value = map[accessor];
+		var value = map[accessor](default);
 		Assert.Equal(expected, value);
 	}
 
 	private static HashSet<string> GetTokenSet<TSlots>(SlotsMap<TSlots> map, Expression<SlotAccessor<TSlots>> accessor)
 		where TSlots : ISlots, new()
 	{
-		var classes = map[accessor];
+		var classes = map[accessor](default);
 		Assert.False(string.IsNullOrWhiteSpace(classes));
 		return Tokens(classes).ToHashSet(StringComparer.Ordinal);
 	}

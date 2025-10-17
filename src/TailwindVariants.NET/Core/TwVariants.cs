@@ -1,11 +1,8 @@
-using System.Linq.Expressions;
 using System.Text;
 
 using Microsoft.Extensions.Logging;
 
 using TailwindVariants.NET.Models;
-
-using static TailwindVariants.NET.TvHelpers;
 
 using Tw = TailwindMerge.TwMerge;
 
@@ -30,8 +27,8 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 	/// The returned function is safe to call multiple times; per-call overrides do not mutate precomputed definitions.
 	/// </remarks>
 	public SlotsMap<TSlots> Invoke<TOwner, TSlots>(TOwner owner, TvDescriptor<TOwner, TSlots> descriptor)
+		where TOwner : IStyleable
 		where TSlots : ISlots, new()
-		where TOwner : ISlotted<TSlots>
 	{
 		var generic = (ITvDescriptor)descriptor;
 
@@ -49,29 +46,32 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		// 5. Apply per-instance slot overrides (Classes property)
 		ApplySlotsOverrides<TOwner, TSlots>(owner, builders);
 
-		// 6. Apply 'class' attribute overrides
-		ApplyClassOverride<TOwner, TSlots>(owner, builders);
+		if (!string.IsNullOrEmpty(owner.Class))
+		{
+			AddClass<TSlots>(builders, nameof(ISlots.Base), owner.Class);
+		}
 
-		// 7. Build final map
+		// 6. Build final callbacks
 		return builders.ToDictionary(
 			kv => kv.Key,
-			kv => merge.Merge(kv.Value.ToString()));
+			kv => new SlotCombiner((classes) =>
+			{
+				AddClass<TSlots>(builders, kv.Key, classes);
+				return merge.Merge(kv.Value.ToString());
+			}));
 	}
 
 	#region Helpers
 
 	private static void AddClass<TSlots>(
-		Dictionary<string, StringBuilder> builders, Expression<SlotAccessor<TSlots>> accessor, string classes)
+		Dictionary<string, StringBuilder> builders, string slot, string? classes)
 		where TSlots : ISlots, new()
 	{
-		var name = GetSlot(accessor);
-		AddClass<TSlots>(builders, name, classes);
-	}
+		if (string.IsNullOrEmpty(classes))
+		{
+			return;
+		}
 
-	private static void AddClass<TSlots>(
-		Dictionary<string, StringBuilder> builders, string slot, string classes)
-		where TSlots : ISlots, new()
-	{
 		if (!builders.TryGetValue(slot, out var builder))
 		{
 			builder = new StringBuilder();
@@ -81,20 +81,10 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		builder.Append(classes);
 	}
 
-	private static void ApplyClassOverride<TOwner, TSlots>(TOwner owner, Dictionary<string, StringBuilder> builders)
-		where TOwner : ISlotted<TSlots>
-		where TSlots : ISlots, new()
-	{
-		if (!string.IsNullOrEmpty(owner.Class))
-		{
-			AddClass<TSlots>(builders, s => s.Base, owner.Class);
-		}
-	}
-
 	private static void ApplyCompoundVariants<TOwner, TSlots>(
 		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledCompoundVariant>? compounds, ILoggerFactory factory)
+		where TOwner : IStyleable
 		where TSlots : ISlots, new()
-		where TOwner : ISlotted<TSlots>
 	{
 		if (compounds is null)
 		{
@@ -107,17 +97,16 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		}
 	}
 
-	private static void ApplySlotsOverrides<TOwner, TSlots>(
-			TOwner owner, Dictionary<string, StringBuilder> builders)
-		where TOwner : ISlotted<TSlots>
+	private static void ApplySlotsOverrides<TOwner, TSlots>(TOwner owner, Dictionary<string, StringBuilder> builders)
+		where TOwner : IStyleable
 		where TSlots : ISlots, new()
 	{
-		if (owner.Classes is null)
+		if (owner is not ISlotted<TSlots> slotted || slotted.Classes is null)
 		{
 			return;
 		}
 
-		foreach (var (slot, value) in owner.Classes.EnumerateOverrides())
+		foreach (var (slot, value) in slotted.Classes.EnumerateOverrides())
 		{
 			if (!builders.TryGetValue(slot, out var builder))
 			{
@@ -131,15 +120,17 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 
 	private static void ApplyVariants<TOwner, TSlots>(
 		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledVariant>? variants, ILoggerFactory factory)
+		where TOwner : IStyleable
 		where TSlots : ISlots, new()
-		where TOwner : ISlotted<TSlots>
 	{
-		if (variants is not null)
+		if (variants is null)
 		{
-			foreach (var variant in variants)
-			{
-				variant.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value), factory);
-			}
+			return;
+		}
+
+		foreach (var variant in variants)
+		{
+			variant.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value), factory);
 		}
 	}
 

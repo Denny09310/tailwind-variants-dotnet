@@ -21,7 +21,7 @@ public class TwVariantsNullHandlingTests : TestContext
 
 		var result = Tv.Invoke(component, descriptor);
 
-		Assert.Null(result[s => s.Base]);
+		Assert.Null(result[s => s.Base](default));
 	}
 
 	[Theory]
@@ -44,7 +44,7 @@ public class TwVariantsNullHandlingTests : TestContext
 
 		// Assert
 		result.ShouldEqual(s => s.Base, "component");
-		Assert.Null(result[s => s.Title]);
+		Assert.Null(result[s => s.Title](default));
 		result.ShouldEqual(s => s.Description, "text-lg");
 	}
 

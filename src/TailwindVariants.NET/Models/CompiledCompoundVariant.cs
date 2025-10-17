@@ -11,8 +11,8 @@ namespace TailwindVariants.NET.Models;
 public interface ICompiledCompoundVariant : IApplicableVariant;
 
 internal record struct CompiledCompoundVariant<TOwner, TSlots>(Predicate<TOwner> Predicate, SlotCollection<TSlots> Slots) : ICompiledCompoundVariant
+	where TOwner : IStyleable
 	where TSlots : ISlots, new()
-	where TOwner : ISlotted<TSlots>
 {
 	public readonly void Apply(object obj, Action<string, string> aggregator, ILoggerFactory factory)
 	{

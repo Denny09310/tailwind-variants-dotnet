@@ -34,7 +34,7 @@ public class TwVariantsOverridesTests : TestContext
 			"text-lg",
 			"font-bold");
 
-		Assert.Null(result[s => s.Description]);
+		Assert.Null(result[s => s.Description](default));
 	}
 
 	[Fact]
