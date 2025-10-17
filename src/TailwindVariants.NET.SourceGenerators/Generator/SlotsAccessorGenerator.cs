@@ -88,10 +88,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 			ExtClassName: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotExtensions"),
 			NamesClass: namesClass,
 			IsSealed: symbol.IsSealed,
-			IsNested: isNested)
-		{
-			Location = symbol.Locations.FirstOrDefault()
-		};
+			IsNested: isNested);
 	}
 
 	private static void GenerateForSlotsType(SourceProductionContext spc, SlotsAccessorToGenerate accessor)
@@ -319,7 +316,7 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 
 		sb.AppendMultiline($$"""
         /// <summary>
-        /// Gets the value of the slot identified by the specified <see cref="{{accessor.EnumName}}"/> key.
+        /// Gets the value of the slot identified by the specified <see cref="{{enumRef}}"/> key.
         /// </summary>
         /// <param name="slots">The <see cref="SlotsMap{T}"/> instance containing slot values.</param>
         /// <param name="key">The enum key representing the slot to retrieve.</param>
@@ -526,8 +523,5 @@ public class SlotsAccessorGenerator : IIncrementalGenerator
 		bool IsGetNameImplemented,
 		EquatableArray<string> Hierarchy,
 		EquatableArray<(string Name, string Slot)> Properties,
-		EquatableArray<string> AllProperties)
-	{
-		public Location? Location { get; init; }
-	};
+		EquatableArray<string> AllProperties);
 }
