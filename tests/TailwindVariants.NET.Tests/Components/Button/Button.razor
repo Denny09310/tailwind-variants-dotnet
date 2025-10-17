@@ -1,7 +1,7 @@
 @namespace TailwindVariants.NET.Tests.Components
 @inherits TwComponentBase<Button, Button.Slots>
 
-<button class="@_slots.GetBase(Classes?.Base)" type="@Type" @attributes="AdditionalAttributes">
+<button class="@_slots.GetBase(string.Concat(Classes?.Base, Class))" type="@Type" @attributes="AdditionalAttributes">
 	@RenderInnerContent()
 </button>
 

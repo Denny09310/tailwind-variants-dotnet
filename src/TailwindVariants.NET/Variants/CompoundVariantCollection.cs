@@ -6,7 +6,7 @@ namespace TailwindVariants.NET;
 /// Collection of compound variants.
 /// </summary>
 public class CompoundVariantCollection<TOwner, TSlots> : IEnumerable<CompoundVariant<TOwner, TSlots>>
-	where TOwner : IStyleable
+	where TOwner : notnull
 	where TSlots : ISlots, new()
 {
 	private readonly List<CompoundVariant<TOwner, TSlots>> _variants = [];

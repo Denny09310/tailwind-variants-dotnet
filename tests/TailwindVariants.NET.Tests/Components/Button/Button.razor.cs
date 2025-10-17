@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Tests.Components;
 
-public partial class Button : IStyleable
+public partial class Button
 {
 	private static readonly TvDescriptor<Button, Slots> _button = new
 	(

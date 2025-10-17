@@ -14,11 +14,11 @@ internal static class TestHelpers
 		}
 	}
 
-	public static void DoesNotContainAny<TSlots>(this SlotsMap<TSlots> map, Expression<SlotAccessor<TSlots>> accessor, string[] expectedTokens)
+	public static void DoesNotContainAny<TSlots>(this SlotsMap<TSlots> map, Expression<SlotAccessor<TSlots>> accessor, string? classes = default, string[]? expectedTokens = null)
 		where TSlots : ISlots, new()
 	{
-		var tokens = GetTokenSet(map, accessor);
-		foreach (var t in expectedTokens)
+		var tokens = GetTokenSet(map, accessor, classes);
+		foreach (var t in expectedTokens ?? [])
 		{
 			Assert.DoesNotContain(t, tokens);
 		}

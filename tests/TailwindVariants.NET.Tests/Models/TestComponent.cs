@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Tests;
 
-public class TestComponent : IStyleable
+public class TestComponent
 {
 	public string? Class { get; set; }
 	public string? Color { get; set; }

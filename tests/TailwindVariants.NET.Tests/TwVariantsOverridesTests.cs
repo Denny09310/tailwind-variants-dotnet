@@ -70,7 +70,7 @@ public class TwVariantsOverridesTests : TestContext
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		result.ContainsAll(s => s.Base, expectedTokens: [
+		result.ContainsAll(s => s.Base, component.Class, expectedTokens: [
 			"btn",
 			"bg-blue-500",
 			"hover:bg-blue-600"]);
@@ -89,11 +89,11 @@ public class TwVariantsOverridesTests : TestContext
 		var result = Tv.Invoke(component, descriptor);
 
 		// Assert
-		result.ContainsAll(s => s.Base, expectedTokens: [
+		result.ContainsAll(s => s.Base, component.Class, expectedTokens: [
 			"p-8",
 			"bg-blue-500"]);
 
-		result.DoesNotContainAny(s => s.Base, expectedTokens: [
+		result.DoesNotContainAny(s => s.Base, component.Class, expectedTokens: [
 			"p-4",
 			"bg-red-500"]);
 	}

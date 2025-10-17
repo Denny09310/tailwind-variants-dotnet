@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Tests;
 
-public class ComponentWithThrowingPredicate : IStyleable
+public class ComponentWithThrowingPredicate
 {
 	public string? Class { get; set; }
 

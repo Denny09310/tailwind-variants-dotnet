@@ -2,7 +2,7 @@
 
 namespace TailwindVariants.NET.Tests.Components;
 
-public partial class Link : IStyleable
+public partial class Link
 {
 	private static readonly TvDescriptor<Link, Slots> _link = new
 	(

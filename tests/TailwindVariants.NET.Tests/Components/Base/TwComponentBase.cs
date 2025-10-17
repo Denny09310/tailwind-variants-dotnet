@@ -6,7 +6,7 @@ namespace TailwindVariants.NET;
 /// Base component that integrates TailwindMerge and allows passing through additional HTML attributes.
 /// </summary>
 public abstract class TwComponentBase<TOwner, TSlots> : ComponentBase
-	where TOwner : IStyleable
+	where TOwner : notnull
 	where TSlots : ISlots, new()
 {
 	protected SlotsMap<TSlots> _slots = new();

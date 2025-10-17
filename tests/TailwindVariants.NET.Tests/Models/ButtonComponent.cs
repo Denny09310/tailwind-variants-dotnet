@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Tests;
 
-public partial class ButtonComponent : IStyleable
+public partial class ButtonComponent
 {
 	public string? Class { get; set; }
 	public bool IsDisabled { get; set; }

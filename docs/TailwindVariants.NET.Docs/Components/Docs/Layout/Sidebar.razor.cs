@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Docs.Components.Docs.Layout;
 
-public partial class Sidebar : IStyleable
+public partial class Sidebar
 {
 	private static readonly TvDescriptor<Sidebar, Slots> _sidebar = new
 	(

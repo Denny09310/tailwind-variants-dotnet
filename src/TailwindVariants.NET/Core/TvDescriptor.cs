@@ -37,7 +37,7 @@ public interface ITvDescriptor
 /// <typeparam name="TOwner">The type that owns the slots and variants.</typeparam>
 /// <typeparam name="TSlots">The type representing the slots, which must implement <see cref="ISlots"/>.</typeparam>
 public sealed class TvDescriptor<TOwner, TSlots> : ITvDescriptor
-	where TOwner : IStyleable
+	where TOwner : notnull
 	where TSlots : ISlots, new()
 {
 	private IReadOnlyCollection<ICompiledCompoundVariant>? _compounds;

@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Docs.Components.Shared;
 
-public partial class Button : IStyleable
+public partial class Button
 {
 	public static readonly TvDescriptor<Button, Slots> _button = new();
 

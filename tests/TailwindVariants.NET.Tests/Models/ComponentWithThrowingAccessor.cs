@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Tests;
 
-public class ComponentWithThrowingAccessor : IStyleable
+public class ComponentWithThrowingAccessor
 {
 	public string? Class { get; set; }
 	public TestSlots Classes { get; set; } = null!;

@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Docs.Components.Shared;
 
-public partial class Link : IStyleable
+public partial class Link
 {
 	private static readonly TvDescriptor<Link, Slots> _link = new
 	(

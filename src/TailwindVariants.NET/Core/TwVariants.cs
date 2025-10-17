@@ -27,7 +27,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 	/// The returned function is safe to call multiple times; per-call overrides do not mutate precomputed definitions.
 	/// </remarks>
 	public SlotsMap<TSlots> Invoke<TOwner, TSlots>(TOwner owner, TvDescriptor<TOwner, TSlots> descriptor)
-		where TOwner : IStyleable
+		where TOwner : notnull
 		where TSlots : ISlots, new()
 	{
 		var generic = (ITvDescriptor)descriptor;
@@ -43,15 +43,10 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		// 4. Apply compound variants
 		ApplyCompoundVariants<TOwner, TSlots>(owner, builders, generic.CompoundVariants, factory);
 
-		if (!string.IsNullOrEmpty(owner.Class))
-		{
-			AddClass<TSlots>(builders, nameof(ISlots.Base), owner.Class);
-		}
-
 		// 6. Build final callbacks
 		return builders.ToDictionary(
 			kv => kv.Key,
-			kv => new SlotAggregator((classes) =>
+			kv => new ClassesAggregator((classes) =>
 			{
 				AddClass<TSlots>(builders, kv.Key, classes);
 				return merge.Merge(kv.Value.ToString());
@@ -80,7 +75,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 
 	private static void ApplyCompoundVariants<TOwner, TSlots>(
 		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledCompoundVariant>? compounds, ILoggerFactory factory)
-		where TOwner : IStyleable
+		where TOwner : notnull
 		where TSlots : ISlots, new()
 	{
 		if (compounds is null)
@@ -96,7 +91,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 
 	private static void ApplyVariants<TOwner, TSlots>(
 		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledVariant>? variants, ILoggerFactory factory)
-		where TOwner : IStyleable
+		where TOwner : notnull
 		where TSlots : ISlots, new()
 	{
 		if (variants is null)

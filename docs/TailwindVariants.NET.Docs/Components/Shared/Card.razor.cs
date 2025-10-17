@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Docs.Components.Shared;
 
-public partial class Card : IStyleable
+public partial class Card
 {
 	private static readonly TvDescriptor<Card, Slots> _card = new
 	(
