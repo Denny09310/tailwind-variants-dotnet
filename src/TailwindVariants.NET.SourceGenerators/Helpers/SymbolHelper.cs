@@ -1,9 +1,14 @@
 using System.Text;
 
+using Microsoft.CodeAnalysis;
+
 namespace TailwindVariants.NET.SourceGenerators;
 
 internal static class SymbolHelper
 {
+	public static bool IsVirtualizable(this IPropertySymbol property) =>
+		!property.IsStatic && !property.IsReadOnly && property.DeclaredAccessibility == Accessibility.Public;
+
 	public static string MakeSafeFileName(string input)
 	{
 		var sb = new StringBuilder(input.Length);
