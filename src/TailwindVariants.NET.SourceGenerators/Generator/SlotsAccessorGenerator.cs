@@ -32,7 +32,7 @@ public partial class SlotsAccessorGenerator : IIncrementalGenerator
 		context.RegisterSourceOutput(slotsTypes, GenerateForSlotsType);
 	}
 
-	private static void GenerateForSlotsType(SourceProductionContext spc, SlotsAccessorToGenerate accessor)
+	private static void GenerateForSlotsType(SourceProductionContext spc, SlotsInfo accessor)
 	{
 		var filename = SymbolHelper.MakeSafeFileName($"{accessor.FullName}.g.cs");
 
@@ -54,7 +54,6 @@ public partial class SlotsAccessorGenerator : IIncrementalGenerator
 			WriteNamesHelper(sb, accessor);
 		}
 
-		WriteExtensions(sb, accessor);
 		WritePragmaClosing(sb);
 
 		spc.AddSource(filename, SourceText.From(sb.ToString(), Encoding.UTF8));

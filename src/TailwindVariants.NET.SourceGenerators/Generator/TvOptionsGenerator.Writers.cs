@@ -1,122 +1,81 @@
-using System.Text;
-
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
-
 namespace TailwindVariants.NET.SourceGenerators;
 
 public partial class TvOptionsGenerator
 {
-	/// <summary>
-	/// Emit both the Options class and the Slot extension class for the given accumulator.
-	/// This method uses Indenter for neat formatting and mirrors the structure of your SlotsAccessorGenerator.
-	/// </summary>
-	private static void EmitOptionsAndExtensions(SourceProductionContext spc, Compilation compilation, Accumulator acc)
+	private static void WriteExtensions(Indenter sb, OptionsInfo options)
 	{
-		// Options class (only emit if there are properties OR there is a base type)
-		var props = acc.GetAllProperties();
-		if (props.Length > 0 || acc.BaseTypeName is not null)
-		{
-			var sbOpts = new Indenter();
-			WritePreamble(sbOpts, acc);
-			WriteNestedOpenings(sbOpts, acc);
-			WriteOptionsClass(sbOpts, acc);
-			WriteNestedClosings(sbOpts, acc);
-			WritePragmaClosing(sbOpts);
-			var fileName = $"{SymbolHelper.MakeSafeFileName(acc.OwnerType.Name)}Options.g.cs";
-			spc.AddSource(fileName, SourceText.From(sbOpts.ToString(), Encoding.UTF8));
-		}
+		sb.AppendMultiline($$"""
+        /// <summary>
+        /// Provides extension methods for strongly-typed access to <see cref="{{options.SlotsClassName}}"/> 
+        /// via a <see cref="SlotsMap{T}"/>.
+        /// </summary>
+        """);
 
-		// Always emit slot extensions for this owner (even if there are no options)
-		var sbExt = new Indenter();
-		WritePreamble(sbExt, acc);
-		WriteNestedOpenings(sbExt, acc);
-		WriteSlotExtensions(sbExt, acc, compilation);
-		WriteNestedClosings(sbExt, acc);
-		WritePragmaClosing(sbExt);
+		sb.AppendLine($"public static class {options.ExtClassName}");
+		sb.AppendLine("{");
+		sb.Indent();
 
-		var extFile = $"{SymbolHelper.MakeSafeFileName(acc.OwnerType.Name)}SlotExtensions.g.cs";
-		spc.AddSource(extFile, SourceText.From(sbExt.ToString(), Encoding.UTF8));
-	}
+		sb.AppendMultiline($$"""
+        /// <summary>
+        /// Gets the value of the slot identified by the specified <see cref="{{options.EnumClassName}}"/> key.
+        /// </summary>
+        /// <param name="slots">The <see cref="SlotsMap{T}"/> instance containing slot values.</param>
+        /// <param name="key">The enum key representing the slot to retrieve.</param>
+        /// <returns>The value of the slot, or <c>null</c> if not set.</returns>
+        """);
 
-	#region Emission fragments (Indenter-friendly)
+		sb.AppendLine($"public static string? Get(this {options.SlotsTypeName} slots, {options.EnumClassName} key, {options.OptionsClassName}? options = null)");
+		sb.Indent();
+		sb.AppendLine($" => slots[{options.NamesClassName}.NameOf(key)](options);");
+		sb.Dedent();
 
-	private static void WriteNestedClosings(Indenter sb, Accumulator acc)
-	{
-		var stack = new Stack<string>();
-		for (var cur = acc.OwnerType; cur is not null; cur = cur.ContainingType)
+		foreach (var property in options.SlotsProperties)
 		{
-			stack.Push(cur.Name);
-		}
-		var arr = stack.ToArray();
-		for (int i = 0; i < arr.Length - 1; i++)
-		{
-			sb.Dedent();
-			sb.AppendLine("}");
-		}
-		if (acc.OwnerType.ContainingType is not null)
-		{
+			var safe = SymbolHelper.MakeSafeIdentifier(property);
 			sb.AppendLine();
-		}
-	}
+			sb.AppendMultiline($$"""
+			/// <summary>
+			/// Gets the value of the <c>{{property}}</c> slot.
+			/// </summary>
+			/// <param name="slots">The <see cref="SlotsMap{T}"/> instance containing slot values.</param>
+			/// <returns>The value of the <c>{{property}}</c> slot, or <c>null</c> if not set.</returns>
+			""");
 
-	private static void WriteNestedOpenings(Indenter sb, Accumulator acc)
-	{
-		// reuse the hierarchy push used in your SlotsAccessorGenerator if available.
-		// Here we generate only the outer types (no modifiers logic is repeated).
-		var stack = new Stack<string>();
-		for (var cur = acc.OwnerType; cur is not null; cur = cur.ContainingType)
-		{
-			stack.Push(cur.Name);
-		}
-		// Pop until only top-level remains, then write nested openings for all but the last (which is the slots type)
-		var arr = stack.ToArray();
-		for (int i = 0; i < arr.Length - 1; i++)
-		{
-			// keep it simple: public partial class {name}
-			sb.AppendLine($"public partial class {arr[i]}");
-			sb.AppendLine("{");
+			sb.AppendLine($"public static string? Get{safe}(this {options.SlotsTypeName} slots, {options.OptionsClassName}? options = null)");
 			sb.Indent();
+			sb.AppendLine($" => slots.Get({options.EnumClassName}.{safe}, options);");
+			sb.Dedent();
 		}
+
+		sb.Dedent();
+		sb.AppendLine("}");
 	}
 
-	private static void WriteOptionsClass(Indenter sb, Accumulator acc)
+	private static void WriteOptions(Indenter sb, OptionsInfo options)
 	{
-		// options class name
-		var optsName = $"{SymbolHelper.MakeSafeIdentifier(acc.OwnerType.Name)}Options";
+		var inheritance = options.Inheritance;
 
-		// base clause if present
-		var baseClause = acc.BaseTypeName is not null ? $" : {acc.BaseTypeName}" : string.Empty;
-
-		sb.AppendLine($"public static partial class {optsName}");
+		sb.AppendLine($"public partial class {options.OptionsClassName} :{(!inheritance.IsDirectImplementation ? "" : $"{inheritance.BaseClassName},")} TailwindVariants.NET.IOptions");
 		sb.AppendLine("{");
 		sb.Indent();
 
-		// slots array
-		var slotsStr = string.Join(", ", acc.Slots.Select(s => $"\"{s}\""));
-		sb.AppendLine($"public static readonly string[] Slots = new[] {{ {slotsStr} }};");
-		sb.AppendLine();
-
-		sb.AppendLine($"public sealed class Options{baseClause}");
-		sb.AppendLine("{");
-		sb.Indent();
-		sb.AppendLine("public string? Class { get; set; }");
-		sb.AppendLine();
-
-		var props = acc.GetAllProperties();
-		foreach (var (name, typeName) in props)
+		if (!inheritance.IsDirectImplementation)
 		{
-			var safe = SymbolHelper.MakeSafeIdentifier(name);
-			sb.AppendLine($"public {typeName}? {safe} {{ get; set; }}");
+			sb.AppendLine("public string? Class { get; set; }");
+		}
+
+		foreach (var (name, type) in options.VariantsProperties)
+		{
 			sb.AppendLine();
+			var safe = SymbolHelper.MakeSafeIdentifier(name);
+			sb.AppendLine($"public {type} {safe} {{ get; set; }}");
 		}
 
 		sb.Dedent();
 		sb.AppendLine("}");
-
-		sb.Dedent();
-		sb.AppendLine("}");
+		sb.AppendLine();
 	}
+
 
 	private static void WritePragmaClosing(Indenter sb)
 	{
@@ -125,7 +84,7 @@ public partial class TvOptionsGenerator
 		sb.AppendLine("#pragma warning restore CS8618");
 	}
 
-	private static void WritePreamble(Indenter sb, Accumulator acc)
+	private static void WritePreamble(Indenter sb, OptionsInfo options)
 	{
 		sb.AppendLine("// <auto-generated />");
 		sb.AppendLine();
@@ -138,151 +97,10 @@ public partial class TvOptionsGenerator
 		sb.AppendLine();
 		sb.AppendLine("#nullable enable");
 		sb.AppendLine();
-		if (!string.IsNullOrEmpty(acc.Namespace))
+		if (!string.IsNullOrEmpty(options.NamespaceName) && options.NamespaceName != "<global namespace>")
 		{
-			sb.AppendLine($"namespace {acc.Namespace};");
+			sb.AppendLine($"namespace {options.NamespaceName};");
 			sb.AppendLine();
 		}
 	}
-
-	private static void WriteSlotExtensions(Indenter sb, Accumulator acc, Compilation compilation)
-	{
-		// Owner & naming style
-		var owner = acc.OwnerType;
-		var isNested = owner.ContainingType is not null;
-		var componentFullName = isNested
-			? owner.ContainingType!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", string.Empty)
-			: string.Empty;
-		var typeName = owner.ContainingType?.Name ?? owner.Name.Replace("Slots", string.Empty);
-
-		// enum/names identifier fallback (textual)
-		var enumName = isNested ? "SlotTypes" : $"{typeName}SlotTypes";
-		var namesClass = isNested ? "SlotNames" : $"{typeName}SlotNames";
-
-		// Try to prefer real nested types when present (owner.GetTypeMembers)
-		INamedTypeSymbol? slotTypesSym = owner.GetTypeMembers("SlotTypes").FirstOrDefault();
-		INamedTypeSymbol? slotNamesSym = owner.GetTypeMembers("SlotNames").FirstOrDefault();
-
-		// If not present, try metadata lookup for nested type (Namespace.Owner+SlotTypes)
-		if (slotTypesSym is null)
-		{
-			var ownerMeta = (owner.ContainingNamespace?.ToDisplayString() ?? string.Empty) + "." + owner.Name;
-			slotTypesSym = compilation.GetTypeByMetadataName(ownerMeta + "+SlotTypes");
-		}
-		if (slotNamesSym is null)
-		{
-			var ownerMeta = (owner.ContainingNamespace?.ToDisplayString() ?? string.Empty) + "." + owner.Name;
-			slotNamesSym = compilation.GetTypeByMetadataName(ownerMeta + "+SlotNames");
-		}
-
-		// Build textual references (prefer symbol display if found; otherwise fall back to textual guess)
-		var enumRef = slotTypesSym is not null
-			? slotTypesSym.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", string.Empty)
-			: (isNested ? $"{componentFullName}.{enumName}" : enumName);
-
-		var namesRef = slotNamesSym is not null
-			? slotNamesSym.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", string.Empty)
-			: (isNested ? $"{componentFullName}.{namesClass}" : namesClass);
-
-		// Slots type FQN
-		var slotsFqn = acc.SlotsType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", string.Empty);
-
-		// Build SlotsMap reference in the same style as your other generator (no global:: prefix)
-		var slotsMapRef = $"SlotsMap<{slotsFqn}>";
-
-		// Determine options parameter type reference (if options will exist)
-		string? optionsParamType;
-		// Prefer real symbol: Namespace.OwnerNameOptions
-		var ownerNs = owner.ContainingNamespace?.ToDisplayString();
-		var candidateMeta = string.IsNullOrEmpty(ownerNs)
-			? $"{owner.Name}Options"
-			: $"{ownerNs}.{owner.Name}Options";
-
-		var optSym = compilation.GetTypeByMetadataName(candidateMeta);
-		if (optSym is not null)
-			optionsParamType = optSym.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", string.Empty);
-		else
-			// fallback textual guess (fully-qualified if namespace present)
-			optionsParamType = string.IsNullOrEmpty(ownerNs) ? $"{owner.Name}Options" : $"{ownerNs}.{owner.Name}Options";
-		// Begin writing
-		sb.AppendMultiline($$"""
-		/// <summary>
-		/// Provides extension methods for strongly-typed access to <see cref="{{acc.OwnerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}}"/>
-		/// via a <see cref="SlotsMap{T}"/>.
-		/// </summary>
-		""");
-
-		var extName = $"{SymbolHelper.MakeSafeIdentifier(owner.Name)}SlotExtensions";
-		sb.AppendLine($"public static class {extName}");
-		sb.AppendLine("{");
-		sb.Indent();
-
-		// Compose the Get signature depending on options presence
-		if (optionsParamType is not null)
-		{
-			// optional parameter with nullable and default = null
-			sb.AppendMultiline($$"""
-			/// <summary>
-			/// Gets the value of the slot identified by the specified <see cref="{{enumRef}}"/> key.
-			/// </summary>
-			/// <param name="slots">The <see cref="SlotsMap{T}"/> instance containing slot values.</param>
-			/// <param name="key">The enum key representing the slot to retrieve.</param>
-			/// <returns>The value of the slot, or <c>null</c> if not set.</returns>
-			""");
-			sb.AppendLine($"public static string? Get(this {slotsMapRef} slots, {enumRef} key, {optionsParamType}? options = null)");
-			sb.Indent();
-			sb.AppendLine($" => slots[{namesRef}.NameOf(key)](options);");
-			sb.Dedent();
-		}
-		else
-		{
-			// no options parameter
-			sb.AppendMultiline($$"""
-			/// <summary>
-			/// Gets the value of the slot identified by the specified <see cref="{{enumRef}}"/> key.
-			/// </summary>
-			/// <param name="slots">The <see cref="SlotsMap{T}"/> instance containing slot values.</param>
-			/// <param name="key">The enum key representing the slot to retrieve.</param>
-			/// <returns>The value of the slot, or <c>null</c> if not set.</returns>
-			""");
-			sb.AppendLine($"public static string? Get(this {slotsMapRef} slots, {enumRef} key)");
-			sb.Indent();
-			sb.AppendLine($" => slots[{namesRef}.NameOf(key)];");
-			sb.Dedent();
-		}
-
-		// Per-slot helpers
-		foreach (var slot in acc.Slots)
-		{
-			var safe = SymbolHelper.MakeSafeIdentifier(slot);
-			sb.AppendLine();
-			sb.AppendMultiline($$"""
-			/// <summary>
-			/// Gets the value of the <c>{{slot}}</c> slot.
-			/// </summary>
-			/// <param name="slots">The <see cref="SlotsMap{T}"/> instance containing slot values.</param>
-			/// <returns>The value of the <c>{{slot}}</c> slot, or <c>null</c> if not set.</returns>
-			""");
-
-			if (optionsParamType is not null)
-			{
-				sb.AppendLine($"public static string? Get{safe}(this {slotsMapRef} slots, {optionsParamType}? options = null)");
-				sb.Indent();
-				sb.AppendLine($" => slots.Get({enumRef}.{safe}, options);");
-				sb.Dedent();
-			}
-			else
-			{
-				sb.AppendLine($"public static string? Get{safe}(this {slotsMapRef} slots)");
-				sb.Indent();
-				sb.AppendLine($" => slots.Get({enumRef}.{safe});");
-				sb.Dedent();
-			}
-		}
-
-		sb.Dedent();
-		sb.AppendLine("}");
-	}
-
-	#endregion
 }

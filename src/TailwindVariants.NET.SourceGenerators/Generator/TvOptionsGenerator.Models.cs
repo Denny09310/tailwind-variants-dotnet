@@ -1,79 +1,59 @@
-using System.Collections.Immutable;
+using System.Text;
 
+using Microsoft.AspNetCore.Razor.Language;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace TailwindVariants.NET.SourceGenerators;
 
-/// <summary>
-/// Carries the ObjectCreation node together with the SemanticModel through the incremental pipeline.
-/// </summary>
-internal readonly record struct CreationInfo(ObjectCreationExpressionSyntax Creation, SemanticModel SemanticModel);
-
-/// <summary>
-/// Accumulates discovered information for a single owner component type.
-/// </summary>
-internal sealed class Accumulator(INamedTypeSymbol ownerType, INamedTypeSymbol slotsType, string ns)
+public partial class TvOptionsGenerator
 {
-	private readonly Dictionary<string, string> _props = new(StringComparer.Ordinal);
-	private ImmutableArray<string> _slots = [];
+	private readonly record struct InheritanceInfo(
+		bool IsDirectImplementation,
+		string? BaseClassName);
 
-	/// <summary>
-	/// Optional fully-qualified base type name when an `extends` was provided and accepted.
-	/// </summary>
-	public string? BaseTypeName { get; private set; }
+	private readonly record struct OptionsInfo(
+		string FullName,
+		string ExtClassName,
+		string SlotsClassName,
+		string EnumClassName,
+		string NamesClassName,
+		string OptionsClassName,
+		string NamespaceName,
+		string SlotsTypeName,
+		InheritanceInfo Inheritance,
+		EquatableArray<string> SlotsProperties,
+		EquatableArray<(string Name, string Type)> VariantsProperties);
 
-	/// <summary>
-	/// Owner component type (TOwner).
-	/// </summary>
-	public INamedTypeSymbol OwnerType { get; } = ownerType ?? throw new ArgumentNullException(nameof(ownerType));
-
-	/// <summary>
-	/// Slots type (TSlots).
-	/// </summary>
-	public INamedTypeSymbol SlotsType { get; } = slotsType ?? throw new ArgumentNullException(nameof(slotsType));
-
-	/// <summary>
-	/// Target namespace for generated artifacts (owner's namespace).
-	/// </summary>
-	public string Namespace { get; } = ns ?? string.Empty;
-
-	/// <summary>
-	/// Read-only view of slots collected from the Slots type.
-	/// </summary>
-	public IEnumerable<string> Slots => _slots;
-
-	/// <summary>
-	/// Record the base type name (first one wins; caller may emit diagnostics on conflicts).
-	/// The typeSymbol argument is kept for potential future use (not stored here).
-	/// </summary>
-	public void SetBaseType(string baseTypeName)
+	public sealed class InMemoryRazorProjectItem(string path, string content) : RazorProjectItem
 	{
-		if (string.IsNullOrEmpty(BaseTypeName))
-			BaseTypeName = baseTypeName;
+		public override string BasePath => "/";
+		public override bool Exists => true;
+		public override string FilePath => path;
+		public override string PhysicalPath => null!;
+		public override string RelativePhysicalPath => path;
+
+		public override Stream Read() => new MemoryStream(Encoding.UTF8.GetBytes(content));
 	}
 
-	/// <summary>
-	/// Add (Name, TypeName) pairs; keep first-seen for each property.
-	/// </summary>
-	public void AddProperties(IEnumerable<(string Name, string TypeName)> items)
+	private class DescriptorComparer : IEqualityComparer<DescriptorInfo?>
 	{
-		foreach (var (name, typeName) in items)
+		public static DescriptorComparer Instance { get; } = new();
+
+		public bool Equals(DescriptorInfo? x, DescriptorInfo? y)
+			=> SymbolEqualityComparer.Default.Equals(x?.Component, y?.Component)
+			   && SymbolEqualityComparer.Default.Equals(x?.Slots, y?.Slots);
+
+		public int GetHashCode(DescriptorInfo? obj)
 		{
-			if (!_props.ContainsKey(name))
-				_props[name] = typeName ?? "global::System.Object";
+			unchecked
+			{
+				var h1 = SymbolEqualityComparer.Default.GetHashCode(obj?.Component);
+				var h2 = SymbolEqualityComparer.Default.GetHashCode(obj?.Slots);
+				return (h1 * 397) ^ h2;
+			}
 		}
 	}
 
-	public void SetSlots(ImmutableArray<string> slots) => _slots = slots;
-
-	/// <summary>
-	/// Return all discovered properties sorted by name.
-	/// </summary>
-	public ImmutableArray<(string Name, string TypeName)> GetAllProperties()
-	{
-		return [.. _props
-			.OrderBy(kv => kv.Key, StringComparer.Ordinal)
-			.Select(kv => (kv.Key, kv.Value))];
-	}
+	private record struct DescriptorInfo(ArgumentListSyntax? ArgumentList, INamedTypeSymbol Component, INamedTypeSymbol Slots);
 }

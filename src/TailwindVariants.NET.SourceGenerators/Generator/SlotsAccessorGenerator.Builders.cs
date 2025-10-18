@@ -17,8 +17,10 @@ public partial class SlotsAccessorGenerator
 		if (baseType is { SpecialType: not SpecialType.System_Object } &&
 			IsMaybeSlotsForGeneration(baseType))
 		{
-			var baseClass = baseType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-									.Replace("global::", string.Empty);
+			var baseClass = baseType
+				.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+				.Replace("global::", string.Empty);
+
 			return new(false, baseClass);
 		}
 
@@ -137,7 +139,7 @@ public partial class SlotsAccessorGenerator
 	private static INamedTypeSymbol? GetTransformedCandidate(GeneratorSyntaxContext context)
 		=> context.SemanticModel.GetDeclaredSymbol(context.Node) as INamedTypeSymbol;
 
-	private static SlotsAccessorToGenerate? GetTransformedSlots(INamedTypeSymbol symbol)
+	private static SlotsInfo? GetTransformedSlots(INamedTypeSymbol symbol)
 	{
 		// Check inheritance structure
 		var inheritanceInfo = AnalyzeInheritance(symbol);
@@ -153,11 +155,6 @@ public partial class SlotsAccessorGenerator
 		// Detect whether the slots type is nested inside another type
 		var isNested = symbol.ContainingType is not null;
 
-		// Fully-qualified name of the containing (component) type when nested
-		var componentFullName = isNested
-			? symbol.ContainingType!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", string.Empty)
-			: string.Empty;
-
 		var typeName = symbol.ContainingType?.Name
 			?? symbol.Name.Replace("Slots", string.Empty);
 
@@ -172,22 +169,18 @@ public partial class SlotsAccessorGenerator
 			? SymbolHelper.MakeSafeIdentifier($"SlotNames")
 			: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotNames");
 
-		return new SlotsAccessorToGenerate(
+		return new SlotsInfo(
 			Name: symbol.Name,
 			FullName: fullName,
-			ComponentFullName: componentFullName,
 			TypeName: typeName,
 			NamespaceName: symbol.ContainingNamespace?.ToDisplayString() ?? string.Empty,
 			Modifiers: BuildTypeModifiersString(symbol),
-			BaseClassName: inheritanceInfo.BaseClassName,
 			IsDirectImplementation: inheritanceInfo.IsDirectImplementation,
 			IsGetNameImplemented: HasStaticGetNameMethod(symbol),
 			Hierarchy: BuildTypeHierarchy(symbol),
 			Properties: ownProperties,
 			AllProperties: allProperties,
-			SlotsMapName: $"SlotsMap<{fullName}>",
 			EnumName: enumName,
-			ExtClassName: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotExtensions"),
 			NamesClass: namesClass,
 			IsSealed: symbol.IsSealed,
 			IsNested: isNested);
@@ -218,7 +211,7 @@ public partial class SlotsAccessorGenerator
 	}
 
 	private static bool IsMaybeCandidateForGeneration(SyntaxNode node) =>
-				node is TypeDeclarationSyntax tds &&
+		node is TypeDeclarationSyntax tds &&
 		tds.Modifiers.Any(SyntaxKind.PartialKeyword) &&
 		tds.BaseList is { Types.Count: > 0 } &&
 		tds.Members.OfType<PropertyDeclarationSyntax>().Any();

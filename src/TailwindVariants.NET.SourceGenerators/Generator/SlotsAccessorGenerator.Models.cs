@@ -6,18 +6,14 @@ public partial class SlotsAccessorGenerator
 		bool IsDirectImplementation,
 		string? BaseClassName);
 
-	private readonly record struct SlotsAccessorToGenerate(
+	private readonly record struct SlotsInfo(
 		string Name,
 		string FullName,
-		string ComponentFullName,
 		string TypeName,
 		string NamespaceName,
 		string Modifiers,
-		string SlotsMapName,
 		string EnumName,
-		string ExtClassName,
 		string NamesClass,
-		string? BaseClassName,
 		bool IsDirectImplementation,
 		bool IsSealed,
 		bool IsNested,

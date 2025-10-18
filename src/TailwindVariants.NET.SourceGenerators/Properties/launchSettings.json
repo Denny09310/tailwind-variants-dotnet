@@ -2,7 +2,7 @@
   "profiles": {
     "TailwindVariants.NET.SourceGenerators": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\..\\tests\\TailwindVariants.NET.Tests\\TailwindVariants.NET.Tests.csproj"
+      "targetProject": "..\\..\\docs\\TailwindVariants.NET.Docs\\TailwindVariants.NET.Docs.csproj"
     }
   }
 }
