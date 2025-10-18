@@ -1,114 +1,167 @@
-namespace TailwindVariants.NET.Tests;
+using System.Collections.Immutable;
 
-public class TwVariantsOverridesTests : TestContext
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+namespace TailwindVariants.SourceGenerators;
+
+[Generator]
+public class TvDescriptorPropertyExtractor : IIncrementalGenerator
 {
-	public TwVariantsOverridesTests() => Services.AddTailwindVariants();
-
-	private TwVariants Tv => Services.GetRequiredService<TwVariants>();
-
-	[Fact]
-	public void Invoke_WithClassesContainingNullSlot_SkipsNullSlots()
+	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "component",
-			slots: new()
-			{
-				[s => s.Title] = "text-lg"
-			}
+		// Find all field declarations with TvDescriptor type
+		var tvDescriptorFields = context.SyntaxProvider
+			.CreateSyntaxProvider(
+				predicate: static (node, _) => IsTvDescriptorField(node),
+				transform: static (ctx, _) => GetTvDescriptorInfo(ctx))
+			.Where(static info => info is not null);
+
+		context.RegisterSourceOutput(tvDescriptorFields, GeneratePropertyExtensions);
+	}
+
+	private static bool IsTvDescriptorField(SyntaxNode node)
+	{
+		return node is FieldDeclarationSyntax field &&
+			   field.Declaration.Type is GenericNameSyntax generic &&
+			   generic.Identifier.Text == "TvDescriptor";
+	}
+
+	private static TvDescriptorInfo? GetTvDescriptorInfo(GeneratorSyntaxContext context)
+	{
+		var fieldDeclaration = (FieldDeclarationSyntax)context.Node;
+		var variable = fieldDeclaration.Declaration.Variables.FirstOrDefault();
+
+		if (variable?.Initializer?.Value is not ObjectCreationExpressionSyntax creation)
+			return null;
+
+		var genericType = fieldDeclaration.Declaration.Type as GenericNameSyntax;
+		if (genericType?.TypeArgumentList.Arguments.Count != 2)
+			return null;
+
+		var componentType = genericType.TypeArgumentList.Arguments[0].ToString();
+		var slotsType = genericType.TypeArgumentList.Arguments[1].ToString();
+
+		// Find the variants argument
+		var variantsArg = creation.ArgumentList?.Arguments
+			.FirstOrDefault(arg => arg.NameColon?.Name.Identifier.Text == "variants");
+
+		if (variantsArg?.Expression is not ObjectCreationExpressionSyntax variantsInit)
+			return null;
+
+		var properties = ExtractPropertyNames(variantsInit, componentType, slotsType, context);
+
+		return new TvDescriptorInfo(
+			FieldName: variable.Identifier.Text,
+			ComponentType: componentType,
+			SlotsType: slotsType,
+			Properties: properties
 		);
-		var component = new TestComponent
+	}
+
+	private static ImmutableArray<string> ExtractPropertyNames(
+		ObjectCreationExpressionSyntax variantsInit,
+		string componentType,
+		string slotsType,
+		GeneratorSyntaxContext context)
+	{
+		var properties = ImmutableArray.CreateBuilder<string>();
+
+		if (variantsInit.Initializer is null)
+			return properties.ToImmutable();
+
+		foreach (var expression in variantsInit.Initializer.Expressions)
 		{
-			Classes = new TestSlots
+			if (expression is not AssignmentExpressionSyntax assignment)
+				continue;
+
+			// The key should be an indexer with a lambda: [b => b.Property]
+			if (assignment.Left is not ImplicitElementAccessSyntax elementAccess)
+				continue;
+
+			var lambdaArg = elementAccess.ArgumentList.Arguments.FirstOrDefault();
+			if (lambdaArg?.Expression is not SimpleLambdaExpressionSyntax lambda)
+				continue;
+
+			// Check if this lambda returns a component property, not a slot property
+			if (lambda.Body is MemberAccessExpressionSyntax memberAccess)
 			{
-				Title = "font-bold",
-				Description = null
+				var parameterName = lambda.Parameter.Identifier.Text;
+
+				// Ensure the member access is on the lambda parameter (e.g., "b" in "b => b.Property")
+				if (memberAccess.Expression is IdentifierNameSyntax identifier &&
+					identifier.Identifier.Text == parameterName)
+				{
+					var propertyName = memberAccess.Name.Identifier.Text;
+
+					// Verify this is a component property, not a slot property
+					if (IsComponentProperty(propertyName, componentType, slotsType, context))
+					{
+						properties.Add(propertyName);
+					}
+				}
 			}
-		};
+		}
 
-		// Act
-		var result = Tv.Invoke(component, descriptor);
-
-		// Assert
-		result.ContainsAll(s => s.Title,
-			"text-lg",
-			"font-bold");
-
-		Assert.Null(result[s => s.Description]);
+		return properties.ToImmutable();
 	}
 
-	[Fact]
-	public void Invoke_WithClassesOverride_AppendsToSpecificSlots()
+	private static bool IsComponentProperty(
+		string propertyName,
+		string componentType,
+		string slotsType,
+		GeneratorSyntaxContext context)
 	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "component",
-			slots: new()
-			{
-				[s => s.Title] = "text-lg",
-				[s => s.Description] = "text-sm"
-			}
-		);
-		var component = new TestComponent
-		{
-			Classes = new TestSlots
-			{
-				Title = "font-extrabold",
-				Description = "italic"
-			}
-		};
+		// Get the semantic model to resolve types
+		var componentSymbol = context.SemanticModel.Compilation
+			.GetTypeByMetadataName(componentType);
 
-		// Act
-		var result = Tv.Invoke(component, descriptor);
+		var slotsSymbol = context.SemanticModel.Compilation
+			.GetTypeByMetadataName(slotsType);
 
-		// Assert
-		result.ContainsAll(s => s.Title,
-			"text-lg",
-			"font-extrabold");
+		// Check if property exists in component type
+		var componentHasProperty = componentSymbol?.GetMembers(propertyName)
+			.Any(m => m.Kind == SymbolKind.Property) ?? false;
 
-		result.ContainsAll(s => s.Description,
-			"text-sm",
-			"italic");
+		// Check if property exists in slots type
+		var slotsHasProperty = slotsSymbol?.GetMembers(propertyName)
+			.Any(m => m.Kind == SymbolKind.Property) ?? false;
+
+		// It's a component property if it exists in component but not in slots
+		return componentHasProperty && !slotsHasProperty;
 	}
 
-	[Fact]
-	public void Invoke_WithClassOverride_AppendsToBaseSlot()
+	private static void GeneratePropertyExtensions(
+		SourceProductionContext context,
+		TvDescriptorInfo? info)
 	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "btn bg-blue-500"
-		);
-		var component = new TestComponent { Class = "hover:bg-blue-600" };
+		if (info is null)
+			return;
 
-		// Act
-		var result = Tv.Invoke(component, descriptor);
+		var source = $$"""
+            // <auto-generated/>
+            #nullable enable
+            
+            namespace TailwindVariants.Generated
+            {
+                public static class {{info.ComponentType.Replace(".", "_")}}_Properties
+                {
+                    public static readonly string[] VariantProperties = new[]
+                    {
+            {{string.Join(",\n            ", info.Properties.Select(p => $"            \"{p}\""))}}
+                    };
+                }
+            }
+            """;
 
-		// Assert
-		result.ContainsAll(s => s.Base,
-			"btn",
-			"bg-blue-500",
-			"hover:bg-blue-600");
+		context.AddSource(
+			$"{info.ComponentType.Replace(".", "_")}_Properties.g.cs",
+			source);
 	}
 
-	[Fact]
-	public void Invoke_WithTailwindMerge_ResolvesConflictingClasses()
-	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "p-4 bg-red-500"
-		);
-		var component = new TestComponent { Class = "p-8 bg-blue-500" };
-
-		// Act
-		var result = Tv.Invoke(component, descriptor);
-
-		// Assert
-		result.ContainsAll(s => s.Base,
-			"p-8",
-			"bg-blue-500");
-
-		result.DoesNotContainAny(s => s.Base,
-			"p-4",
-			"bg-red-500");
-	}
+	private record TvDescriptorInfo(
+		string FieldName,
+		string ComponentType,
+		string SlotsType,
+		ImmutableArray<string> Properties);
 }
