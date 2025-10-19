@@ -15,9 +15,10 @@ public partial class TvOptionsGenerator : IIncrementalGenerator
 		var candidateTypes = ctx.SyntaxProvider.CreateSyntaxProvider(
 			predicate: static (node, _) => IsMaybeDescriptor(node),
 			transform: static (gctx, _) => GetTransformedDescriptors(gctx))
-			.WithComparer(DescriptorComparer.Instance)
 			.Where(static ci => ci is not null)
 			.Select(static (ci, _) => ci!.Value)
+			.Collect()
+			.SelectMany(static (ci, _) => ci.Distinct(DescriptorComparer.Instance))
 			.Collect();
 
 		var razorFiles = ctx.AdditionalTextsProvider
@@ -81,7 +82,7 @@ public partial class TvOptionsGenerator : IIncrementalGenerator
 					ExtClassName: extName,
 					Inheritance: inheritance,
 					NamespaceName: component.ContainingNamespace?.ToDisplayString() ?? string.Empty,
-					SlotsTypeName: $"SlotsMap<{slotsName}, {optionsName}>",
+					SlotsTypeName: $"SlotsMap<{slotsName}>",
 					SlotsProperties: slotsProperties,
 					VariantsProperties: variantsProperties));
 			}
@@ -111,9 +112,26 @@ public partial class TvOptionsGenerator : IIncrementalGenerator
 		return new(argumentList, componentType, slotsType);
 	}
 
-	private static bool IsMaybeDescriptor(SyntaxNode node) =>
-		node is ObjectCreationExpressionSyntax { Type: GenericNameSyntax { TypeArgumentList.Arguments.Count: 2 } }
-			or VariableDeclarationSyntax { Type: GenericNameSyntax { TypeArgumentList.Arguments.Count: 2 } };
+	private static bool IsMaybeDescriptor(SyntaxNode node)
+	{
+		if (node is ObjectCreationExpressionSyntax ocs && HasTwoGenericTypeArguments(ocs.Type))
+			return true;
+
+		if (node is VariableDeclarationSyntax vd)
+		{
+			if (HasTwoGenericTypeArguments(vd.Type))
+				return true;
+
+			foreach (var variable in vd.Variables)
+			{
+				var value = variable.Initializer?.Value;
+				if (value is ObjectCreationExpressionSyntax innerOcs && HasTwoGenericTypeArguments(innerOcs.Type))
+					return true;
+			}
+		}
+
+		return false;
+	}
 
 	private void GenerateForComponentType(SourceProductionContext spc, ImmutableArray<OptionsInfo>? options)
 	{

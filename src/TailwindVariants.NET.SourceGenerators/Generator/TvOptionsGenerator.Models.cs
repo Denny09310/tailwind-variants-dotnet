@@ -36,20 +36,20 @@ public partial class TvOptionsGenerator
 		public override Stream Read() => new MemoryStream(Encoding.UTF8.GetBytes(content));
 	}
 
-	private class DescriptorComparer : IEqualityComparer<DescriptorInfo?>
+	private class DescriptorComparer : IEqualityComparer<DescriptorInfo>
 	{
 		public static DescriptorComparer Instance { get; } = new();
 
-		public bool Equals(DescriptorInfo? x, DescriptorInfo? y)
-			=> SymbolEqualityComparer.Default.Equals(x?.Component, y?.Component)
-			   && SymbolEqualityComparer.Default.Equals(x?.Slots, y?.Slots);
+		public bool Equals(DescriptorInfo x, DescriptorInfo y)
+			=> SymbolEqualityComparer.Default.Equals(x.Component, y.Component)
+			   && SymbolEqualityComparer.Default.Equals(x.Slots, y.Slots);
 
-		public int GetHashCode(DescriptorInfo? obj)
+		public int GetHashCode(DescriptorInfo obj)
 		{
 			unchecked
 			{
-				var h1 = SymbolEqualityComparer.Default.GetHashCode(obj?.Component);
-				var h2 = SymbolEqualityComparer.Default.GetHashCode(obj?.Slots);
+				var h1 = SymbolEqualityComparer.Default.GetHashCode(obj.Component);
+				var h2 = SymbolEqualityComparer.Default.GetHashCode(obj.Slots);
 				return (h1 * 397) ^ h2;
 			}
 		}

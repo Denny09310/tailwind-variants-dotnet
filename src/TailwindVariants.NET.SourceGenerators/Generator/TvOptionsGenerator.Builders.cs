@@ -13,12 +13,8 @@ public partial class TvOptionsGenerator
 {
 	private static InheritanceInfo AnalyzeInheritance(INamedTypeSymbol symbol)
 	{
-		if (symbol.Interfaces.Any(IsISlotsInterface))
-			return new(true, null);
-
 		var baseType = symbol.BaseType;
-		if (baseType is { SpecialType: not SpecialType.System_Object } &&
-			IsMaybeSlotsForGeneration(baseType))
+		if (baseType is { SpecialType: not SpecialType.System_Object })
 		{
 			var baseClass = baseType
 				.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
@@ -277,6 +273,13 @@ public partial class TvOptionsGenerator
 
 		return [.. properties];
 	}
+
+	private static bool HasTwoGenericTypeArguments(TypeSyntax? type) => type switch
+	{
+		GenericNameSyntax g => g.TypeArgumentList.Arguments.Count == 2,
+		QualifiedNameSyntax q when q.Right is GenericNameSyntax right => right.TypeArgumentList.Arguments.Count == 2,
+		_ => false
+	};
 
 	private static bool IsISlotsInterface(INamedTypeSymbol interfaceSymbol)
 	{

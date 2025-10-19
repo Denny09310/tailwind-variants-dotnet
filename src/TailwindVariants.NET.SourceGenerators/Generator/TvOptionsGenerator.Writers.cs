@@ -55,11 +55,11 @@ public partial class TvOptionsGenerator
 	{
 		var inheritance = options.Inheritance;
 
-		sb.AppendLine($"public partial class {options.OptionsClassName} :{(!inheritance.IsDirectImplementation ? "" : $"{inheritance.BaseClassName},")} TailwindVariants.NET.IOptions");
+		sb.AppendLine($"public partial class {options.OptionsClassName} :{(inheritance.IsDirectImplementation ? "" : $" {inheritance.BaseClassName},")} TailwindVariants.NET.IOptions");
 		sb.AppendLine("{");
 		sb.Indent();
 
-		if (!inheritance.IsDirectImplementation)
+		if (inheritance.IsDirectImplementation)
 		{
 			sb.AppendLine("public string? Class { get; set; }");
 		}

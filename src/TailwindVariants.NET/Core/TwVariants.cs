@@ -55,7 +55,11 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		// 7. Build final map
 		return builders.ToDictionary(
 			kv => kv.Key,
-			kv => merge.Merge(kv.Value.ToString()));
+			kv => new ClassResolver(options =>
+			{
+				var classes = merge.Merge(kv.Value.ToString(), options?.Class);
+				return classes;
+			}));
 	}
 
 	#region Helpers

@@ -14,7 +14,7 @@ public class TwVariantsRobustnessTests : TestContext
 		var child = new TvDescriptor<GhostButtonComponent, GhostButtonSlots>(extends: parent, @base: ["text-sm", "bg-blue-500"]);
 
 		var result = Tv.Invoke(new GhostButtonComponent(), child);
-		var tokens = result[s => s.Base]?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+		var tokens = result[s => s.Base]?.Invoke(default)?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
 		Assert.NotNull(tokens);
 		var idxAncestor = Array.IndexOf(tokens, "p-1");
