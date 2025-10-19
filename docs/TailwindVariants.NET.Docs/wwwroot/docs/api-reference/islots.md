@@ -1,4 +1,4 @@
-﻿# ISlots
+# ISlots
 
 `ISlots` is a **marker interface** that defines a type as a collection of named slots for a component.  
 It works together with `SlotCollection<TSlots>` and [TwVariants](docs/api-reference/tw-variants) to provide **type-safe, strongly-typed class management**.
@@ -16,7 +16,7 @@ It works together with `SlotCollection<TSlots>` and [TwVariants](docs/api-refere
 ## Example
 
 ```csharp
-public partial class Button : ISlotted<Button.Slots>
+public partial class Button : ISlottable<Button.Slots>
 {
     public sealed partial class Slots : ISlots
     {

@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Docs.Components.Shared;
 
-public partial class Card : ISlotted<Card.Slots>
+public partial class Card : ISlottable<Card.Slots>
 {
 	private static readonly TvDescriptor<Card, Slots> _card = new
 	(

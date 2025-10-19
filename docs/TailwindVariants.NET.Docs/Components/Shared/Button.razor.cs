@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Docs.Components.Shared;
 
-public partial class Button : ISlotted<Button.Slots>
+public partial class Button : ISlottable<Button.Slots>
 {
 	public static readonly TvDescriptor<Button, Slots> _button = new();
 

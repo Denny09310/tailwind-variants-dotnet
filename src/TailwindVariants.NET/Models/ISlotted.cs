@@ -6,6 +6,7 @@ namespace TailwindVariants.NET;
 /// <typeparam name="TSlots">
 /// The type representing the slots, which must implement <see cref="ISlots"/>.
 /// </typeparam>
+[Obsolete("Use ISlottable<TSlots> instead. This interface will be removed in a future release.", false)]
 public interface ISlotted<TSlots>
 	where TSlots : ISlots, new()
 {
@@ -19,3 +20,16 @@ public interface ISlotted<TSlots>
 	/// </summary>
 	TSlots? Classes { get; }
 }
+
+#pragma warning disable CS0618 // Il tipo o il membro è obsoleto
+
+/// <summary>
+/// Defines a contract for a type that provides slot-based CSS classes.
+/// </summary>
+/// <typeparam name="TSlots">
+/// The type representing the slots, which must implement <see cref="ISlots"/>.
+/// </typeparam>
+public interface ISlottable<TSlots>  : ISlotted<TSlots>
+	where TSlots : ISlots, new();
+
+#pragma warning restore CS0618 // Il tipo o il membro è obsoleto

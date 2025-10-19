@@ -1,4 +1,4 @@
-﻿# SlotCollection
+# SlotCollection
 
 `SlotCollection<TSlots>` is a **mapping of slot accessors to CSS class values**. It’s used internally and externally to safely store, merge, and enumerate CSS classes per slot.
 
@@ -49,7 +49,7 @@ foreach (var kv in classes)
 ## Integration
 
 * Works seamlessly with [TwVariants](docs/api-reference/tw-variants) for computing final class strings
-* Supports **per-instance overrides** via the `Classes` property of `ISlotted<TSlots>` components
+* Supports **per-instance overrides** via the `Classes` property of `ISlottable<TSlots>` components
 
 ---
 

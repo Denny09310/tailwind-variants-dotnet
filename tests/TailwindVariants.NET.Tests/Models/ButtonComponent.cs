@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Tests;
 
-public partial class ButtonComponent : ISlotted<ButtonSlots>
+public partial class ButtonComponent : ISlottable<ButtonSlots>
 {
 	public string? Class { get; set; }
 	public ButtonSlots? Classes { get; set; }
