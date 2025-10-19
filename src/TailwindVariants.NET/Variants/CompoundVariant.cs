@@ -11,7 +11,7 @@ namespace TailwindVariants.NET;
 /// </remarks>
 public class CompoundVariant<TOwner, TSlots>(Predicate<TOwner> predicate) : IEnumerable<KeyValuePair<Expression<SlotAccessor<TSlots>>, ClassValue>>
 	where TSlots : ISlots, new()
-	where TOwner : ISlotted<TSlots>
+	where TOwner : ISlottable<TSlots>
 {
 	/// <summary>
 	/// An optional global class to apply when the predicate matches.
