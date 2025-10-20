@@ -10,7 +10,6 @@ internal static class SourceGenerationHelper
         /// <summary>
         /// Associates a custom name with a slot property, typically for use in data attributes like `data-slot`.
         /// </summary>
-        [global::Microsoft.CodeAnalysis.EmbeddedAttribute]
         [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
         public sealed class SlotAttribute : Attribute
         {

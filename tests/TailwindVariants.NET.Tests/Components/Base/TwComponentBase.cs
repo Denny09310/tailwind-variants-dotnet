@@ -7,7 +7,7 @@ namespace TailwindVariants.NET;
 /// </summary>
 public abstract class TwComponentBase<TOwner, TSlots> : ComponentBase
 	where TSlots : ISlots, new()
-	where TOwner : ISlotted<TSlots>
+	where TOwner : ISlottable<TSlots>
 {
 	protected SlotsMap<TSlots> _slots = new();
 

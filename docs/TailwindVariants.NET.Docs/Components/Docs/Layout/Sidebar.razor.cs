@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Docs.Components.Docs.Layout;
 
-public partial class Sidebar : ISlotted<Sidebar.Slots>
+public partial class Sidebar : ISlottable<Sidebar.Slots>
 {
 	private static readonly TvDescriptor<Sidebar, Slots> _sidebar = new
 	(

@@ -13,7 +13,7 @@ public interface ICompiledVariant : IApplicableVariant;
 
 internal record struct CompiledVariant<TOwner, TSlots>(Expression<VariantAccessor<TOwner>> Expr, IVariant<TSlots> Entry, VariantAccessor<TOwner> Accessor) : ICompiledVariant
 	where TSlots : ISlots, new()
-	where TOwner : ISlotted<TSlots>
+	where TOwner : ISlottable<TSlots>
 {
 	public readonly void Apply(object obj, Action<string, string> aggregator, ILoggerFactory factory)
 	{

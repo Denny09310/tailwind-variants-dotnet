@@ -1,4 +1,4 @@
-﻿# Slots
+# Slots
 
 **Slots** are a core feature of **TailwindVariants.NET** that allow you to define reusable, named “buckets” of classes for your components. They give you fine-grained control over styling specific parts of a component, without hardcoding CSS strings.
 
@@ -30,7 +30,7 @@ Here, the outer `<button>` and the inner `<span>` require different styles. Usin
 A slot is defined as a nested class inside a component that implements `ISlots`:
 
 ```csharp
-public sealed partial class Button : ISlotted<Button.Slots>
+public sealed partial class Button : ISlottable<Button.Slots>
 {
     public sealed partial class Slots : ISlots
     {
