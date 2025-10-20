@@ -1,4 +1,4 @@
-﻿# TwVariants
+# TwVariants
 
 `TwVariants` is the **core function factory** in TailwindVariants.NET that builds a Tailwind-variants-like function. It is responsible for **computing the final CSS class strings** for each slot based on component variants, compound variants, and per-instance overrides.
 
@@ -24,10 +24,10 @@ public SlotsMap<TSlots> Invoke<TOwner, TSlots>(
     TvDescriptor<TOwner, TSlots> definition
 )
     where TSlots : ISlots, new()
-    where TOwner : ISlotted<TSlots>
+    where TOwner : ISlottable<TSlots>
 ````
 
-* **TOwner** — the component or object that owns the slots and variants (`ISlotted<TSlots>`).
+* **TOwner** — the component or object that owns the slots and variants (`ISlottable<TSlots>`).
 * **TSlots** — the type representing your slots (`ISlots`).
 * **definition** — a `TvDescriptor` describing base slots, variants, and compound variants.
 

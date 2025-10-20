@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Tests;
 
-public class ComponentWithThrowingAccessor : ISlotted<TestSlots>
+public class ComponentWithThrowingAccessor : ISlottable<TestSlots>
 {
 	public string? Class { get; set; }
 	public TestSlots Classes { get; set; } = null!;

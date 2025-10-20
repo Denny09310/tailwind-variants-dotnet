@@ -7,7 +7,7 @@ namespace TailwindVariants.NET;
 /// </summary>
 public class CompoundVariantCollection<TOwner, TSlots> : IEnumerable<CompoundVariant<TOwner, TSlots>>
 	where TSlots : ISlots, new()
-	where TOwner : ISlotted<TSlots>
+	where TOwner : ISlottable<TSlots>
 {
 	private readonly List<CompoundVariant<TOwner, TSlots>> _variants = [];
 

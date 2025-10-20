@@ -1,4 +1,4 @@
-﻿# First Component
+# First Component
 
 In this guide, we’ll build our first styled component using **TailwindVariants.NET**.
 The library helps you organize Tailwind CSS classes in a clean, composable, and conflict-aware way.
@@ -22,7 +22,7 @@ namespace TailwindVariants.NET.Docs.Components.Shared;
 
 public abstract class TwComponentBase<TOwner, TSlots> : ComponentBase
     where TSlots : ISlots, new()
-    where TOwner : ISlotted<TSlots>
+    where TOwner : ISlottable<TSlots>
 {
     protected SlotsMap<TSlots> _slots = new();
 
@@ -86,7 +86,7 @@ In the `.razor.cs` file, define how the component should look:
 ```csharp
 namespace TailwindVariants.NET.Docs.Components.Shared;
 
-public partial class Button : ISlotted<Button.Slots>
+public partial class Button : ISlottable<Button.Slots>
 {
     private static readonly TvDescriptor<Button, Slots> _button = new
     (

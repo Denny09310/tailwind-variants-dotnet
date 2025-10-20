@@ -1,8 +1,22 @@
+## [0.2.7-preview.1] - 2025-10-20
+
+### 🐛 Bug Fixes
+
+- Reversed inheritance for obsolete interface
+
+### ⚙️ Miscellaneous Tasks
+
+- Deprecated ISlotted, renamed to ISlottable
+- Fixed project dependency on analyzer, removed EmbeddedAttribute
 ## [0.2.6] - 2025-10-17
 
 ### 🐛 Bug Fixes
 
 - Enforce modifiers on generated hierarchy, split generator in multiple files for better readability
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, update CHANGELOG.md
 ## [0.2.5] - 2025-10-17
 
 ### 🐛 Bug Fixes

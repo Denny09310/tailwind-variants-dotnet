@@ -12,7 +12,6 @@ public partial class SlotsAccessorGenerator : IIncrementalGenerator
 	{
 		context.RegisterPostInitializationOutput(ctx =>
 		{
-			ctx.AddEmbeddedAttributeDefinition();
 			ctx.AddSource(
 				"SlotAttribute.g.cs",
 				SourceText.From(SourceGenerationHelper.Attribute, Encoding.UTF8));

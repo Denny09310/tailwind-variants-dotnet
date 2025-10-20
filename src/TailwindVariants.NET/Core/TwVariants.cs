@@ -31,7 +31,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 	/// </remarks>
 	public SlotsMap<TSlots> Invoke<TOwner, TSlots>(TOwner owner, TvDescriptor<TOwner, TSlots> descriptor)
 		where TSlots : ISlots, new()
-		where TOwner : ISlotted<TSlots>
+		where TOwner : ISlottable<TSlots>
 	{
 		var generic = (ITvDescriptor)descriptor;
 
@@ -86,7 +86,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 	}
 
 	private static void ApplyClassOverride<TOwner, TSlots>(TOwner owner, Dictionary<string, StringBuilder> builders)
-		where TOwner : ISlotted<TSlots>
+		where TOwner : ISlottable<TSlots>
 		where TSlots : ISlots, new()
 	{
 		if (!string.IsNullOrEmpty(owner.Class))
@@ -98,7 +98,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 	private static void ApplyCompoundVariants<TOwner, TSlots>(
 		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledCompoundVariant>? compounds, ILoggerFactory factory)
 		where TSlots : ISlots, new()
-		where TOwner : ISlotted<TSlots>
+		where TOwner : ISlottable<TSlots>
 	{
 		if (compounds is null)
 		{
@@ -113,7 +113,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 
 	private static void ApplySlotsOverrides<TOwner, TSlots>(
 			TOwner owner, Dictionary<string, StringBuilder> builders)
-		where TOwner : ISlotted<TSlots>
+		where TOwner : ISlottable<TSlots>
 		where TSlots : ISlots, new()
 	{
 		if (owner.Classes is null)
@@ -136,7 +136,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 	private static void ApplyVariants<TOwner, TSlots>(
 		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledVariant>? variants, ILoggerFactory factory)
 		where TSlots : ISlots, new()
-		where TOwner : ISlotted<TSlots>
+		where TOwner : ISlottable<TSlots>
 	{
 		if (variants is not null)
 		{

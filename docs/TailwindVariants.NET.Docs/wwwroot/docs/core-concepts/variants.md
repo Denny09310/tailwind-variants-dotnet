@@ -1,4 +1,4 @@
-﻿# Variants
+# Variants
 
 Variants are one of the core concepts in **TailwindVariants.NET**. They allow you to define reusable, strongly-typed variations for your components without relying on raw strings. Think of them as the “conditional classes” of your components — but safe, structured, and discoverable at compile time.
 
@@ -29,7 +29,7 @@ public enum Variants
     Danger
 }
 
-public partial class Button : ISlotted<Button.Slots>
+public partial class Button : ISlottable<Button.Slots>
 {
     public static readonly TvDescriptor<Button, Slots> _button = new(
         @base: "px-4 py-2 rounded font-medium",
