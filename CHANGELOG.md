@@ -1,3 +1,8 @@
+## [0.2.7-preview.3] - 2025-10-23
+
+### ⚙️ Miscellaneous Tasks
+
+- Better logging, minor formatting
 ## [0.2.7-preview.2] - 2025-10-23
 
 ### 🐛 Bug Fixes
@@ -11,6 +16,7 @@
 
 - Updated tests on generated code
 - Minor fixes
+- Bump version, update CHANGELOG.md
 ## [0.2.7-preview.1] - 2025-10-20
 
 ### 🐛 Bug Fixes
