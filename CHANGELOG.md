@@ -1,3 +1,16 @@
+## [0.2.7-preview.2] - 2025-10-23
+
+### 🐛 Bug Fixes
+
+- Cache AllNames array to avoid calling Enum.GetNames multiple times
+- Added warning to Logger instead of silent exception
+- Moved attribute to core library avoiding duplication
+- Remove constraint on non-nullable slots class
+
+### ⚙️ Miscellaneous Tasks
+
+- Updated tests on generated code
+- Minor fixes
 ## [0.2.7-preview.1] - 2025-10-20
 
 ### 🐛 Bug Fixes
@@ -8,6 +21,7 @@
 
 - Deprecated ISlotted, renamed to ISlottable
 - Fixed project dependency on analyzer, removed EmbeddedAttribute
+- Bump version, update CHANGELOG.md
 ## [0.2.6] - 2025-10-17
 
 ### 🐛 Bug Fixes
