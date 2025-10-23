@@ -10,13 +10,6 @@ public partial class SlotsAccessorGenerator : IIncrementalGenerator
 {
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
-		context.RegisterPostInitializationOutput(ctx =>
-		{
-			ctx.AddSource(
-				"SlotAttribute.g.cs",
-				SourceText.From(SourceGenerationHelper.Attribute, Encoding.UTF8));
-		});
-
 		var candidateTypes = context.SyntaxProvider.CreateSyntaxProvider(
 			predicate: static (node, _) => IsMaybeCandidateForGeneration(node),
 			transform: static (ctx, _) => GetTransformedCandidate(ctx))

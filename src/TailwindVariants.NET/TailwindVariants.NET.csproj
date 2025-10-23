@@ -31,10 +31,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\TailwindVariants.NET.SourceGenerators\bin\$(Configuration)\netstandard2.0\*.dll"
-			  Pack="true"
-			  PackagePath="analyzers/dotnet/cs"
-			  Visible="false" />
+		<None Include="..\TailwindVariants.NET.SourceGenerators\bin\$(Configuration)\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 </Project>
