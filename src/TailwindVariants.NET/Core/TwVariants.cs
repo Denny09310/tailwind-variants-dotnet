@@ -30,7 +30,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 	/// The returned function is safe to call multiple times; per-call overrides do not mutate precomputed definitions.
 	/// </remarks>
 	public SlotsMap<TSlots> Invoke<TOwner, TSlots>(TOwner owner, TvDescriptor<TOwner, TSlots> descriptor)
-		where TSlots : ISlots, new()
+		where TSlots : ISlots
 		where TOwner : ISlottable<TSlots>
 	{
 		var generic = (ITvDescriptor)descriptor;
@@ -53,37 +53,47 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		ApplyClassOverride<TOwner, TSlots>(owner, builders);
 
 		// 7. Build final map
-		return builders.ToDictionary(
-			kv => kv.Key,
-			kv => merge.Merge(kv.Value.ToString()));
+        // Build the final map by trimming any leading or trailing whitespace prior to merging.
+        return builders.ToDictionary(
+            kv => kv.Key,
+            kv => merge.Merge(kv.Value.ToString().Trim()));
 	}
 
 	#region Helpers
 
-	private static void AddClass<TSlots>(
-		Dictionary<string, StringBuilder> builders, Expression<SlotAccessor<TSlots>> accessor, string classes)
-		where TSlots : ISlots, new()
-	{
-		var name = GetSlot(accessor);
-		AddClass<TSlots>(builders, name, classes);
-	}
+    private static void AddClass<TSlots>(
+        Dictionary<string, StringBuilder> builders, Expression<SlotAccessor<TSlots>> accessor, string classes)
+        where TSlots : ISlots
+    {
+        var name = GetSlot(accessor);
+        AddClass<TSlots>(builders, name, classes);
+    }
 
-	private static void AddClass<TSlots>(
-		Dictionary<string, StringBuilder> builders, string slot, string classes)
-		where TSlots : ISlots, new()
-	{
-		if (!builders.TryGetValue(slot, out var builder))
-		{
-			builder = new StringBuilder();
-			builders[slot] = builder;
-		}
-		builder.Append(' ');
-		builder.Append(classes);
-	}
+    private static void AddClass<TSlots>(
+        Dictionary<string, StringBuilder> builders, string slot, string classes)
+        where TSlots : ISlots
+    {
+        if (string.IsNullOrWhiteSpace(classes)) return;
+
+        classes = classes.Trim();
+
+        if (!builders.TryGetValue(slot, out var builder))
+        {
+            builder = new StringBuilder();
+            builders[slot] = builder;
+        }
+
+        if (builder.Length > 0)
+        {
+            builder.Append(' ');
+        }
+
+        builder.Append(classes);
+    }
 
 	private static void ApplyClassOverride<TOwner, TSlots>(TOwner owner, Dictionary<string, StringBuilder> builders)
 		where TOwner : ISlottable<TSlots>
-		where TSlots : ISlots, new()
+		where TSlots : ISlots
 	{
 		if (!string.IsNullOrEmpty(owner.Class))
 		{
@@ -93,7 +103,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 
 	private static void ApplyCompoundVariants<TOwner, TSlots>(
 		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledCompoundVariant>? compounds, ILoggerFactory factory)
-		where TSlots : ISlots, new()
+		where TSlots : ISlots
 		where TOwner : ISlottable<TSlots>
 	{
 		if (compounds is null)
@@ -110,28 +120,23 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 	private static void ApplySlotsOverrides<TOwner, TSlots>(
 			TOwner owner, Dictionary<string, StringBuilder> builders)
 		where TOwner : ISlottable<TSlots>
-		where TSlots : ISlots, new()
+		where TSlots : ISlots
 	{
 		if (owner.Classes is null)
 		{
 			return;
 		}
 
-		foreach (var (slot, value) in owner.Classes.EnumerateOverrides())
-		{
-			if (!builders.TryGetValue(slot, out var builder))
-			{
-				builder = new StringBuilder();
-				builders[slot] = builder;
-			}
-			builder.Append(' ');
-			builder.Append(value);
-		}
+        foreach (var (slot, value) in owner.Classes.EnumerateOverrides())
+        {
+            // Delegate actual concatenation to AddClass to ensure consistent spacing logic.
+            AddClass<TSlots>(builders, slot, value);
+        }
 	}
 
 	private static void ApplyVariants<TOwner, TSlots>(
 		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledVariant>? variants, ILoggerFactory factory)
-		where TSlots : ISlots, new()
+		where TSlots : ISlots
 		where TOwner : ISlottable<TSlots>
 	{
 		if (variants is not null)

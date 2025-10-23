@@ -11,40 +11,44 @@ namespace TailwindVariants.NET.Models;
 public interface ICompiledCompoundVariant : IApplicableVariant;
 
 internal record struct CompiledCompoundVariant<TOwner, TSlots>(Predicate<TOwner> Predicate, SlotCollection<TSlots> Slots) : ICompiledCompoundVariant
-	where TSlots : ISlots, new()
+	where TSlots : ISlots
 	where TOwner : ISlottable<TSlots>
 {
 	public readonly void Apply(object obj, Action<string, string> aggregator, ILoggerFactory factory)
-	{
-		var logger = factory.CreateLogger<CompiledVariant<TOwner, TSlots>>();
+    {
+        var logger = factory.CreateLogger<CompiledCompoundVariant<TOwner, TSlots>>();
 
-		try
-		{
-			// Should I throw error for mismatching component?
-			if (obj is not TOwner owner)
-			{
-				logger.LogWarning("");
-				return;
-			}
+        try
+        {
+            if (obj is not TOwner owner)
+            {
+                var expected = typeof(TOwner).FullName ?? typeof(TOwner).Name;
+                var actual = obj?.GetType().FullName ?? "<null>";
+                logger.LogWarning(
+                    "Compound variant evaluation skipped due to owner type mismatch. Expected {ExpectedOwner}, got {ActualOwner}.",
+                    expected,
+                    actual);
+                return;
+            }
 
-			if (!Predicate(owner))
-			{
-				return;
-			}
+            if (!Predicate(owner))
+            {
+                return;
+            }
 
-			foreach (var (slot, value) in Slots)
-			{
-				if (slot is null)
-				{
-					continue;
-				}
+            foreach (var (slot, value) in Slots)
+            {
+                if (slot is null)
+                {
+                    continue;
+                }
 
-				aggregator(GetSlot(slot), value.ToString());
-			}
-		}
-		catch (Exception ex)
-		{
-			logger.LogError(ex, "Compound variant predicate or processing failed");
-		}
-	}
+                aggregator(GetSlot(slot), value.ToString());
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Compound variant predicate or processing failed");
+        }
+    }
 }
