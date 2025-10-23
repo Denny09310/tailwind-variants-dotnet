@@ -53,33 +53,43 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		ApplyClassOverride<TOwner, TSlots>(owner, builders);
 
 		// 7. Build final map
-		return builders.ToDictionary(
-			kv => kv.Key,
-			kv => merge.Merge(kv.Value.ToString()));
+        // Build the final map by trimming any leading or trailing whitespace prior to merging.
+        return builders.ToDictionary(
+            kv => kv.Key,
+            kv => merge.Merge(kv.Value.ToString().Trim()));
 	}
 
 	#region Helpers
 
-	private static void AddClass<TSlots>(
-		Dictionary<string, StringBuilder> builders, Expression<SlotAccessor<TSlots>> accessor, string classes)
-		where TSlots : ISlots, new()
-	{
-		var name = GetSlot(accessor);
-		AddClass<TSlots>(builders, name, classes);
-	}
+    private static void AddClass<TSlots>(
+        Dictionary<string, StringBuilder> builders, Expression<SlotAccessor<TSlots>> accessor, string classes)
+        where TSlots : ISlots, new()
+    {
+        var name = GetSlot(accessor);
+        AddClass<TSlots>(builders, name, classes);
+    }
 
-	private static void AddClass<TSlots>(
-		Dictionary<string, StringBuilder> builders, string slot, string classes)
-		where TSlots : ISlots, new()
-	{
-		if (!builders.TryGetValue(slot, out var builder))
-		{
-			builder = new StringBuilder();
-			builders[slot] = builder;
-		}
-		builder.Append(' ');
-		builder.Append(classes);
-	}
+    private static void AddClass<TSlots>(
+        Dictionary<string, StringBuilder> builders, string slot, string classes)
+        where TSlots : ISlots, new()
+    {
+        if (string.IsNullOrWhiteSpace(classes)) return;
+
+        classes = classes.Trim();
+
+        if (!builders.TryGetValue(slot, out var builder))
+        {
+            builder = new StringBuilder();
+            builders[slot] = builder;
+        }
+
+        if (builder.Length > 0)
+        {
+            builder.Append(' ');
+        }
+
+        builder.Append(classes);
+    }
 
 	private static void ApplyClassOverride<TOwner, TSlots>(TOwner owner, Dictionary<string, StringBuilder> builders)
 		where TOwner : ISlottable<TSlots>
@@ -117,16 +127,11 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 			return;
 		}
 
-		foreach (var (slot, value) in owner.Classes.EnumerateOverrides())
-		{
-			if (!builders.TryGetValue(slot, out var builder))
-			{
-				builder = new StringBuilder();
-				builders[slot] = builder;
-			}
-			builder.Append(' ');
-			builder.Append(value);
-		}
+        foreach (var (slot, value) in owner.Classes.EnumerateOverrides())
+        {
+            // Delegate actual concatenation to AddClass to ensure consistent spacing logic.
+            AddClass<TSlots>(builders, slot, value);
+        }
 	}
 
 	private static void ApplyVariants<TOwner, TSlots>(
