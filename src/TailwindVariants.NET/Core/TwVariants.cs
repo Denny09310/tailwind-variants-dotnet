@@ -30,7 +30,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 	/// The returned function is safe to call multiple times; per-call overrides do not mutate precomputed definitions.
 	/// </remarks>
 	public SlotsMap<TSlots> Invoke<TOwner, TSlots>(TOwner owner, TvDescriptor<TOwner, TSlots> descriptor)
-		where TSlots : ISlots, new()
+		where TSlots : ISlots
 		where TOwner : ISlottable<TSlots>
 	{
 		var generic = (ITvDescriptor)descriptor;
@@ -63,7 +63,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 
     private static void AddClass<TSlots>(
         Dictionary<string, StringBuilder> builders, Expression<SlotAccessor<TSlots>> accessor, string classes)
-        where TSlots : ISlots, new()
+        where TSlots : ISlots
     {
         var name = GetSlot(accessor);
         AddClass<TSlots>(builders, name, classes);
@@ -71,7 +71,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 
     private static void AddClass<TSlots>(
         Dictionary<string, StringBuilder> builders, string slot, string classes)
-        where TSlots : ISlots, new()
+        where TSlots : ISlots
     {
         if (string.IsNullOrWhiteSpace(classes)) return;
 
@@ -93,7 +93,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 
 	private static void ApplyClassOverride<TOwner, TSlots>(TOwner owner, Dictionary<string, StringBuilder> builders)
 		where TOwner : ISlottable<TSlots>
-		where TSlots : ISlots, new()
+		where TSlots : ISlots
 	{
 		if (!string.IsNullOrEmpty(owner.Class))
 		{
@@ -103,7 +103,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 
 	private static void ApplyCompoundVariants<TOwner, TSlots>(
 		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledCompoundVariant>? compounds, ILoggerFactory factory)
-		where TSlots : ISlots, new()
+		where TSlots : ISlots
 		where TOwner : ISlottable<TSlots>
 	{
 		if (compounds is null)
@@ -120,7 +120,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 	private static void ApplySlotsOverrides<TOwner, TSlots>(
 			TOwner owner, Dictionary<string, StringBuilder> builders)
 		where TOwner : ISlottable<TSlots>
-		where TSlots : ISlots, new()
+		where TSlots : ISlots
 	{
 		if (owner.Classes is null)
 		{
@@ -136,7 +136,7 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 
 	private static void ApplyVariants<TOwner, TSlots>(
 		TOwner owner, Dictionary<string, StringBuilder> builders, IReadOnlyCollection<ICompiledVariant>? variants, ILoggerFactory factory)
-		where TSlots : ISlots, new()
+		where TSlots : ISlots
 		where TOwner : ISlottable<TSlots>
 	{
 		if (variants is not null)

@@ -8,7 +8,7 @@ namespace TailwindVariants.NET;
 /// SlotsMap is a simple mapping of slot names to final computed class strings (null allowed).
 /// </summary>
 public class SlotsMap<TSlots>
-	where TSlots : ISlots, new()
+	where TSlots : ISlots
 {
 	private readonly Dictionary<string, string?> _map = new(StringComparer.Ordinal);
 

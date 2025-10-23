@@ -8,7 +8,7 @@ namespace TailwindVariants.NET;
 /// </summary>
 public class SlotCollection<TSlots>()
 	: IEnumerable<KeyValuePair<Expression<SlotAccessor<TSlots>>, ClassValue>>, IEnumerable<string>
-		where TSlots : ISlots, new()
+		where TSlots : ISlots
 {
 	private readonly Dictionary<Expression<SlotAccessor<TSlots>>, ClassValue> _slots = [];
 
