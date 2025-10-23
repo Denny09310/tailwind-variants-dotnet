@@ -161,7 +161,7 @@ public partial class SlotsAccessorGenerator
 		sb.AppendLine("/// <summary>");
 		sb.AppendLine("/// All slot names (read-only).");
 		sb.AppendLine("/// </summary>");
-		sb.AppendLine($"public static IReadOnlyList<string> AllNames => Enum.GetNames<{accessor.EnumName}>();");
+        sb.AppendLine($"public static IReadOnlyList<string> AllNames {{ get; }} = Enum.GetNames<{accessor.EnumName}>();");
 		sb.AppendLine();
 		sb.AppendLine($"/// <summary>Returns the slot name for the given {accessor.EnumName} key.</summary>");
 		sb.AppendLine($"public static string NameOf({accessor.EnumName} key) => {accessor.Name}.GetName(key.ToString());");
