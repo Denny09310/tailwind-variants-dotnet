@@ -139,12 +139,14 @@ public class TwVariants(ILoggerFactory factory, Tw merge)
 		where TSlots : ISlots
 		where TOwner : ISlottable<TSlots>
 	{
-		if (variants is not null)
+		if (variants is null)
 		{
-			foreach (var variant in variants)
-			{
-				variant.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value), factory);
-			}
+			return;
+		}
+
+		foreach (var variant in variants)
+		{
+			variant.Apply(owner, (slot, value) => AddClass<TSlots>(builders, slot, value), factory);
 		}
 	}
 

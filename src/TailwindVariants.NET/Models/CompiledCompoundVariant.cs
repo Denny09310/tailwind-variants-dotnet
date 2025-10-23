@@ -22,13 +22,8 @@ internal record struct CompiledCompoundVariant<TOwner, TSlots>(Predicate<TOwner>
         {
             if (obj is not TOwner owner)
             {
-                var expected = typeof(TOwner).FullName ?? typeof(TOwner).Name;
-                var actual = obj?.GetType().FullName ?? "<null>";
-                logger.LogWarning(
-                    "Compound variant evaluation skipped due to owner type mismatch. Expected {ExpectedOwner}, got {ActualOwner}.",
-                    expected,
-                    actual);
-                return;
+				logger.LogWarning("Variant evaluation skipped due to owner type mismatch. Expected {ExpectedOwner}, got {ActualOwner}.", typeof(TOwner), obj?.GetType());
+				return;
             }
 
             if (!Predicate(owner))
