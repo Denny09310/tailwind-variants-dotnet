@@ -1,8 +1,14 @@
+## [0.2.7-preview.4] - 2025-10-24
+
+### 🐛 Bug Fixes
+
+- Reverted wrong modification to slots constraint
 ## [0.2.7-preview.3] - 2025-10-23
 
 ### ⚙️ Miscellaneous Tasks
 
 - Better logging, minor formatting
+- Bump version, update CHANGELOG.md
 ## [0.2.7-preview.2] - 2025-10-23
 
 ### 🐛 Bug Fixes
