@@ -6,7 +6,8 @@
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-
+		<IsPackable>true</IsPackable>
+		
 		<!-- NuGet Package Metadata -->
 		<PackageId>TailwindVariants.NET</PackageId>
 		<Version>0.2.7-preview.4</Version>
@@ -31,7 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\TailwindVariants.NET.SourceGenerators\bin\$(Configuration)\netstandard2.0\*.dll"
+		<None Include="..\TailwindVariants.NET.SourceGenerators\bin\$(Configuration)\netstandard2.0\TailwindVariants.NET.SourceGenerators.dll"
 			  Pack="true"
 			  PackagePath="analyzers/dotnet/cs"
 			  Visible="false" />
