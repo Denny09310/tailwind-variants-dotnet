@@ -7,7 +7,7 @@ namespace TailwindVariants.NET;
 /// The type representing the slots, which must implement <see cref="ISlots"/>.
 /// </typeparam>
 public interface ISlottable<TSlots>
-	where TSlots : ISlots
+	where TSlots : ISlots, new()
 {
 	/// <summary>
 	/// Gets the base slot CSS classes.
