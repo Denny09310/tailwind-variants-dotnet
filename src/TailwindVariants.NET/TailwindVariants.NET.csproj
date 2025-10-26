@@ -10,7 +10,7 @@
 		
 		<!-- NuGet Package Metadata -->
 		<PackageId>TailwindVariants.NET</PackageId>
-		<Version>0.2.7-preview.4</Version>
+		<Version>0.2.7</Version>
 		<Authors>Denny09310</Authors>
 		<Description>A Blazor library to manage TailwindCSS variants and slot-based styling with strongly typed APIs.</Description>
 		<PackageTags>blazor;tailwind;css;ui;csharp</PackageTags>
