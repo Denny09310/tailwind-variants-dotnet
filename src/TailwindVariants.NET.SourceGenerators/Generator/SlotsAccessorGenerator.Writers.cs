@@ -52,7 +52,7 @@ public partial class SlotsAccessorGenerator
         /// <returns>The value of the slot, or <c>null</c> if not set.</returns>
         """);
 
-		sb.AppendLine($"public static string? Get(this {accessor.SlotsMapName} slots, {enumRef} key)");
+		sb.AppendLine($"public static string? Get{accessor.ComponentTypeParameters}(this {accessor.SlotsMapName} slots, {enumRef} key)");
 		sb.Indent();
 		sb.AppendLine($" => slots[{namesRef}.NameOf(key)];");
 		sb.Dedent();
@@ -69,7 +69,7 @@ public partial class SlotsAccessorGenerator
 			/// <returns>The value of the <c>{{property}}</c> slot, or <c>null</c> if not set.</returns>
 			""");
 
-			sb.AppendLine($"public static string? Get{safe}(this {accessor.SlotsMapName} slots)");
+			sb.AppendLine($"public static string? Get{safe}{accessor.ComponentTypeParameters}(this {accessor.SlotsMapName} slots)");
 			sb.Indent();
 			sb.AppendLine($" => slots.Get({enumRef}.{safe});");
 			sb.Dedent();
