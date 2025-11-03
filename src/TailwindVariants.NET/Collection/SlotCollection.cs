@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace TailwindVariants.NET;
@@ -80,4 +81,16 @@ public class SlotCollection<TSlots>()
 
 	IEnumerator<string> IEnumerable<string>.GetEnumerator()
 		=> _slots[s => s.Base].GetEnumerator();
+
+	/// <summary>
+	/// Gets the value associated with the specified key.
+	/// </summary>
+	/// <param name="key">The key whose value to get.</param>
+	/// <param name="value">
+	/// When this method returns, the value associated with the specified key, if the
+	/// key is found; otherwise, the default value for the type of the value parameter
+	/// This parameter is passed uninitialized.</param>
+	/// <returns> true if the collection contains an element with the specified key; otherwise, false.</returns>
+	public bool TryGetValue(Expression<SlotAccessor<TSlots>> key, [MaybeNullWhen(false)] out ClassValue value)
+		=> _slots.TryGetValue(key, out value);
 }

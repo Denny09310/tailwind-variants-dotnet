@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace TailwindVariants.NET;
@@ -37,4 +38,16 @@ public class VariantCollection<TOwner, TSlots> : IEnumerable<KeyValuePair<Expres
 	public IEnumerator<KeyValuePair<Expression<VariantAccessor<TOwner>>, IVariant<TSlots>>> GetEnumerator() => _variants.GetEnumerator();
 
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+	/// <summary>
+	/// Gets the value associated with the specified key.
+	/// </summary>
+	/// <param name="key">The key whose value to get.</param>
+	/// <param name="value">
+	/// When this method returns, the value associated with the specified key, if the
+	/// key is found; otherwise, the default value for the type of the value parameter
+	/// This parameter is passed uninitialized.</param>
+	/// <returns> true if the collection contains an element with the specified key; otherwise, false.</returns>
+	public bool TryGetValue(Expression<VariantAccessor<TOwner>> key, [MaybeNullWhen(false)] out IVariant<TSlots> value)
+		=> _variants.TryGetValue(key, out value);
 }
