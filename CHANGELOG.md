@@ -1,9 +1,22 @@
+## [0.2.8-preview.1] - 2025-11-05
+
+### 🚀 Features
+
+- Added a way to access the collection from outside
 ## [0.2.7] - 2025-10-26
 
 ### 🐛 Bug Fixes
 
 - Csproj nuget warnings
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, update CHANGELOG.md
 ## [0.2.7-preview.4] - 2025-10-24
+
+### 🚀 Features
+
+- Handling type parameters for generic components
 
 ### 🐛 Bug Fixes
 
