@@ -3,6 +3,10 @@
 ### 🚀 Features
 
 - Added a way to access the collection from outside
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, update CHANGELOG.md
 ## [0.2.7] - 2025-10-26
 
 ### 🐛 Bug Fixes
