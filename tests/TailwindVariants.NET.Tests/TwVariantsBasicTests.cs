@@ -11,7 +11,7 @@ public sealed class TwVariantsBasicTests
 	public void BaseClasses_AreAlwaysApplied()
 	{
 		var tv = TwVariants<TestProps>.Create(
-			baseClasses: "inline-flex items-center"
+			@base: "inline-flex items-center"
 		);
 
 		var result = tv.Invoke(new TestProps());

@@ -10,14 +10,14 @@ namespace TailwindVariants.NET.Core;
 /// Creates a new <see cref="TvDescriptor{TProps}"/>.
 /// </remarks>
 public sealed class TvDescriptor<TProps>(
-	string? baseClasses,
+	string? @base,
 	Dictionary<string, Dictionary<string, ClassValue>> variants,
 	IReadOnlyList<CompiledCompoundVariant<TProps>> compoundVariants)
 {
 	/// <summary>
 	/// Base Tailwind classes.
 	/// </summary>
-	public string? Base { get; } = baseClasses;
+	public string? Base { get; } = @base;
 
 	/// <summary>
 	/// Compiled variants.

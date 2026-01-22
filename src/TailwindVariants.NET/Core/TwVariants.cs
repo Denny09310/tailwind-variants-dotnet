@@ -21,7 +21,7 @@ public sealed class TwVariants<TProps>
 	/// <summary>
 	/// Creates a new <see cref="TwVariants{TProps}"/>.
 	/// </summary>
-	/// <param name="baseClasses">
+	/// <param name="base">
 	/// Base Tailwind classes always applied.
 	/// </param>
 	/// <param name="variants">
@@ -32,14 +32,14 @@ public sealed class TwVariants<TProps>
 	/// Compound variants that apply when multiple conditions match.
 	/// </param>
 	public static TwVariants<TProps> Create(
-		string? baseClasses = null,
+		string? @base = null,
 		Dictionary<string, Dictionary<string, ClassValue>>? variants = null,
 		IReadOnlyList<CompiledCompoundVariant<TProps>>? compoundVariants = null
 	)
 	{
 		return new TwVariants<TProps>(
 			new TvDescriptor<TProps>(
-				baseClasses,
+				@base,
 				variants ?? [],
 				compoundVariants ?? []
 			)
