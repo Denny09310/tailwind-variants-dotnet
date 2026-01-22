@@ -1,137 +1,62 @@
+using TailwindVariants.NET.Core;
+using TailwindVariants.NET.Tests.Models;
+
 namespace TailwindVariants.NET.Tests;
 
-public class TwVariantsVariantsTests : TestContext
+public sealed class TwVariantsVariantsTests
 {
-	public TwVariantsVariantsTests() => Services.AddTailwindVariants();
-
-	private TwVariants Tv => Services.GetRequiredService<TwVariants>();
-
 	[Fact]
-	public void Invoke_WithMultipleVariants_CombinesClasses()
+	public void Variant_IsApplied_WhenValueMatches()
 	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "btn",
-			variants: new VariantCollection<TestComponent, TestSlots>
+		var tv = TwVariants<TestProps>.Create(
+			variants: new()
 			{
+				["Size"] = new()
 				{
-					c => c.Size,
-					new Variant<string, TestSlots>
-					{
-						["sm"] = "text-sm py-1",
-						["lg"] = "text-lg py-3"
-					}
-				},
-				{
-					c => c.Color,
-					new Variant<string, TestSlots>
-					{
-						["primary"] = "bg-blue-500 text-white",
-						["secondary"] = "bg-gray-500 text-white"
-					}
+					["sm"] = "text-sm",
+					["lg"] = "text-lg"
 				}
 			}
 		);
-		var component = new TestComponent { Size = "lg", Color = "primary" };
 
-		// Act
-		var result = Tv.Invoke(component, descriptor);
+		var result = tv.Invoke(new TestProps { Size = "lg" });
 
-		// Assert
-		result.ContainsAll(b => b.Base,
-			"btn",
-			"text-lg",
-			"py-3",
-			"bg-blue-500",
-			"text-white");
+		Assert.Equal("text-lg", result);
 	}
 
 	[Fact]
-	public void Invoke_WithNullVariantValue_SkipsVariant()
+	public void UnknownVariantValue_IsIgnored()
 	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "btn",
-			variants: new VariantCollection<TestComponent, TestSlots>
+		var tv = TwVariants<TestProps>.Create(
+			variants: new()
 			{
+				["Size"] = new()
 				{
-					c => c.Size,
-					new Variant<string, TestSlots>
-					{
-						["sm"] = "text-sm",
-						["lg"] = "text-lg"
-					}
+					["sm"] = "text-sm"
 				}
 			}
 		);
-		var component = new TestComponent { Size = null };
 
-		// Act
-		var result = Tv.Invoke(component, descriptor);
+		var result = tv.Invoke(new TestProps { Size = "xl" });
 
-		// Assert
-		result.ShouldEqual(s => s.Base, "btn");
-
-		result.DoesNotContainAny(b => b.Base,
-			"text-sm",
-			"text-lg");
+		Assert.Equal(string.Empty, result);
 	}
 
 	[Fact]
-	public void Invoke_WithVariantContainingNullSlotValue_HandlesGracefully()
+	public void VariantName_IsCaseInsensitive()
 	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "btn",
-			variants: new VariantCollection<TestComponent, TestSlots>
+		var tv = TwVariants<TestProps>.Create(
+			variants: new()
 			{
+				["size"] = new()
 				{
-					c => c.Size,
-					new Variant<string, TestSlots>
-					{
-						["sm"] = null,
-						["lg"] = "text-lg"
-					}
+					["sm"] = "text-sm"
 				}
 			}
 		);
-		var component = new TestComponent { Size = "sm" };
 
-		// Act
-		var result = Tv.Invoke(component, descriptor);
+		var result = tv.Invoke(new TestProps { Size = "sm" });
 
-		// Assert
-		result.ShouldEqual(s => s.Base, "btn");
-	}
-
-	[Fact]
-	public void Invoke_WithVariants_AppliesCorrectVariant()
-	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "btn",
-			variants: new VariantCollection<TestComponent, TestSlots>
-			{
-				{
-					c => c.Size,
-					new Variant<string, TestSlots>
-					{
-						["sm"] = "text-sm py-1 px-2",
-						["md"] = "text-base py-2 px-4",
-						["lg"] = "text-lg py-3 px-6"
-					}
-				}
-			}
-		);
-		var component = new TestComponent { Size = "lg" };
-
-		// Act
-		var result = Tv.Invoke(component, descriptor);
-
-		// Assert
-		result.ContainsAll(b => b.Base,
-			"text-lg",
-			"py-3",
-			"px-6");
+		Assert.Equal("text-sm", result);
 	}
 }

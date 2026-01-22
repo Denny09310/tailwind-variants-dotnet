@@ -1,49 +1,38 @@
-using Microsoft.Extensions.Logging;
-
-using static TailwindVariants.NET.TvHelpers;
+using TailwindVariants.NET.Core;
 
 namespace TailwindVariants.NET.Models;
 
 /// <summary>
-/// Represents a compiled compound variant, which applies when multiple variant
-/// conditions are satisfied simultaneously.
+/// Represents a compound variant requiring multiple conditions.
 /// </summary>
-public interface ICompiledCompoundVariant : IApplicableVariant;
-
-internal record struct CompiledCompoundVariant<TOwner, TSlots>(Predicate<TOwner> Predicate, SlotCollection<TSlots> Slots) : ICompiledCompoundVariant
-	where TSlots : ISlots, new()
-	where TOwner : ISlottable<TSlots>
+/// <typeparam name="TProps">Variant props type.</typeparam>
+/// <remarks>
+/// Creates a new <see cref="CompiledCompoundVariant{TProps}"/>.
+/// </remarks>
+/// <param name="conditions">
+/// Variant property/value pairs that must match.
+/// </param>
+/// <param name="classValue">
+/// Class string applied when all conditions are satisfied.
+/// </param>
+public sealed class CompiledCompoundVariant<TProps>(
+	Dictionary<string, string> conditions,
+	string classValue) : IApplicableVariant<TProps>
 {
-	public readonly void Apply(object obj, Action<string, string> aggregator, ILoggerFactory factory)
-    {
-        var logger = factory.CreateLogger<CompiledCompoundVariant<TOwner, TSlots>>();
+	private readonly IReadOnlyList<(Func<TProps, string?> Getter, string Expected)> _conditions =
+		conditions
+			.Select(c => (PropertyAccessor.Compile<TProps>(c.Key), c.Value))
+			.ToList();
 
-        try
-        {
-            if (obj is not TOwner owner)
-            {
-				logger.LogWarning("Variant evaluation skipped due to owner type mismatch. Expected {ExpectedOwner}, got {ActualOwner}.", typeof(TOwner), obj?.GetType());
+	/// <inheritdoc />
+	public void Apply(TProps props, List<string> classes)
+	{
+		foreach (var (getter, expected) in _conditions)
+		{
+			if (getter(props) != expected)
 				return;
-            }
+		}
 
-            if (!Predicate(owner))
-            {
-                return;
-            }
-
-            foreach (var (slot, value) in Slots)
-            {
-                if (slot is null)
-                {
-                    continue;
-                }
-
-                aggregator(GetSlot(slot), value.ToString());
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Compound variant predicate or processing failed");
-        }
-    }
+		classes.Add(classValue);
+	}
 }

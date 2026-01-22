@@ -1,68 +1,25 @@
+using TailwindVariants.NET.Core;
+using TailwindVariants.NET.Tests.Models;
+
 namespace TailwindVariants.NET.Tests;
 
-public class TwVariantsNullHandlingTests : TestContext
+public sealed class TwVariantsNullHandlingTests
 {
-	public TwVariantsNullHandlingTests() => Services.AddTailwindVariants();
-
-	public static TheoryData<string?> NullOrEmptyBaseData { get; } = new()
+	[Fact]
+	public void MissingProps_DoNotThrow()
 	{
-		{ null },
-		{ "" }
-	};
-
-	private TwVariants Tv => Services.GetRequiredService<TwVariants>();
-
-	[Theory]
-	[MemberData(nameof(NullOrEmptyBaseData))]
-	public void Base_NullOrEmpty_ReturnsNull(string? baseValue)
-	{
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(@base: baseValue);
-		var component = new TestComponent();
-
-		var result = Tv.Invoke(component, descriptor);
-
-		Assert.Null(result[s => s.Base]);
-	}
-
-	[Theory]
-	[MemberData(nameof(NullOrEmptyBaseData))]
-	public void Invoke_WithNullOrEmptyClassesObject_HandlesGracefully(string? slotValue)
-	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "component",
-			slots: new()
+		var tv = TwVariants<TestProps>.Create(
+			variants: new()
 			{
-				[s => s.Title] = slotValue,
-				[s => s.Description] = "text-lg"
+				["Size"] = new()
+				{
+					["sm"] = "text-sm"
+				}
 			}
 		);
-		var component = new TestComponent { Classes = null };
 
-		// Act
-		var result = Tv.Invoke(component, descriptor);
+		var result = tv.Invoke(new TestProps());
 
-		// Assert
-		result.ShouldEqual(s => s.Base, "component");
-		Assert.Null(result[s => s.Title]);
-		result.ShouldEqual(s => s.Description, "text-lg");
-	}
-
-	[Theory]
-	[MemberData(nameof(NullOrEmptyBaseData))]
-	public void Invoke_WithNullOrEmptyStringClassOverride_AppendsEmpty(string? classValue)
-	{
-		// Arrange
-		var descriptor = new TvDescriptor<TestComponent, TestSlots>(
-			@base: "btn"
-		);
-		var component = new TestComponent { Class = classValue };
-
-		// Act
-		var tv = Services.GetRequiredService<TwVariants>();
-		var result = tv.Invoke(component, descriptor);
-
-		// Assert
-		result.ShouldEqual(s => s.Base, "btn");
+		Assert.Equal(string.Empty, result);
 	}
 }

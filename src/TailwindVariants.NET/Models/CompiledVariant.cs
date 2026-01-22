@@ -1,46 +1,30 @@
-using System.Linq.Expressions;
+using TailwindVariants.NET.Core;
 
-using Microsoft.Extensions.Logging;
-
-using static TailwindVariants.NET.TvHelpers;
-
-namespace TailwindVariants.NET;
+namespace TailwindVariants.NET.Models;
 
 /// <summary>
-/// Represents a compiled single variant, which applies based on a single variant condition.
+/// Represents a single compiled variant.
 /// </summary>
-public interface ICompiledVariant : IApplicableVariant;
-
-internal record struct CompiledVariant<TOwner, TSlots>(Expression<VariantAccessor<TOwner>> Expr, IVariant<TSlots> Entry, VariantAccessor<TOwner> Accessor) : ICompiledVariant
-	where TSlots : ISlots, new()
-	where TOwner : ISlottable<TSlots>
+/// <typeparam name="TProps">Variant props type.</typeparam>
+/// <remarks>
+/// Creates a new <see cref="CompiledVariant{TProps}"/>.
+/// </remarks>
+/// <param name="name">Variant property name.</param>
+/// <param name="values">Variant value to class mapping.</param>
+public sealed class CompiledVariant<TProps>(
+	string name,
+	Dictionary<string, ClassValue> values) : IApplicableVariant<TProps>
 {
-	public readonly void Apply(object obj, Action<string, string> aggregator, ILoggerFactory factory)
+	private readonly Func<TProps, string?> _getter = PropertyAccessor.Compile<TProps>(name);
+
+	/// <inheritdoc />
+	public void Apply(TProps props, List<string> classes)
 	{
-		var logger = factory.CreateLogger<CompiledVariant<TOwner, TSlots>>();
+		var value = _getter(props);
+		if (value is null)
+			return;
 
-        try
-        {
-            if (obj is not TOwner owner)
-            {
-                logger.LogWarning("Variant evaluation skipped due to owner type mismatch. Expected {ExpectedOwner}, got {ActualOwner}.", typeof(TOwner), obj?.GetType());
-                return;
-            }
-
-            var selected = Accessor(owner);
-            if (selected is null) return;
-
-            if (Entry.TryGetSlots(selected, out var slots) && slots is not null)
-            {
-                foreach (var (slot, value) in slots)
-                {
-                    aggregator(GetSlot(slot), value.ToString());
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Variant evaluation failed for '{Expr}'", Expr);
-        }
+		if (values.TryGetValue(value, out var classValue))
+			classes.Add(classValue.Value);
 	}
 }
