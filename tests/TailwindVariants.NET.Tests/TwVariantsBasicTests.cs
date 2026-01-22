@@ -1,8 +1,6 @@
 using TailwindVariants.NET.Core;
 using TailwindVariants.NET.Tests.Models;
 
-using Xunit;
-
 namespace TailwindVariants.NET.Tests;
 
 public sealed class TwVariantsBasicTests
