@@ -8,6 +8,8 @@ internal class Indenter
 	private readonly StringBuilder _sb = new();
 	private int _level = 0;
 
+	public void Append(string text) => _sb.Append(GetIndentation() + text);
+
 	public void AppendLine(string text) => _sb.AppendLine(GetIndentation() + text);
 
 	public void AppendLine() => _sb.AppendLine();

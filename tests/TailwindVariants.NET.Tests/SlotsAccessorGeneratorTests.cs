@@ -51,6 +51,41 @@ public class SlotsAccessorGeneratorTests
 	}
 
 	[Fact]
+	public void Generates_For_Generic_Component_Without_Constraints()
+	{
+		var input = """
+        namespace Demo.Components
+        {
+            public partial class GenericComponent<T>
+            {
+                public partial class Slots : TailwindVariants.NET.ISlots
+                {
+                    public string? Base { get; set; }
+                    public string? Header { get; set; }
+                }
+            }
+        }
+        """;
+
+		var (generated, diags) = RunGenerator(input);
+
+		Assert.DoesNotContain(diags, d => d.Severity == DiagnosticSeverity.Error);
+		Assert.NotEmpty(generated);
+
+		var combined = string.Join("\n---GEN---\n", generated.Select(g => g.SourceText.ToString()));
+
+		// Generic parameter is preserved
+		Assert.Contains("GenericComponent<T>", combined);
+
+		// No where-clause should be generated
+		Assert.DoesNotContain("where T :", combined);
+
+		// Extension methods are generic
+		Assert.Contains("Get<T>", combined);
+		Assert.Contains("GetHeader<T>", combined);
+	}
+
+	[Fact]
 	public void Handles_Nested_Types_Correctly()
 	{
 		var input = """

@@ -8,6 +8,8 @@ namespace TailwindVariants.NET.SourceGenerators;
 
 public partial class SlotsAccessorGenerator
 {
+	private const string GlobalNamespace = "global::";
+
 	private static InheritanceInfo AnalyzeInheritance(INamedTypeSymbol symbol)
 	{
 		if (symbol.Interfaces.Any(IsISlotsInterface))
@@ -18,7 +20,7 @@ public partial class SlotsAccessorGenerator
 			IsMaybeSlotsForGeneration(baseType))
 		{
 			var baseClass = baseType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-									.Replace("global::", string.Empty);
+									.Replace(GlobalNamespace, string.Empty);
 			return new(false, baseClass);
 		}
 
@@ -34,9 +36,10 @@ public partial class SlotsAccessorGenerator
 		{
 			var name = current.Name;
 			var typeParameters = GetTypeParameters(current);
+			var constraints = GetTypeParameterConstraints(current);
 
 			var modifiers = BuildTypeModifiersString(current);
-			stack.Push(($"{name}{typeParameters}", modifiers));
+			stack.Push(($"{name}{typeParameters}{constraints}", modifiers));
 			current = current.ContainingType;
 		}
 
@@ -63,15 +66,13 @@ public partial class SlotsAccessorGenerator
 				   type.TypeKind == TypeKind.Interface ? "interface" :
 				   "class";
 
-		// other modifiers: prefer static, otherwise sealed/abstract
+		// other modifiers
 		var extra = type.IsStatic ? "static " :
 					type.IsSealed ? "sealed " :
 					type.IsAbstract ? "abstract " : string.Empty;
 
-		// Always generate 'partial' so generated nested partial declarations are allowed
 		var partial = "partial";
 
-		// Combine (only add spaces where needed)
 		var parts = new List<string>();
 		if (!string.IsNullOrEmpty(acc)) parts.Add(acc);
 		if (!string.IsNullOrEmpty(extra)) parts.Add(extra.Trim());
@@ -97,14 +98,11 @@ public partial class SlotsAccessorGenerator
 		while (stack.Count > 0)
 		{
 			var currentType = stack.Pop();
-			foreach (var prop in currentType.GetMembers().OfType<IPropertySymbol>())
-			{
-				if (IsPublicStringProperty(prop) &&
-					SymbolEqualityComparer.Default.Equals(prop.ContainingType, currentType))
-				{
-					properties.Add(prop.Name);
-				}
-			}
+			var currentProperties = currentType.GetMembers().OfType<IPropertySymbol>()
+				.Where(p => IsPublicStringProperty(p) && SymbolEqualityComparer.Default.Equals(p.ContainingType, currentType))
+				.Select(p => p.Name);
+
+			properties.AddRange(currentProperties);
 		}
 
 		return [.. properties.OrderBy(name => name, StringComparer.Ordinal)];
@@ -113,10 +111,10 @@ public partial class SlotsAccessorGenerator
 	private static ImmutableArray<(string Name, string Slot)> CollectPropertiesFromType(INamedTypeSymbol type)
 	{
 		return [.. type.GetMembers()
-		.OfType<IPropertySymbol>()
-		.Where(IsPublicStringProperty)
-		.OrderBy(p => (p.Locations.FirstOrDefault()?.SourceSpan.Start ?? int.MaxValue, p.Name))
-		.Select(p => (p.Name, GetSlotAttributeName(p) ?? p.Name))];
+			.OfType<IPropertySymbol>()
+			.Where(IsPublicStringProperty)
+			.OrderBy(p => (p.Locations.FirstOrDefault()?.SourceSpan.Start ?? int.MaxValue, p.Name))
+			.Select(p => (p.Name, GetSlotAttributeName(p) ?? p.Name))];
 	}
 
 	private static string? GetSlotAttributeName(IPropertySymbol prop)
@@ -130,7 +128,8 @@ public partial class SlotsAccessorGenerator
 				return s;
 		}
 
-		if (attr.ConstructorArguments.Length > 0 && attr.ConstructorArguments[0].Value is string ctor)
+		if (attr.ConstructorArguments.Length > 0 &&
+			attr.ConstructorArguments[0].Value is string ctor)
 			return ctor;
 
 		return null;
@@ -141,41 +140,35 @@ public partial class SlotsAccessorGenerator
 
 	private static SlotsAccessorToGenerate? GetTransformedSlots(INamedTypeSymbol symbol)
 	{
-		// Check inheritance structure
 		var inheritanceInfo = AnalyzeInheritance(symbol);
 
-		// Collect properties
 		var ownProperties = CollectPropertiesFromType(symbol);
 		var allProperties = CollectAllPropertiesInHierarchy(symbol);
 
-		// Build names
 		var fullName = symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-			.Replace("global::", string.Empty);
+			.Replace(GlobalNamespace, string.Empty);
 
-		// Detect whether the slots type is nested inside another type
 		var isNested = symbol.ContainingType is not null;
-
 		var componentSymbol = symbol.ContainingType;
 
 		string componentTypeParameters = GetTypeParameters(componentSymbol);
-		string componentFullName = componentFullName = componentSymbol?
+		string componentConstraints = GetTypeParameterConstraints(componentSymbol);
+
+		string componentFullName = componentSymbol?
 			.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-			.Replace("global::", string.Empty) ?? string.Empty;
+			.Replace(GlobalNamespace, string.Empty) ?? string.Empty;
 
 		var typeName = symbol.ContainingType?.Name
 			?? symbol.Name.Replace("Slots", string.Empty);
 
 		var slotsMapName = $"SlotsMap<{fullName}>";
 
-		// Choose enum/names names conditionally:
-		// - if nested => short names that become nested (SlotTypes, SlotNames)
-		// - if not nested => keep previous top-level naming (e.g. ItemTitleSlotTypes)
 		var enumName = isNested
-			? SymbolHelper.MakeSafeIdentifier($"SlotTypes")
+			? SymbolHelper.MakeSafeIdentifier("SlotTypes")
 			: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotTypes");
 
 		var namesClass = isNested
-			? SymbolHelper.MakeSafeIdentifier($"SlotNames")
+			? SymbolHelper.MakeSafeIdentifier("SlotNames")
 			: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotNames");
 
 		return new SlotsAccessorToGenerate(
@@ -183,6 +176,7 @@ public partial class SlotsAccessorGenerator
 			FullName: fullName,
 			ComponentFullName: componentFullName,
 			ComponentTypeParameters: componentTypeParameters,
+			ComponentConstraints: componentConstraints,
 			TypeName: typeName,
 			NamespaceName: symbol.ContainingNamespace?.ToDisplayString() ?? string.Empty,
 			Modifiers: BuildTypeModifiersString(symbol),
@@ -194,31 +188,59 @@ public partial class SlotsAccessorGenerator
 			AllProperties: allProperties,
 			SlotsMapName: slotsMapName,
 			EnumName: enumName,
-			ExtClassName: SymbolHelper.MakeSafeIdentifier($"{typeName}SlotExtensions"),
+			ExtClassName: SymbolHelper.MakeSafeIdentifier($"{typeName}{componentTypeParameters}SlotExtensions"),
 			NamesClass: namesClass,
 			IsSealed: symbol.IsSealed,
 			IsNested: isNested);
 	}
 
-	private static string GetTypeParameters(INamedTypeSymbol? componentSymbol)
+	private static string GetTypeParameterConstraints(INamedTypeSymbol? type)
 	{
-		if (componentSymbol is null || componentSymbol.TypeParameters.Length <= 0)
-		{
+		if (type is null || type.TypeParameters.Length == 0)
 			return string.Empty;
+
+		var clauses = new List<string>();
+
+		foreach (var tp in type.TypeParameters)
+		{
+			var constraints = new List<string>();
+
+			if (tp.HasReferenceTypeConstraint) constraints.Add("class");
+			if (tp.HasValueTypeConstraint) constraints.Add("struct");
+			if (tp.HasNotNullConstraint) constraints.Add("notnull");
+			if (tp.HasUnmanagedTypeConstraint) constraints.Add("unmanaged");
+
+			foreach (var ct in tp.ConstraintTypes)
+			{
+				constraints.Add(
+					ct.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+					  .Replace(GlobalNamespace, string.Empty)
+				);
+			}
+
+			if (tp.HasConstructorConstraint) constraints.Add("new()");
+
+			if (constraints.Count > 0)
+				clauses.Add($"where {tp.Name} : {string.Join(", ", constraints)}");
 		}
 
-		// definition side: <T, U>
-		return "<" + string.Join(
-			", ",
-			componentSymbol.TypeParameters.Select(tp => tp.Name)
-		) + ">";
+		return clauses.Count > 0
+			? " " + string.Join(" ", clauses)
+			: string.Empty;
+	}
+
+	private static string GetTypeParameters(INamedTypeSymbol? type)
+	{
+		if (type is null || type.TypeParameters.Length == 0)
+			return string.Empty;
+
+		return "<" + string.Join(", ", type.TypeParameters.Select(tp => tp.Name)) + ">";
 	}
 
 	private static bool HasStaticGetNameMethod(INamedTypeSymbol type)
 	{
 		foreach (var m in type.GetMembers("GetName").OfType<IMethodSymbol>())
 		{
-			// public static string GetName(string)
 			if (m.IsStatic &&
 				m.DeclaredAccessibility == Accessibility.Public &&
 				m.Parameters.Length == 1 &&
@@ -244,7 +266,8 @@ public partial class SlotsAccessorGenerator
 		tds.BaseList is { Types.Count: > 0 } &&
 		tds.Members.OfType<PropertyDeclarationSyntax>().Any();
 
-	private static bool IsMaybeSlotsForGeneration(INamedTypeSymbol type) => type.AllInterfaces.Any(IsISlotsInterface);
+	private static bool IsMaybeSlotsForGeneration(INamedTypeSymbol type) =>
+		type.AllInterfaces.Any(IsISlotsInterface);
 
 	private static bool IsPublicStringProperty(IPropertySymbol property) => property switch
 	{
@@ -258,6 +281,7 @@ public partial class SlotsAccessorGenerator
 	{
 		var cls = ad.AttributeClass;
 		if (cls == null) return false;
+
 		return cls.Name is "SlotAttribute" or "Slot"
 			|| cls.ToDisplayString() == "TailwindVariants.NET.SlotAttribute";
 	}

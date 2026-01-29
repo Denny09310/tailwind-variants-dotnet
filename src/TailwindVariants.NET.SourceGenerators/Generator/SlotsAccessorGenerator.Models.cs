@@ -11,6 +11,7 @@ public partial class SlotsAccessorGenerator
 		string FullName,
 		string ComponentFullName,
 		string ComponentTypeParameters,
+		string ComponentConstraints,
 		string TypeName,
 		string NamespaceName,
 		string Modifiers,
