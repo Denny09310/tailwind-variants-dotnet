@@ -1,3 +1,14 @@
+## [0.2.9] - 2026-01-29
+
+### 🚀 Features
+
+- Updated dependencies, migrated unit tests
+- Added typeparameters on extension class, added typeparameter constraints for extensions methods
+## [0.2.8] - 2025-11-21
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, update CHANGELOG.md
 ## [0.2.8-preview.1] - 2025-11-05
 
 ### 🚀 Features
