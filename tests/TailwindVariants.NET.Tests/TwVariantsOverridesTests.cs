@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Tests;
 
-public class TwVariantsOverridesTests : TestContext
+public class TwVariantsOverridesTests : BunitContext
 {
 	public TwVariantsOverridesTests() => Services.AddTailwindVariants();
 

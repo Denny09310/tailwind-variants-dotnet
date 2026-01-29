@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Tests;
 
-public class SlotsInheritanceTests : TestContext
+public class SlotsInheritanceTests : BunitContext
 {
 	public SlotsInheritanceTests() => Services.AddTailwindVariants();
 

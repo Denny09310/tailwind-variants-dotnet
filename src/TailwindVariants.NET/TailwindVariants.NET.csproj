@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+		<TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
@@ -27,15 +27,23 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
-		<PackageReference Include="TailwindMerge.NET" Version="1.0.0" />
+		<PackageReference Include="TailwindMerge.NET" Version="1.2.0" />
 	</ItemGroup>
 
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.12" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.2" />
+	</ItemGroup>
+	
 	<ItemGroup>
-		<None Include="..\TailwindVariants.NET.SourceGenerators\bin\$(Configuration)\netstandard2.0\TailwindVariants.NET.SourceGenerators.dll"
-			  Pack="true"
-			  PackagePath="analyzers/dotnet/cs"
-			  Visible="false" />
+		<None Include="..\TailwindVariants.NET.SourceGenerators\bin\$(Configuration)\netstandard2.0\TailwindVariants.NET.SourceGenerators.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 </Project>

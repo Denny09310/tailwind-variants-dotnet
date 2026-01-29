@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Tests;
 
-public class TwVariantsRobustnessTests : TestContext
+public class TwVariantsRobustnessTests : BunitContext
 {
 	public TwVariantsRobustnessTests() => Services.AddTailwindVariants();
 

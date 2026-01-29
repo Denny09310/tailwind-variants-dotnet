@@ -1,6 +1,6 @@
 namespace TailwindVariants.NET.Tests;
 
-public class TwVariantsNullHandlingTests : TestContext
+public class TwVariantsNullHandlingTests : BunitContext
 {
 	public TwVariantsNullHandlingTests() => Services.AddTailwindVariants();
 

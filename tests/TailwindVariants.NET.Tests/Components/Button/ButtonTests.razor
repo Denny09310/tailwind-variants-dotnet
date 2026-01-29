@@ -1,4 +1,4 @@
-@inherits TestContext
+@inherits BunitContext
 @namespace TailwindVariants.NET.Tests.Components
 
 @code
@@ -12,7 +12,7 @@
     public void Renders_BaseClass_ByDefault()
     {
         // Arrange
-        var cut = RenderComponent<Button>();
+        var cut = Render<Button>();
 
         // Act
         var button = cut.Find("button");
